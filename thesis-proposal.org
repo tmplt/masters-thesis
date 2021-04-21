@@ -1,0 +1,111 @@
+#+TITLE: RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework
+#+AUTHOR: Viktor Sonesten
+#+EMAIL: vikson-6@student.ltu.se
+#+options: toc:nil
+#+latex_header: \usepackage{libertine}
+#+latex_header: \usepackage{inconsolata}
+#+latex_header: \usepackage[citestyle=authoryear-icomp,bibstyle=authoryear, hyperref=true,maxcitenames=3,url=true,backend=biber,natbib=true]{biblatex}
+#+latex_header: \addbibresource{ref.bib}
+#+latex_header: \usepackage{microtype}
+
+* Background
+RTIC (cite:rtic) is a real-time operating system (RTOS) based on the stack
+resource policy (cite:baker90) for task scheduling written in the Rust
+programming language. RTIC supports the ARM Cortex-M family of
+microprocessor core units (MCUs) which also offer asynchronous debug
+facilites for real-time tracing support. These facilites, namely
+- DWT, :: Data Watchpoint and Trace: contains program counter and address
+  comparators that signal on a match;
+- ITM, :: Intrumentation Trace Macrocell: trace information generator in
+  the form of packets; multiplexes trace information from other sources
+  (e.g. DWT);
+- RTT, :: Real-Time Transfer: full-duplex arbitrary data transfer
+  subsystem implemented via ring-buffers;
+(among other) are not exploited by the framework.
+
+Tracing is the ability to analyse the behavior of an embedded system in
+real-time without affecting the user application, known as non-intrusive
+debugging. Proper application of tracing allows the developer to verify
+the behavior of an embedded system. On the ARM Cortex-M family of MCUs
+this tracing is chiefly realized by the ITM subsystem, but RTT can be
+used if additional data must be transferred.
+
+Tracing information is usually captured by the host system, the
+same system from which the target embedded system is programmed.
+
+* Problem description
+Debugging an user application running on an MCU is an integral part of
+an embedded work-flow. Thus, the more debugging facilities that are
+readily available to the end-user of an RTOS, the better. More so if
+proper usage of such facilities — which, in the case of the non-trivial
+nature of ITM — is abstracted. However, care must be taken when designing
+debugging features on an embedded target as it must not affect the user
+application, lest real-time properties will differ between a debug and
+production build, in which tracing may be disabled.
+
+* Solution method and previous work
+# How do we solve the posed problem?
+The aim of this project is thus to investigate if non-intrusive tracing
+can be sufficiently abstracted and be readily made available for the
+RTIC end-user.
+
+Some work has already been made to integrate ITM tracing in an RTIC
+application[fn:itm-tools], but the approach is ad-hoc and not abstracted
+for the user. Nevertheless, a base to work from is available and will be
+used. Further, probe-rs is an extensible debugging toolkit with
+in-development support for ITM tracing (cite:probe-rs) that fits into
+the ecosystem of RTIC. Work will be done on this toolkit to enable a
+"batteries included" implementation of the problem solution.
+
+If it is found that more data than what ITM can provide is required for
+further tracing details, the usage of RTT will be
+investigated. [fn:memory-lanes]
+
+* Expected outcome
+This project is divided into three sub-projects (ordered by decreasing
+complexity):
+- A tracing feature abstraction for arbitrary RTIC tasks: :: it should
+  be trivial for the end-user to enable tracing of a set of tasks in the
+  user application. This will trace four types of timestamped events
+  related to these tasks, namely when a task
+  - starts executing;
+  - stops executing; and
+  - sends a message.
+- A host-side trace-recoring daemon: :: when a user application is being
+  traced, a daemon will be responsible for the capture, eventual
+  reordering of, and flushing of these ITM packages to a host-local file
+  for later or real-time analysis by another utility.
+- A utility for packet decoding: :: a simple CLI[fn:cli] program that
+  decodes the recorded packets to a human-readable format.
+
+If time is available, practical examples of this tracing feature will be
+made to display its real-world applications. If time is not available,
+these applications will instead be argued for.
+
+* Time plan
+The table below describes a rough time plan for the project.
+
+| Month     | Activity                                                     |
+|-----------+--------------------------------------------------------------|
+| January   | Pre-study                                                    |
+| February  | Familiarization with probe.rs and ITM peripheral             |
+| March     | Development on the ITM support of probe.rs; RTIC integration |
+| April     | —=—                                                          |
+| May       | Daemon implementation                                        |
+| June      | Decoder implementation[fn:decoder]                           |
+| July      | General project developments                                 |
+| August    | —=—                                                          |
+| September | Presentation                                                 |
+
+\printbibliography
+
+* Footnotes
+
+[fn:decoder] Based upon the existing works of ~itm-tools~[fn:itm-tools].
+
+[fn:memory-lanes] https://github.com/rtic-rs/rfcs/issues/31 discusses
+the RTIC-abstraction of RTT and similar peripherals to "memory lanes".
+
+[fn:itm-tools] See https://github.com/japaric/itm-tools.
+
+[fn:cli] Command-line interface.
