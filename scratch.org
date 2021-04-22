@@ -1300,7 +1300,9 @@ Disassembly of section .text:
    - The required crate feature is =last=;
    - The device's interrupts are available via =first::last::Interrupt=.
 
-** TODO Investigate watchpoint functionality for SW task tracing
+** TODO Trace software tasks [0/2]
+   Today is [2021-04-22 Thu].
+
    We may need watchpoints to trace sw tasks. The task queue should be
    monitored.
 
@@ -1311,9 +1313,73 @@ Disassembly of section .text:
    software tasks are dispatched. A single dispatcher can handle
    multiple software taks.
    - Does this mean that we get an exception trace when a software tasks
-     starts?
+     starts? *YES*
 
+*** TODO Investigate if dispatchers can be found from software tasks
+    If we can assoc dispatchers to their software tasks, we decrease the
+    set of possible interrupts that handle the tasks in question.
 
+*** TODO Investigate how watchpoints can be used for exact software tracing
+    Per: "We can inject code that writes the task id to a watched
+    address as well". We'll conf DWT for this address to send its
+    content, and then deserialize the content to the assoc'd software
+    task.
+
+    For this to work we need a single address dedicated to keeping tabs
+    on what software task is running. Implementing some =Ident -> u32=
+    serializer in rtic-syntax, and storing the map in some =App= field
+    will give us the task assoc.
+
+    But how will the DWT subsystem behave here?
+    - A data trace packet is generated
+    - We need to use one of ~DWT_FUNCTION{0,1,2,3}~
+    - we want two packets: ~bits[15:0]~ of a data address followed by a
+      data value, whether it was read of written, and the transfer size.
+      - the address packet will then hold ~bits[15:0]~ of the address
+        that was accessed, and thus not its content.
+      - the trace data value packet contains the full 32b value of the
+        register, and whether it was written or read.
+      - Read more at [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::793++0.00][DDI0403E_d_armv7m_arm.pdf: Page 793]].
+
+    The address will only ever be written to, so any reads should be
+    warned as "unintended behavior".
+
+    Which DWT comparator features are supported is *IMPLEMENTATION
+    DEFINED*.
+
+    A DWT comparator compares one of the following with the value held
+    in its ~DWT_COMP~ register:
+    - a data address (we want this)
+    - an instruction address
+    - a data value
+    - the cycle count value (comparator 0 only)
+
+**** TODO Configure a DWT comparator for data value tracing
+     We only need the data value packet: it contains the ID of the
+     comparator which we know from compilation. Prepending it with
+     ~bits[15:0]~ is unecessary overhead we dont really need.
+
+**** TODO Specify the address to watch by some private RTIC "global"
+     Only the target needs to know where the watch address is. So we
+     create some static u32 variable, init it to 0, and use its address
+     when writind the serialized values.
+
+**** TODO Serialize software task ids to u32
+     Code should be injected into the stub of each software task to
+     write to ~RTIC_SCOPE_WATCH_ADDRESS~ the 32b value that represents
+     itself. The =Map<u32, Ident>= should then be available in the =App=
+     struct from =rtic_syntax::parse2=.
+
+**** TODO Specify DWT unit via RTIC app
+     I.e. =#[app(device = ..., peripherals = true, dispatchers = [...],
+     scope_dwt = DWT0)]=.
+     The DWT unit chosen must be one of ~DWT_FUNCTION{0,1,2,3}~
+
+**** TODO Specify if we want to trace via RTIC
+     I.e. =#[app(trace = true)]= or similar. Before entering init it
+     should have everything set up. It should just be a call to some
+     =cortex_m::enable_exceptions= derivative. Make a PR that correctly
+     sets all registers.
 
 ** TODO Investigate why =enable_exception_trace= doesn't work
    :LOGBOOK:
