@@ -1370,6 +1370,180 @@ Disassembly of section .text:
      https://github.com/tmplt/rtic-scope/blob/master/rtic-apps/src/bin/trace-sw.rs.
 
 ** TODO Add software task tracing to RTIC?
+*** DONE Create a discussion thread on the repo
+    CLOSED: [2021-04-23 Fri 13:24]
+Post the below:
+#+begin_src markdown
+  I'm working on ITM trace support for RTIC application tasks. At the
+  moment, I have proof of concepts for tracing both software and hardware
+  tasks. The approaches to trace them differ: hardware tasks are
+  practically traced for free while software tasks are traced with the
+  overhead of a dedicated DWT comparator and a u32 register write on task
+  enter/exit (depending on dispatcher configuration). The approaches are
+  detailed below. The purpose of this thead is to discuss the final
+  implementation; whether or not it should be included into RTIC or be
+  offered as a seperate crate, etc.
+
+  Common between both approaches is the setup of ITM and DWT. And of
+  course the serial link between target and host. My setup pushes the ITM
+  packets over SWO which I then read with an hs-probe. The received
+  bitstream is then decoded via
+  [itm-decode](https://docs.rs/itm-decode/*/itm_decode/index.html).
+
+  # Hardware tasks
+  From the ITM we get
+  [TracePacket::ExceptionTrace](https://docs.rs/itm-decode/*/itm_decode/enum.TracePacket.html#variant.ExceptionTrace)s
+  containing integers by enabling exception traces in ITM/DWT. The integer
+  is an offset of the vector table and must be translated back to the
+  correct `PAC::Interrupt` enum. This is done by
+  1. parsing the source code of the RTIC application with `rtic_syntax::parse2`;
+  2. parsing the `device` argument into the form of `first::second` where
+     it is assumed that
+     - `first` is the name of the PAC crate;
+     - `second` is the crate feature that must be enabled for the PAC
+       crate;
+     - the interrupts of the device are available under
+       `first::second::Interrupts`
+
+     For example, `stm32f4::stm32f401` is a valid `device` argument.
+  3. parsing out all binds used by the application;
+  4. building an adhoc cdylib crate that maps the application binds to
+     their interrupt numbers. For example, if an `stm32f4::stm32f401`
+     application binds `EXTI0` and `EXTI1`, the generated crate contains
+     ```rust
+      use cortex_m::interrupt::Nr;
+      use stm32f4::stm32f401::Interrupt;
+
+      #[no_mangle]
+      pub extern fn rtic_scope_func_EXTI0() -> u8 {
+          Interrupt::EXTI0.nr()
+      }
+
+      #[no_mangle]
+      pub extern fn rtic_scope_func_EXTI1 () -> u8 {
+          Interrupt::EXTI1.nr()
+      }
+     ```
+     This crate (shared object) is then dynamically loaded and a
+     `Map<Ident, u8>` is built.
+
+  See https://github.com/tmplt/rtic-scope for the implementation (sans all
+  the error handling a program like this should have). An example run
+  yields
+  ```
+  git clone https://github.com/tmplt/rtic-scope.git
+  cd rtic-scope/scope
+  cargo run -- ../rtic-apps/src/bin/tracing-example.rs
+  [...]
+  blah binds EXTI0 (6)
+  exti1 binds EXTI1 (7)
+  exti2 binds EXTI2 (8)
+  ```
+  where the number in the parentheses are the exception numbers of the
+  binds.
+
+  # Software tasks
+  Software tasks are governed by the set of dispatchers declared in the
+  `rtic::app` macro, and can techically be traced just like hardware tasks
+  if each dispatcher only handles a single task. This approach has not
+  been further investigated; it is assumed that dispatchers usually handle
+  multiple software tasks. Thus, to properly trace them, a DWT comparator
+  is employed to emit a single
+  [TracePacket::DataTraceValue](https://docs.rs/itm-decode/*/itm_decode/enum.TracePacket.html#variant.DataTraceValue)
+  when a specific address is written to. The idea is then to assign a
+  unique integer ID to each software task (preferrably starting from 0 so
+  as to minimize the payload sent over ITM) that is written to this
+  address when the softare task is entered and exited. A `Map<Ident, u8>`
+  would then be exposed by `rtic_syntax` to associate the software task ID
+  back to its name on the host.
+
+  A proof of concept is [this
+  application](https://github.com/tmplt/rtic-scope/blob/master/rtic-apps/src/bin/trace-sw.rs)
+  using [this external
+  crate](https://github.com/tmplt/rtic-scope/blob/master/rtic-sw-task-trace/src/lib.rs).
+  The decoded trace contains
+  ```
+  ExceptionTrace { exception: ExternalInterrupt(7), action: Entered }
+  DataTraceValue { comparator: 1, access_type: Write, value: [42, 0, 0, 0] }
+  ExceptionTrace { exception: ExternalInterrupt(7), action: Exited }
+  ```
+
+  # Bringing it all together
+  Now that ITM packets are emitted at the start and end of both software
+  and hardware tasks, we enable both local and global timestamps so that
+  we can associate timestamps to enter/exit events of each task. Global
+  timestamps are emitted in intervals and denote the time since target
+  boot; local timestamps are emitted after every set of back-to-back ITM
+  packets and denote the time since the last local timestamp. The
+  foundation for this association has been done in
+  [itm-decode](https://github.com/tmplt/itm-decode/pull/6). In short, a
+  decode yields a `(Vec<TracePacket>, Timestamp)`, the timestamp
+  containing a `base` from the latest global timestamp and a `delta` from
+  the sum of the local timestamps since the last global.
+
+  With all this in hand we can graphically plot the execution trace over
+  time, alike an osilloscope (but RTIC tasks enter/exit statuses instead
+  of signals) as @perlindgren so described it when he hooked me into this
+  work. @yatekii has been working on a proof-of-concept web browser
+  frontend application that does just this.
+
+  # Questions
+  ,**Should tracing be added to RTIC, or be implemented as some external
+  rtic-rs/cortex-m-rtic-trace crate?**
+
+  Pros if included in RTIC:
+  - Enabling tracing could be as simple as setting some `trace = true`
+    argument that configures ITM/DWT before `init`. For software tasks,
+    some `trace_dwt_unit = DWT0` argument must also be passed. Code is
+    then injected into the dispatchers to write the software task ID on
+    enter/exit.
+
+  Cons:
+  - Adds complexity to an already complex crate, for a feature I predict a
+    very small subset of users will utilize.
+  - If the target does not support some ITM/DWT feature required by the
+    tracing implementation, there is no way of notifying the user.
+
+  Pros if implemented in a external crate:
+  - Adds no complexity to common RTIC crates.
+  - Likely much more flexible.
+  - If some required hardware feature is missing, the proper error type
+    can simply be returned and handled in `init`.
+
+  Cons:
+  - A small amount of boilerplate for the user: either one must add calls
+    that write to the watched address at the start and end of software
+    tasks or decorate them with some other macro (assuming procedural
+    macros can be chained). This, however, also enables the user to trace
+    subsections of their tasks (and even allowing them to assign custom
+    IDs if they so want). Perhaps some:
+    ```rust
+    #[task]
+    fn important(_: important::Context) {
+        #[trace("some important function")]
+        {
+            // ...
+        }
+
+        // code we dont care to trace
+
+        #[trace("some other important function")]
+        {
+            // ...
+        }
+    }
+    ```
+
+  Problems in either case:
+  - From what I can gather, all ITM/DWT configuration can be done via
+    `cortex_m`s `CorePeripherals`, but what should be done if we need to
+    touch the PAC for something vendor-specific? Establing some ITM/DWT
+    trait and make HALs implement them?
+
+  -----
+
+  Thoughts?
+#+end_src
 
 *** TODO Specify the address to watch by some private RTIC "global"
      Only the target needs to know where the watch address is. So we
@@ -1602,10 +1776,6 @@ Disassembly of section .text:
 
 ** TODO Add probe-rs feat that properly configures DBGMCU
    So that we do not brick the device.
-** TODO Resolve IRQs to task symbol
-   We need to read the ELF here. [[https://crates.io/crates/gimli][gimli]] should be able to help here.
-   Niklas should be able to help.
-
 ** TODO Make sure we can interleave ITM payloads
    We may want to write arbitrary payloads to the ITM stimulus ports.
    Make sure we can actually do that while we exception trace.
