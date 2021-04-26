@@ -107,30 +107,25 @@ TODO
 
 * Theory
 ** Hardware tasks
-   Hardware tasks are regular Rust functions that are bound to a
-   hardware interrupt. When this interrupt is made pending in hardware,
-   the task function executes. An example hardware task is declared via
-   #+name: rtic-hw-task-example
-   #+begin_src rust
-     #[app]
-     mod app {
-         #[task(bound = EXTI0)]
-         fn foo(_ctx: foo::Context) {
-             // ...
-         }
-     }
-   #+end_src
-   With this declaration, =foo= will be executed when ~EXTI0~ is made
-   pending in hardware. After =foo= returns, the interrupt has been
-   handled and ~EXTI0~ is no longer pending.
+Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
+When this interrupt is made pending in hardware, the task function executes.
+An example hardware task is declared via
+#+name: rtic-hw-task-example
+#+begin_src rust
+  #[app]
+  mod app {
+      #[task(bound = EXTI0)]
+      fn foo(_ctx: foo::Context) {
+          // ...
+      }
+  }
+#+end_src
+With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
+After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
 
 *** Tracing behavior
-    Hardware tasks are exclusively bound to singular hardware interrupts.
-    Because of this, whenever an interrupt handler executes (and thus the
-    bound hardware task), an =ExceptionTrace { exception, function }=
-    packet is emitted, where =exception= is the exception number as an
-    integer and =function= is the action context of the exception: an
-    exception is either entered, exited, or returned.
+Hardware tasks are exclusively bound to singular hardware interrupts.
+Because of this, whenever an interrupt handler executes (and thus the bound hardware task), an =ExceptionTrace { exception, function }= packet is emitted, where =exception= is the exception number as an integer and =function= is the action context of the exception: an exception is either entered, exited, or returned.
 
 *** RTIC task name resolving
 =exception= is a number from (cite:arm-rm; Table B1-4), the external interrupt subset of which is modelled by =PAC::Interrupt=.
@@ -211,52 +206,39 @@ It is then understood that the cdylib approach presents the smallest problem whe
 # TODO Expain what it is and how it works.
 
 ** Software tasks
-   Software tasks are also regular Rust functions that are bound to
-   hardware interrupts, but the bound hardware interrupt is not
-   exclusively associated to the task in question: a single hardware
-   interrupt can be associated with multiple software tasks. For this
-   reason, the used hardware interrupt is considered a "dispatcher".
+Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
+For this reason, the used hardware interrupt is considered a "dispatcher".
 
-   An example software task is declared via
-   #+begin_src rust
-     #[app(dispatchers = [EXTI0])]
-     mod app {
-         #[task]
-         fn bar(_ctx: bar::Context) {
-             // ...
-         }
-     }
-   #+end_src
+An example software task is declared via
+#+begin_src rust
+  #[app(dispatchers = [EXTI0])]
+  mod app {
+      #[task]
+      fn bar(_ctx: bar::Context) {
+          // ...
+      }
+  }
+#+end_src
 
-   In difference to hardware tasks, software tasks can be scheduled by
-   software.
+In difference to hardware tasks, software tasks can be scheduled by software.
 
 *** Tracing behavior
-    Because the implementation of software tasks utilizes hardware
-    interrupts, software tasks can be traced in the same manner as
-    hardware tasks if it is ensured that every dispatcher only manages a
-    single software task. However, in practise a dispatcher commonly
-    manager multiple software tasks. An emitted =ExceptionTrace= thus
-    tells us when a dispatcher starts, but not which software task it
-    dispatches.
+Because the implementation of software tasks utilizes hardware interrupts, software tasks can be traced in the same manner as hardware tasks if it is ensured that every dispatcher only manages a single software task.
+However, in practise a dispatcher commonly manager multiple software tasks.
+An emitted =ExceptionTrace= thus tells us when a dispatcher starts, but not which software task it dispatches.
 
 *** RTIC task name resolving
-    The =ExceptionTrace= does not give us all the information we need.
-    Instead, a [[DWT]] unit can be employed to emit =DataTraceValue= packets
-    on software task enter and exit. Via this approach, each software
-    task is given a unique ID and code is injected (either by the
-    =rtic::app= macro or by the end-user themselves) to write this
-    unique ID at the start and end of the software task. The emitted
-    =DataTraceValue= packets are then analysed by the host application,
-    which maintains a state of which software task is currenly
-    running. [fn:dwt-running-bit] The RTIC application source is then
-    parsed to associate =DataTraceValue= payloads back to their software
-    tasks.
+The =ExceptionTrace= does not give us all the information we need.
+Instead, a [[DWT]] unit can be employed to emit =DataTraceValue= packets on software task enter and exit.
+Via this approach, each software task is given a unique ID and code is injected (either by the =rtic::app= macro or by the end-user themselves) to write this unique ID at the start and end of the software task.
+The emitted =DataTraceValue= packets are then analysed by the host application, which maintains a state of which software task is currenly running.[fn:dwt-running-bit]
+The RTIC application source is then parsed to associate =DataTraceValue= payloads back to their software tasks.
 
-    In comparison to hardware tasks, which are practically traced for
-    free, software tasks can be traced at the cost of a few register
-    writes and a dedicated DWT unit.
+In comparison to hardware tasks, which are practically traced for free, software tasks can be traced at the cost of a few register writes and a dedicated DWT unit.
+
 * Implementation
+** Hardware tasks
+** Software tasks
 
 * Evaluation
 
@@ -269,16 +251,13 @@ It is then understood that the cdylib approach presents the smallest problem whe
 [fn:cargo-cdylibs] See
 https://docs.rs/cargo/0.52.0/cargo/core/compiler/struct.Compilation.html#structfield.cdylibs.
 
-[fn:cdylib] A cdylib crate is a crate that specifies =crate_type =
-["cdylib"]=. Upon building the crate a dynamic library (a shared object
-file) that targets the stable C ABI is generated. Additionally, it is
-trivial to find the file location of cdylibs with
-cargo[fn:cargo-cdylibs]. This is not the case with dylibs that instead
-target the unstable Rust ABI. The only way to generate a shared object
-file is by building a dylib or a cdylib.
+[fn:cdylib] A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=.
+Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated.
+Additionally, it is trivial to find the file location of cdylibs with cargo[fn:cargo-cdylibs].
+This is not the case with dylibs that instead target the unstable Rust ABI.
+The only way to generate a shared object file is by building a dylib or a cdylib.
 
-[fn:dwt-running-bit] Alternatively, one bit in the =DataTraceValue=
-payload can denote whether a task was entered or exited.
+[fn:dwt-running-bit] Alternatively, one bit in the =DataTraceValue= payload can denote whether a task was entered or exited.
 
 [fn:cargo] See https://crates.io/crates/cargo.
 
@@ -286,8 +265,7 @@ payload can denote whether a task was entered or exited.
 
 [fn:decoder] Based upon the existing works of ~itm-tools~[fn:itm-tools].
 
-[fn:memory-lanes] https://github.com/rtic-rs/rfcs/issues/31 discusses
-the RTIC-abstraction of RTT and similar peripherals to "memory lanes".
+[fn:memory-lanes] https://github.com/rtic-rs/rfcs/issues/31 discusses the RTIC-abstraction of RTT and similar peripherals to "memory lanes".
 
 [fn:itm-tools] See https://github.com/japaric/itm-tools.
 
