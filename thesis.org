@@ -131,6 +131,9 @@ TODO
     packet is emitted, where =exception= is the exception number as an
     integer and =function= is the action context of the exception: an
     exception is either entered, exited, or returned.
+** DWT
+# TODO Expain what it is and how it works.
+
 ** Software tasks
    Software tasks are also regular Rust functions that are bound to
    hardware interrupts, but the bound hardware interrupt is not
@@ -160,6 +163,23 @@ TODO
     manager multiple software tasks. An emitted =ExceptionTrace= thus
     tells us when a dispatcher starts, but not which software task it
     dispatches.
+
+*** RTIC task name resolving
+    The =ExceptionTrace= does not give us all the information we need.
+    Instead, a [[DWT]] unit can be employed to emit =DataTraceValue= packets
+    on software task enter and exit. Via this approach, each software
+    task is given a unique ID and code is injected (either by the
+    =rtic::app= macro or by the end-user themselves) to write this
+    unique ID at the start and end of the software task. The emitted
+    =DataTraceValue= packets are then analysed by the host application,
+    which maintains a state of which software task is currenly
+    running. [fn:dwt-running-bit] The RTIC application source is then
+    parsed to associate =DataTraceValue= payloads back to their software
+    tasks.
+
+    In comparison to hardware tasks, which are practically traced for
+    free, software tasks can be traced at the cost of a few register
+    writes and a dedicated DWT unit.
 * Implementation
 
 * Evaluation
@@ -169,6 +189,9 @@ TODO
 \printbibliography
 
 * Footnotes
+
+[fn:dwt-running-bit] Alternatively, one bit in the =DataTraceValue=
+payload can denote whether a task was entered or exited.
 
 [fn:decoder] Based upon the existing works of ~itm-tools~[fn:itm-tools].
 
