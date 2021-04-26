@@ -123,6 +123,14 @@ TODO
    With this declaration, =foo= will be executed when ~EXTI0~ is made
    pending in hardware. After =foo= returns, the interrupt has been
    handled and ~EXTI0~ is no longer pending.
+
+*** Tracing behavior
+    Hardware tasks are exclusively bound to singular hardware interrupts.
+    Because of this, whenever an interrupt handler executes (and thus the
+    bound hardware task), an =ExceptionTrace { exception, function }=
+    packet is emitted, where =exception= is the exception number as an
+    integer and =function= is the action context of the exception: an
+    exception is either entered, exited, or returned.
 ** Software tasks
    Software tasks are also regular Rust functions that are bound to
    hardware interrupts, but the bound hardware interrupt is not
@@ -144,6 +152,14 @@ TODO
    In difference to hardware tasks, software tasks can be scheduled by
    software.
 
+*** Tracing behavior
+    Because the implementation of software tasks utilizes hardware
+    interrupts, software tasks can be traced in the same manner as
+    hardware tasks if it is ensured that every dispatcher only manages a
+    single software task. However, in practise a dispatcher commonly
+    manager multiple software tasks. An emitted =ExceptionTrace= thus
+    tells us when a dispatcher starts, but not which software task it
+    dispatches.
 * Implementation
 
 * Evaluation
