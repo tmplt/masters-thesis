@@ -106,6 +106,43 @@ TODO
   # (Probably) refer to other (proprietary) implementations
 
 * Theory
+** Hardware tasks
+   Hardware tasks are regular Rust functions that are bound to a
+   hardware interrupt. When this interrupt is made pending in hardware,
+   the task function executes. An example hardware task is declared via
+   #+name: rtic-hw-task-example
+   #+begin_src rust
+     #[app]
+     mod app {
+         #[task(bound = EXTI0)]
+         fn foo(_ctx: foo::Context) {
+             // ...
+         }
+     }
+   #+end_src
+   With this declaration, =foo= will be executed when ~EXTI0~ is made
+   pending in hardware. After =foo= returns, the interrupt has been
+   handled and ~EXTI0~ is no longer pending.
+** Software tasks
+   Software tasks are also regular Rust functions that are bound to
+   hardware interrupts, but the bound hardware interrupt is not
+   exclusively associated to the task in question: a single hardware
+   interrupt can be associated with multiple software tasks. For this
+   reason, the used hardware interrupt is considered a "dispatcher".
+
+   An example software task is declared via
+   #+begin_src rust
+     #[app(dispatchers = [EXTI0])]
+     mod app {
+         #[task]
+         fn bar(_ctx: bar::Context) {
+             // ...
+         }
+     }
+   #+end_src
+
+   In difference to hardware tasks, software tasks can be scheduled by
+   software.
 
 * Implementation
 
