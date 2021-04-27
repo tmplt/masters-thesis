@@ -257,6 +257,10 @@ In comparison to hardware tasks, which are practically traced for free, software
 ** Software tasks
 
 * Results
+** Software task tracing overhead
+Here we can actually test what the overhead is of the two ~u32~ memory writes.
+Perhaps we can figure out the best way to store the watch address in memory too.
+We should plot the cycle count of traced software tasks when using dispatchers vs. DWT units.
 * Discussion
 ** Tracing overhead
 * Conclusions
