@@ -99,9 +99,13 @@ If it is found that more data than what ITM can provide is required for further 
 
 # (Probably) refer to other (proprietary) implementations
 
-* Theory
-** ITM
+* Theory and Methodology
+This section describes the tools employed for the end-goal of tracing, along with descriptions on how required information is and can be derived.
+
+** Instrumentation Trace Macrocell (ITM)
+Include Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]]?
 *** Decoding the ITM packet stream
+This is done with https://lib.rs/crates/itm-decode.
 *** Trace collection
 # Talk about the difference between asyncronous serial (via SWO) and
 # synchronous serial communication (when another wire is used as a
@@ -111,7 +115,17 @@ In practise, when using asynchronous serial communication for collecting
 trace data. It it not uncommon that the traced application must be
 restarted a few times until exepceted data is received on the host.
 
-** RTIC: Hardware tasks
+** Data watchpoint and trace (DWT) units
+   :PROPERTIES:
+   :CUSTOM_ID: DWT
+   :END:
+# TODO describe what breakpoints and watchpoints are
+A data watchpoint and trace (DWT) unit is a hardware component that offers watchpoint functionality and common tracing operations.
+In this project, the watchpoint feature
+** Trace Port Interface Unit (TPIU)
+Acts as a bridge between ITM and the outer world.
+** RTIC
+*** Hardware tasks
 Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
 When this interrupt is made pending in hardware, the task function executes.
 An example hardware task is declared via
@@ -128,11 +142,11 @@ An example hardware task is declared via
 With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
 After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
 
-*** Tracing behavior
+*** Tracing hardware tasks
 Hardware tasks are exclusively bound to singular hardware interrupts.
 Because of this, whenever an interrupt handler executes (and thus the bound hardware task), an =ExceptionTrace { exception, function }= packet is emitted, where =exception= is the exception number as an integer and =function= is the action context of the exception: an exception is either entered, exited, or returned.
 
-*** RTIC task name resolving
+*** Resolving hardware task names
 =exception= is a number from (cite:arm-rm; Table B1-4), the external interrupt subset of which is modelled by =PAC::Interrupt=.
 This =Interrupt= enum is used by RTIC.
 To associate an =ExceptionTrace= to an RTIC task one must find
@@ -207,15 +221,7 @@ While both approaches can be used for the implementation of a =Ident -> u8= func
 Additionally, multiple different lexical structures can map to the same parsed structure; if ~svd2rust~ decides on a lexical change, the host application would have to be changed also.
 It is then understood that the cdylib approach presents the smallest problem when implementing our wanted =Ident -> u8=, and is thus chosen as the best approach.
 
-** Data watchpoint and trace (DWT) units
-   :PROPERTIES:
-   :CUSTOM_ID: DWT
-   :END:
-# TODO describe what breakpoints and watchpoints are
-A data watchpoint and trace (DWT) unit is a hardware component that offers watchpoint functionality and common tracing operations.
-In this project, the watchpoint feature
-
-** RTIC: Software tasks
+*** Software tasks
 Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
 For this reason, the used hardware interrupt is considered a "dispatcher".
 
@@ -232,12 +238,12 @@ An example software task is declared via
 
 In difference to hardware tasks, software tasks can be scheduled by software.
 
-*** Tracing behavior
+*** Tracing software tasks
 Because the implementation of software tasks utilizes hardware interrupts, software tasks can be traced in the same manner as hardware tasks if it is ensured that every dispatcher only manages a single software task.
 However, in practise a dispatcher commonly manager multiple software tasks.
 An emitted =ExceptionTrace= thus tells us when a dispatcher starts, but not which software task it dispatches.
 
-*** RTIC task name resolving
+*** Resolving software task names
 The =ExceptionTrace= does not give us all the information we need.
 Instead, a [[#DWT]] unit can be employed to emit =DataTraceValue= packets on software task enter and exit.
 Via this approach, each software task is given a unique ID and code is injected (either by the =rtic::app= macro or by the end-user themselves) to write this unique ID at the start and end of the software task.
