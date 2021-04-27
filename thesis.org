@@ -53,21 +53,20 @@ However, care must be taken when utilizing debugging features on an embedded tar
 # We want to make it very simple for the end user to trace an application
 
 ** Problem definition
-We want to be able to graphically plot the task names and during which time frames they execute and are preempted.
+A tracing backend and auxilliary toolset is to be created for RTIC applications.
 
-# We want to be able to just write trace = true in the RTIC application (or do we)?
+The backend (henceforth referred to as the "daemon") is to
+- collect trace data;
+- decode the trace data;
+- forward the decoded trace data to a frontend for user presentation; and
+- save the collected trace data to disk for later analysis.
+In a nutshell, this daemon can be implemented via
+#+begin_src bash
+screen /dev/ttyUSB3 115200 # and detach immidiately
+cat /dev/ttyUSB3 | tee itm.bin | itm-decode > to-frontend.sock
+#+end_src
 
-This project is divided into three sub-projects (ordered by decreasing complexity):
-- A tracing feature abstraction for arbitrary RTIC tasks: :: it should be trivial for the end-user to enable tracing of a set of tasks in the user application.
-  This will trace four types of timestamped events related to these tasks, namely when a task
-  - starts executing;
-  - stops executing; and
-  - sends a message.
-- A host-side trace-recoring daemon: :: when a user application is being traced, a daemon will be responsible for the capture, eventual reordering of, and flushing of these ITM packages to a host-local file for later or real-time analysis by another utility.
-- A utility for packet decoding: :: a simple CLI[fn:cli] program that decodes the recorded packets to a human-readable format.
-
-If time is available, practical examples of this tracing feature will be made to display its real-world applications.
-If time is not available, these applications will instead be argued for.
+The auxilliary toolset will build upon RTIC to allow hardware and software tasks to be traced with minimal end-user and user application overhead.
 
 ** Contributions
 This thesis aims to offer a "battery-included" toolset for tracing RTIC applications, etc.
