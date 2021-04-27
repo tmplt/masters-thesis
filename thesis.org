@@ -71,9 +71,9 @@ The auxilliary toolset will build upon RTIC to allow hardware and software tasks
 ** Contributions
 This thesis aims to offer a "battery-included" toolset for tracing RTIC applications, etc.
 ** Limitations
-   # Will we touch ETM?
-
-   # Only RTIC v0.6 will be considered. V0.6 is currently being developed.
+- The design and implementation of a daemon frontend that graphically plots the task names and their states of execution (entered/exited/preempted) is outside the scope of this paper.
+- We will not touch ETM.
+- Only RTIC v0.6 will be considered. V0.6 is currently being developed.
 
 ** Outline
 This paper is structured as follows
