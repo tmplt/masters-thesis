@@ -20,6 +20,7 @@
 - tracing (debugging) without affecting user application
 
 ** Background
+*** Real-time Operating Systems (RTOS)
 *** Real-Time Interrupt-driven Concurrency (RTIC)
 RTIC (cite:rtic) is a real-time operating system (RTOS) based on the stack resource policy (cite:baker90) for task scheduling written in the Rust programming language.
 # TODO refer to Tjäder's thesis when it comes to Rust?
