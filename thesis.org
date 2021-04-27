@@ -44,10 +44,10 @@ If the embedded system has the capability, tracing data may be buffered locally 
 The information can also be captured by monitoring a serial pin.
 
 ** Motivation
-Debugging an user application running on an MCU is an integral part of an embedded work-flow.
+Debugging the user application running on an MCU is an integral part of an embedded work-flow.
 Thus, the more debugging facilities that are readily available to the end-user of an RTOS, the better.
-More so if proper usage of such facilities — which, in the case of the non-trivial nature of ITM — is abstracted.
-However, care must be taken when designing debugging features on an embedded target as it must not affect the user application, lest real-time properties will differ between a debug and production build, in which tracing may be disabled.
+More so if proper usage of such facilities - which are commonly non-trivial on embedded systems  - is abstracted.
+However, care must be taken when utilizing debugging features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and production environment.
 
 # Talk about RTIC and its increasing usage
 # We want to make it very simple for the end user to trace an application
