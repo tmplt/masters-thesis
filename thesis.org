@@ -10,8 +10,8 @@
 #+latex_header: \addbibresource{ref.bib}
 #+latex_header: \usepackage{microtype}
 
+# Make this a single paragraph; use unambiguous terms; aim for 250 words; 3-5 keywords.
 \begin{abstract}
-TODO
 \end{abstract}
 
 * Introduction
