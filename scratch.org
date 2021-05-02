@@ -305,6 +305,11 @@ Nothing.
 - Start thinking what the daemon will actually do. It will present some
   convenient trace configuration API, anyhow.
 
+* RTIC metting, [2021-04-27 Tue];
+See agenda at https://hackmd.io/c_mFUZL-Q2C6614MlrrxOg?view#Agenda-2021-04-27.
+RTIC-scope will be made as an RTIC-external crate first.
+When RTIC has been refactored to allow extension modules, RTIC-scope will be reviewed for eventual refactor and inclusion in RTIC as an extension module.
+
 * Project plan
 #+BEGIN: clocktable :scope subtree :maxlevel 0 :step day :tstart "<-1d>" :tend "<now>" :compact t
 
@@ -1369,7 +1374,26 @@ Disassembly of section .text:
      and
      https://github.com/tmplt/rtic-scope/blob/master/rtic-apps/src/bin/trace-sw.rs.
 
-** TODO Add software task tracing to RTIC?
+** CANCELLED Add software task tracing to RTIC?
+*** CANCELLED Specify the address to watch by some private RTIC "global"
+     Only the target needs to know where the watch address is. So we
+     create some static u32 variable, init it to 0, and use its address
+     when writing the serialized values.
+*** CANCELLED Serialize software task ids to u32
+     Code should be injected into the stub of each software task to
+     write to ~RTIC_SCOPE_WATCH_ADDRESS~ the 32b value that represents
+     itself. The =Map<u32, Ident>= should then be available in the =App=
+     struct from =rtic_syntax::parse2=.
+*** CANCELLED Specify DWT unit via RTIC app
+     I.e. =#[app(device = ..., peripherals = true, dispatchers = [...],
+     scope_dwt = DWT0)]=.
+     The DWT unit chosen must be one of ~DWT_FUNCTION{0,1,2,3}~. Data is
+     only captured for ITM from these comparators.
+*** CANCELLED Specify if we want to trace via RTIC
+     I.e. =#[app(trace = true)]= or similar. Before entering init it
+     should have everything set up. It should just be a call to some
+     =cortex_m::enable_exceptions= derivative. Make a PR that correctly
+     sets all registers.
 *** DONE Create a discussion thread on the repo
     CLOSED: [2021-04-23 Fri 13:24]
 Post the below:
@@ -1544,29 +1568,92 @@ Post the below:
 
   Thoughts?
 #+end_src
+** TODO Create an RTIC-external crate for task tracing
+How do we want the API?
+#+begin_src rust
+  mod rtic_tracing {
+      mod setup {
+          fn core_peripherals(
+              dcb: &mut Core::DCB,
+              tpiu: &mut Core::TPIU,
+              dwt: &mut Core::DWT,
+              itm: &mut Core::ITM,
+          );
+          fn device_peripherals(dbgmcu: &mut Device::DBGMCU);
+          fn assign_dwt_unit(mut dwt: Core::DWT::Comparator);
+      }
 
-*** TODO Specify the address to watch by some private RTIC "global"
-     Only the target needs to know where the watch address is. So we
-     create some static u32 variable, init it to 0, and use its address
-     when writind the serialized values.
+      fn set_current_task_id(id: u32);
+  }
+#+end_src
+and then some fancy proc macros?
 
-*** TODO Serialize software task ids to u32
-     Code should be injected into the stub of each software task to
-     write to ~RTIC_SCOPE_WATCH_ADDRESS~ the 32b value that represents
-     itself. The =Map<u32, Ident>= should then be available in the =App=
-     struct from =rtic_syntax::parse2=.
+We want to be able to do something like the following
+#+begin_src rust
+  #[app]
+  mod app {
+      use tracing::{self, trace};
 
-*** TODO Specify DWT unit via RTIC app
-     I.e. =#[app(device = ..., peripherals = true, dispatchers = [...],
-     scope_dwt = DWT0)]=.
-     The DWT unit chosen must be one of ~DWT_FUNCTION{0,1,2,3}~. Data is
-     only captured for ITM from these comparators.
+      #[init]
+      fn init(ctx: init::Context) {
+          tracing::setup::core_peripherals(
+              &mut ctx.core.DCB,
+              &mut ctx.core.TPIU,
+              &mut ctx.core.DWT,
+              &mut ctx.core.ITM,
+          );
+          tracing::setup::decode_peripherals(&mut ctx.device.DBGMCU);
+          tracing::setup::assign_dwt_unit(mut ctx.core.DWT.c[1]);
 
-*** TODO Specify if we want to trace via RTIC
-     I.e. =#[app(trace = true)]= or similar. Before entering init it
-     should have everything set up. It should just be a call to some
-     =cortex_m::enable_exceptions= derivative. Make a PR that correctly
-     sets all registers.
+          // ...
+      }
+
+      #[task]
+      #[trace]
+      fn foo(_: foo::Context) {
+          // ...
+      }
+
+      #[task]
+      #[trace("some optional function description")]
+      fn bar(_: bar::Context) {
+          // ...
+      }
+
+      #[task]
+      fn foo(_: foo::Context) {
+          // ...
+
+          #[trace("some block description")]
+          {
+              // something we want to trace
+          }
+
+          // ...
+
+          #[trace("some other block description")]
+          {
+              // something else we want to trace
+          }
+      }
+  }
+#+end_src
+where the =#[trace]= string arguments are stored in DWARF, and resolved by the daemon.
+Could also be some =format!=?
+I think defmt already does this. Look it up. But start with =#[trace]= that only takes a function/block to start with.
+
+We may not want to take a comment: attribute macros can only be applied to functions, not blocks, and the doc string can contain the discription instead.
+So, just =#[trace]=, without any attrs, but find the full path to the traced function, and assoc ID to this.
+Following the full path we get the docstring from =cargo doc=.
+So we want to store the (ID, absolute function path) assoc in DWARF, and look it up.
+
+** TODO Create an RFC for embedded HAL to enable tracing
+For example, on the STM32F401RE, ~TRACE_MODE~ and ~TRACE_IOEN~ must be configured in the ~DBGMCU_CR~ register via the PAC.
+To abstract as much as possible for the end-user, we thus need to propose a trait addition for ~embedded_hal~.
+Create an RFC following [[https://github.com/rust-embedded/embedded-hal/issues/29][japaric's example]].
+
+** TODO Test-bench rtic-trace
+Do this last, when the API has been stabilized.
 
 ** TODO Investigate why =enable_exception_trace= doesn't work
    :LOGBOOK:
@@ -1602,6 +1689,8 @@ Post the below:
    we want to filter out the relative (from when the target started)
    ~TimeStamp~ packets and generate absolute timestamps we can attach to
    all other packets.
+
+   *WE NEED ALSO BOOKEEP THE REFERENCE CLOCK AND PRESCALAR!*
 
 *** DONE Read up on the ITM packet protocol
     CLOSED: [2021-02-19 Fri 14:32]
