@@ -1647,6 +1647,28 @@ So, just =#[trace]=, without any attrs, but find the full path to the traced fun
 Following the full path we get the docstring from =cargo doc=.
 So we want to store the (ID, absolute function path) assoc in DWARF, and look it up.
 
+Instead of storing arbitrary data in DWARF, can we =rtic_syntax::parse= the application and get =#[trace]=-ID assoc that way?.
+Not really, =rtic_syntax::parse= can give no info about other attribute macros.
+
+We can write data assoc to file when expanding the macro, but we will not get the full path.
+
+Theoretically, we can use =defmt::info!("{}, {}", fun.name, task_id)= to
+store the whole assoc in ELF, right. This means using a custom linker
+script, however.
+*** DONE Resolve function name from task id from SWO
+We will get a single integer ID from SWO, from our DWT comparator. We
+need to rerolve the function that it corresponds to. Possible approaches:
+- Store some ~(ID, function name)~ in ELF under magic header (see ~defmt~ for impl).
+  - May require custom linker script.
+  - Preferrably we would match how hardware tasks are resolved here
+- Write assoc to file when expanding macro, then read lookup assoc in file with daemon.
+  - A lot of moving parts: when should the file be deleted? When is the content invalidated?
+  - We must use an environmental variable to figure out where to write the assoc.
+- Create some =rtic_trace::parse= that would mirror the approach used for resolving hardware tasks.
+  - Use =#[app]= as the starting point for recording context.
+  - information must be copied from the macro crate (but only when to increase the task counter id, which is trivial).
+
+Alike hardware tasks, we parse the RTIC source code to get the data we want.
 ** TODO Create an RFC for embedded HAL to enable tracing
 For example, on the STM32F401RE, ~TRACE_MODE~ and ~TRACE_IOEN~ must be configured in the ~DBGMCU_CR~ register via the PAC.
 To abstract as much as possible for the end-user, we thus need to propose a trait addition for ~embedded_hal~.
