@@ -1568,7 +1568,8 @@ Post the below:
 
   Thoughts?
 #+end_src
-** TODO Create an RTIC-external crate for task tracing
+** DONE Create an RTIC-external crate for task tracing
+   CLOSED: [2021-05-06 Thu 10:46]
 How do we want the API?
 #+begin_src rust
   mod rtic_tracing {
@@ -1669,6 +1670,11 @@ need to rerolve the function that it corresponds to. Possible approaches:
   - information must be copied from the macro crate (but only when to increase the task counter id, which is trivial).
 
 Alike hardware tasks, we parse the RTIC source code to get the data we want.
+*** DONE Cleanup rtic-trace
+    CLOSED: [2021-05-06 Thu 10:38]
+Implementations have been cleaned up.
+Some lighter amount of documentation as been written. More should be added later.
+Changes to cortex-m has been PRd. See https://github.com/rust-embedded/cortex-m/pull/342.
 ** TODO Create an RFC for embedded HAL to enable tracing
 For example, on the STM32F401RE, ~TRACE_MODE~ and ~TRACE_IOEN~ must be configured in the ~DBGMCU_CR~ register via the PAC.
 To abstract as much as possible for the end-user, we thus need to propose a trait addition for ~embedded_hal~.
