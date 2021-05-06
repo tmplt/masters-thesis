@@ -1675,6 +1675,51 @@ Alike hardware tasks, we parse the RTIC source code to get the data we want.
 Implementations have been cleaned up.
 Some lighter amount of documentation as been written. More should be added later.
 Changes to cortex-m has been PRd. See https://github.com/rust-embedded/cortex-m/pull/342.
+** TODO Create some cargo-rtic-trace subcommand
+daemon should be changed into some =cargo rtic-trace= and when given a
+=--bin= and some =--serial=, cargo-rtic-trace should build the binary,
+setup the serial, parse the RTIC app declaration, flash the binary, and
+trace the target until some arbitrary (optional) stop condition is hit.
+
+Preferably, we will want correct serial every time, so that we do not
+need to restart things.
+
+=cargo rtic-trace --bin blinky --serial /dev/ttyUSB3=
+
+Or more specifically:
+> I'll resume my control studies now. When I resume on rtic-scope I'll
+> create some rtic-scope cargo subcommand: e.g. cargo rtic-trace --bin
+> blinky --serial /dev/ttyUSB3. It should:
+1. build blinky;
+2. ensure the ttyUSB3 is properly configured;
+3. resolve the data we need to trace from the RTIC app declaration in
+   blinky.rs;
+4. flash the binary with probe.rs;
+5. properly run the flashed blinky;
+6. collect the trace from serial until some stop condition;
+7. save trace to some appropriate ~/.local/share/rtic-scope (or
+   user-passed directory). Probably associate it back to blinky.rs
+   somehow, maybe with git commit.
+
+** TODO Create some tracing demos
+- Blinky
+- what more?
+
+** TODO itm-decode: export to figure displaying the task trace graphically
+Yatekii's working on the web-frontent in Dart, which I have no interest
+myself in using. Still, I want to be able to produce a graphical
+representation of the trace for easy overview, but also so that they can
+be directly imported into the report. Additionally, these exports can be
+directly used in development reports as a proof that a product is
+working. Some alternatives exist:
+- graphviz, which we used then analyzing the start usage in Daredevil.
+  Lightweight, can produce PNGs, but I'm unsure if we can create some
+  o-scope-like graph.
+- tikz. /very/ versatily, but pulls in LaTeX. Can defenitely produce
+  what I want. Heavyweight in terms of dependencies, and probably
+  warrants a completely seperate crate. But perhaps we can use pandoc
+  here as a library? Or do we just ship a bash-script?
+
 ** TODO Create an RFC for embedded HAL to enable tracing
 For example, on the STM32F401RE, ~TRACE_MODE~ and ~TRACE_IOEN~ must be configured in the ~DBGMCU_CR~ register via the PAC.
 To abstract as much as possible for the end-user, we thus need to propose a trait addition for ~embedded_hal~.
