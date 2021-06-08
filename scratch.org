@@ -1700,6 +1700,38 @@ Or more specifically:
 7. save trace to some appropriate ~/.local/share/rtic-scope (or
    user-passed directory). Probably associate it back to blinky.rs
    somehow, maybe with git commit.
+*** TODO figure out what =screen= does
+When in doubt, =strace=:
+#+begin_src fundamental
+  1703093 stat("/dev/ttyUSB3", {st_mode=S_IFCHR|0660, st_rdev=makedev(0xbc, 0x3), ...}) = 0
+  1703093 access("/dev/ttyUSB3", R_OK|W_OK) = 0
+  1703093 openat(AT_FDCWD, "/dev/ttyUSB3", O_RDWR|O_NOCTTY|O_NONBLOCK) = 5
+  # check access rights and open file
+
+  1703093 ioctl(5, TCGETS, {B9600 opost isig icanon echo ...}) = 0
+  # Get the current serial port settings
+
+  1703093 ioctl(5, TIOCEXCL)              = 0
+  # put the terminal in exclusive mode. Further open(2) will fail with EBUSY.
+
+  1703093 ioctl(5, SNDCTL_TMR_STOP or TCSETSW, {B115200 -opost -isig -icanon -echo ...}) = 0
+  1809484 ioctl(5, SNDCTL_TMR_STOP or TCSETSW, {c_iflags=0x406, c_oflags=0, c_cflags=0x18b2, c_lflags=0x8a30, c_line=0, c_cc[VMIN]=100, c_cc[VTIME]=2, c_cc="\x03\x1c\x7f\x15\x04\x02\x64\x00\x11\x13\x1a\x00\x12\x0f\x17\x16\x00\x00\x00"}) = 0
+  # Allow the output buffer to drain, and set the current serial port settings
+
+  1703093 ioctl(5, TIOCMGET, [TIOCM_DTR|TIOCM_RTS]) = 0
+  1703093 ioctl(5, TIOCMSET, [TIOCM_DTR|TIOCM_RTS]) = 0
+  # get the status of modem bits: "data terminal ready" and "request to send"
+
+  1703093 fcntl(5, F_SETFL, O_RDONLY|O_NONBLOCK) = 0
+  # make tty readonly and nonblocking
+
+  1703093 ioctl(5, TCFLSH, TCIOFLUSH)     = 0
+  # tcflush(fd, arg)
+  # discards data written to fd, or data received but not read.
+  # flushes data: received and not read, written but not transmitted
+
+  1703093 close(5)                        = 0
+#+end_src
 
 ** TODO Create some tracing demos
 - Blinky
