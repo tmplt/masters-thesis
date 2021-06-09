@@ -1749,6 +1749,12 @@ When in doubt, =strace=:
 - Blinky
 - what more?
 
+** TODO Check with ST why we get invalid =ExceptionTrace(0)=
+   Is in a silicone bug? Undocumented feature?
+
+** TODO Find out when the tools fail
+What happens when bandwidth is exhausted? Overflow? Halt?
+
 ** TODO itm-decode: export to figure displaying the task trace graphically
 Yatekii's working on the web-frontent in Dart, which I have no interest
 myself in using. Still, I want to be able to produce a graphical
