@@ -1700,7 +1700,8 @@ Or more specifically:
 7. save trace to some appropriate ~/.local/share/rtic-scope (or
    user-passed directory). Probably associate it back to blinky.rs
    somehow, maybe with git commit.
-*** TODO figure out what =screen= does
+*** DONE figure out what =screen= does
+    CLOSED: [2021-06-09 Wed 15:19]
 When in doubt, =strace=:
 #+begin_src fundamental
   1703093 stat("/dev/ttyUSB3", {st_mode=S_IFCHR|0660, st_rdev=makedev(0xbc, 0x3), ...}) = 0
@@ -1731,6 +1732,17 @@ When in doubt, =strace=:
   # flushes data: received and not read, written but not transmitted
 
   1703093 close(5)                        = 0
+#+end_src
+
+#+begin_src fundamental
+  # we now have
+  Termios { inner: RefCell { value: termios { c_iflag: 1030, c_oflag: 0, c_cflag: 6322, c_lflag: 35376, c_line: 0, c_cc: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], c_ispeed: 4098, c_ospeed: 4098 } }, input_flags: BRKINT | IGNPAR | IXON, output_flags: NL0 | CR0 | TAB0 | BS0 | VT0 | FF0, control_flags: CS6 | CS7 | CS8 | CREAD | CLOCAL | CBAUDEX | CSIZE, local_flags: ECHOKE | ECHOE | ECHOK | ECHOCTL | IEXTEN, control_chars: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+
+  # we want
+  Termios { inner: RefCell { value: termios { c_iflag: 1030, c_oflag: 0, c_cflag: 6322, c_lflag: 35376, c_line: 0, c_cc: [3, 28, 127, 21, 4, 2, 100, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], c_ispeed: 4098, c_ospeed: 4098 } }, input_flags: BRKINT | IGNPAR | IXON, output_flags: NL0 | CR0 | TAB0 | BS0 | VT0 | FF0, control_flags: CS6 | CS7 | CS8 | CREAD | CLOCAL | CBAUDEX | CSIZE, local_flags: ECHOKE | ECHOE | ECHOK | ECHOCTL | IEXTEN, control_chars: [3, 28, 127, 21, 4, 2, 100, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+
+  # we start with
+  Termios { inner: RefCell { value: termios { c_iflag: 1280, c_oflag: 5, c_cflag: 3261, c_lflag: 35387, c_line: 0, c_cc: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], c_ispeed: 13, c_ospeed: 13 } }, input_flags: ICRNL | IXON, output_flags: OPOST | ONLCR, control_flags: CS6 | CS7 | CS8 | CREAD | HUPCL | CLOCAL | CSIZE, local_flags: ECHOKE | ECHOE | ECHOK | ECHO | ECHOCTL | ISIG | ICANON | IEXTEN, control_chars: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
 #+end_src
 
 ** TODO Create some tracing demos
