@@ -1744,6 +1744,46 @@ When in doubt, =strace=:
   # we start with
   Termios { inner: RefCell { value: termios { c_iflag: 1280, c_oflag: 5, c_cflag: 3261, c_lflag: 35387, c_line: 0, c_cc: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], c_ispeed: 13, c_ospeed: 13 } }, input_flags: ICRNL | IXON, output_flags: OPOST | ONLCR, control_flags: CS6 | CS7 | CS8 | CREAD | HUPCL | CLOCAL | CSIZE, local_flags: ECHOKE | ECHOE | ECHOK | ECHO | ECHOCTL | ISIG | ICANON | IEXTEN, control_chars: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
 #+end_src
+*** DONE properly resolve internal interruptsg
+    CLOSED: [2021-06-09 Wed 18:14]
+Internal interrpts, for example ~SysTick~ cannot be resolved at the
+moment because =cortex_m::Interrupt= does not include them. They are
+however enumerated at [[pdf:~/exjobb/docs/DDI0403E_d_armv7m_arm.pdf::525++1.38][DDI0403E_d_armv7m_arm.pdf: Page 525]].
+
+In =rtic-trace::parsing= we need to filter out the internal interrupts
+and resolve them seperately. We have =Ident=, so we could somehow
+convert this to an =itm_decode::ExceptionType=, modify that crate and
+resolve for the number. But does this functionality belong in
+=itm_decode=? No. The defined exception numbers are valid outside of an
+ITM context. The table linked above should be defined in =cortex_m= if
+anything.
+
+*We do not need this table anywhere* The trace itself deserializes to
+=NMI=, =SysTick=, etc. We need only resolve the task name it is bound
+to. Still, we will need to inline which exceptions to filter anyhow.
+This we can do with Ident, however.
+
+This has been resolved in rtic-trace, e8b037f.
+
+**** How does RTIC handle internal interrupts?
+Cortex-M exceptions, as they are called, seem to be handled inline, and
+somewhat on a case-by-case basis. For example, ~SysTick~ has inherent
+functionality, but you cannot bind a task to ~BusFault~, it seems.
+
+For external interrupts, the PAC is used, but how does RTIC find the
+number for SysTick?
+
+Only exceptions with configurable priorites are accepted for tasks.
+~NMI~ ahd ~HardFault~ are not accepted.
+
+RTIC doesn't need to know the exception number. All it has to do is install a
+#+begin_src rust
+  #[no_mangle]
+  unsafe fn SysTick {
+
+  }
+#+end_src
+and this function will run on a SysTick trigger.
 
 ** TODO Create some tracing demos
 - Blinky
