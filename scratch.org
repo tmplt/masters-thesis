@@ -1078,7 +1078,8 @@ Daily report: [2021-02-18 Thu]
    #+end_src
    which can be done by calling =screen /dev/ttyUSB3 9600=
 
-** TODO Setup some trace examples/demos?
+** DONE Setup some trace examples/demos?
+   CLOSED: [2021-06-14 Mon 14:27]
    Right now we have a set of binaries (1) that we can trace, a separate
    "scope" that just flashes the binary and optionally enables tracing,
    and then a seperate utility that reads the SWO (stty/screen/cat).
@@ -1744,7 +1745,7 @@ When in doubt, =strace=:
   # we start with
   Termios { inner: RefCell { value: termios { c_iflag: 1280, c_oflag: 5, c_cflag: 3261, c_lflag: 35387, c_line: 0, c_cc: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], c_ispeed: 13, c_ospeed: 13 } }, input_flags: ICRNL | IXON, output_flags: OPOST | ONLCR, control_flags: CS6 | CS7 | CS8 | CREAD | HUPCL | CLOCAL | CSIZE, local_flags: ECHOKE | ECHOE | ECHOK | ECHO | ECHOCTL | ISIG | ICANON | IEXTEN, control_chars: [3, 28, 127, 21, 4, 0, 1, 0, 17, 19, 26, 0, 18, 15, 23, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
 #+end_src
-*** DONE properly resolve internal interruptsg
+*** DONE properly resolve internal interrupts
     CLOSED: [2021-06-09 Wed 18:14]
 Internal interrpts, for example ~SysTick~ cannot be resolved at the
 moment because =cortex_m::Interrupt= does not include them. They are
@@ -1784,10 +1785,54 @@ RTIC doesn't need to know the exception number. All it has to do is install a
   }
 #+end_src
 and this function will run on a SysTick trigger.
+*** TODO Save trace to disk for post-mortem
+We want to be able to analyze a trace both in real-time (live) and as a
+post-mortem (offline). As soon as a byte is read from the tty, it should
+be written to disk async and tagged in a way so that we can associate
+the trace back to an application. Each trace file should then have an
+associated
+- name of the application that was traced (e.g. ~blinky~);
+- short git hash of the application that was traced (e.g. ~9d0cbf1~);
+- ISO time and date, down to seconds (e.g. ~2021-06-14T14:24:01+02:00~
+  from =date -Is=); and
+- arbitrary comment (for example, if system remains the same between
+  tests, but the environment its tested in changes).
+We then generate out filename: ~blinky, 9d0cbf1,
+2021-06-14T14:24:01+02:00, here is some comment about the trace.itm~
+under some appropriate directory, say ~~/.local/share/cargo-rtic-trace~.
 
-** TODO Create some tracing demos
-- Blinky
-- what more?
+Will we be limited by file size length? Yes, the limit is usually 255
+bytes. We should check if filename is possible via [[https://www.gnu.org/software/libc/manual/html_node/Pathconf.html][pathconf]] during I/O
+setup.
+
+While unread bytes are queued in the serial device (probably?) we want
+to extract them as soon as possible so that we can attach a timestamp to
+the decoded packets. This means that the trace we save to disk cannot
+just be the raw bytes. We'll have to serialize =[(timestamp,
+[TracePacket])]= instead. It will not be possible to get the original
+trace unless encoding is implemented in itm-decode.
+
+**** TODO find the build cache
+The build cache is ~target/~ by default, which we can find if we go
+backwards over the artifact path until we find the first ~target/~.
+Should be stable enough. Unless we can query ~build.target-dir~.
+
+There are three ways to override the target directory, in order of
+priority:
+- via ~CARGO_TARGET_DIR~ :: just check for and use if set;
+- via ~--target-dir~ :: ditto;
+- via ~build.target-dir~ in any of the many ~.cargo/config.toml~ files ::
+  We must query these somehow. Can we do that directly with cargo? Yes,
+  via [[https://github.com/rust-lang/cargo/issues/9301][cargo config get build.target-dir]].
+
+
+Must we explicitly support sccache? Can we use it to store traces on a
+remote server?
+
+** DONE Read up on what TTYs are
+   CLOSED: [2021-06-14 Mon 16:32]
+   See http://www.linusakesson.net/programming/tty/index.php.
+
 
 ** TODO Check with ST why we get invalid =ExceptionTrace(0)=
    Is in a silicone bug? Undocumented feature?
