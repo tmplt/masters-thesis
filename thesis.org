@@ -24,11 +24,13 @@
 *** Real-time Operating Systems (RTOS)
 *** Real-Time Interrupt-driven Concurrency (RTIC)
 RTIC (cite:rtic) is a real-time operating system (RTOS) based on the stack resource policy (cite:baker90) for task scheduling written in the Rust programming language.
+
+**** Rust
 # TODO refer to Tjäder's thesis when it comes to Rust?
-
-*** Breakpoints and watchpoints
-
-*** Tracing and available hardware features
+**** RTIC syntax and features
+*** Hardware features
+**** Breakpoints and watchpoints
+**** Tracing
 RTIC supports the ARM Cortex-M4 family of microprocessor core units (MCUs) which, in turn, offer asynchronous debug facilites for real-time tracing support (cite:arm-rm, §C).
 Of chief interest are
 - DWT, :: Data Watchpoint and Trace (cite:arm-rm, §C1.8): contains program counter and address comparators that signal on a match; and
@@ -43,8 +45,6 @@ ITM is realized in practise by communicating between the embedded system and the
 # This does not fit in the background
 If the embedded system has the capability, tracing data may be buffered locally before it is transferred to an external system.
 The information can also be captured by monitoring a serial pin.
-
-**** Tracing vs. debugging
 
 ** Motivation
 Debugging the user application running on an MCU is an integral part of an embedded work-flow.
