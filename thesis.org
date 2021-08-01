@@ -97,9 +97,19 @@ The necessary end-user actions can be summarized by the following commands:
 See the next section on source code limitations.
 
 ** Limitations
-- The design and implementation of a daemon frontend that graphically plots the task names and their states of execution (entered/exited/preempted) is outside the scope of this paper.
-- We will not touch ETM.
-- Only RTIC v0.6 will be considered. V0.6 is currently being developed.
+The work that can be done to solve the [[*Problem definition]] is virtually endless,
+especially regarding the fifth requirement because of the many possible approaches to design an end-user facing application.
+The scope limit of this thesis is thus the implementation of a daemon that fulfills requirements 1--4,
+and a barebones implementation of a frontend for requirement 5.
+As the ~dummy~-suffix implies, this is a frontend that does limited work.
+The reason for this limitation is focus on a delivery of a robust backend that does the heavy lifting.
+The Embedded Rust community is then fully welcome to implement frontends that suit their needs.
+
+Further:
+- the work of this thesis will not stray far from the ITM specification.
+  ETM, for example, will not be exploited.
+- Only RTIC v0.6 (currently in development) will be considered for the final release of RTIC Scope that occur within the frames of this thesis.
+  Releases past those of this thesis will handle future RTIC releases.
 
 ** Outline
 This paper is structured as follows
