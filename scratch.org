@@ -1676,7 +1676,8 @@ Alike hardware tasks, we parse the RTIC source code to get the data we want.
 Implementations have been cleaned up.
 Some lighter amount of documentation as been written. More should be added later.
 Changes to cortex-m has been PRd. See https://github.com/rust-embedded/cortex-m/pull/342.
-** TODO Create some cargo-rtic-trace subcommand
+** DONE Create some cargo-rtic-trace subcommand
+   CLOSED: [2021-06-21 Mon 09:59]
 daemon should be changed into some =cargo rtic-trace= and when given a
 =--bin= and some =--serial=, cargo-rtic-trace should build the binary,
 setup the serial, parse the RTIC app declaration, flash the binary, and
@@ -1785,7 +1786,8 @@ RTIC doesn't need to know the exception number. All it has to do is install a
   }
 #+end_src
 and this function will run on a SysTick trigger.
-*** TODO Save trace to disk for post-mortem
+*** DONE Save trace to disk for post-mortem
+    CLOSED: [2021-07-02 Fri 09:37]
 We want to be able to analyze a trace both in real-time (live) and as a
 post-mortem (offline). As soon as a byte is read from the tty, it should
 be written to disk async and tagged in a way so that we can associate
@@ -1807,12 +1809,14 @@ setup.
 
 While unread bytes are queued in the serial device (probably?) we want
 to extract them as soon as possible so that we can attach a timestamp to
-the decoded packets. This means that the trace we save to disk cannot
-just be the raw bytes. We'll have to serialize =[(timestamp,
+the decoded packets. *This means that the trace we save to disk cannot
+just be the raw bytes*. We'll have to serialize =[(timestamp,
 [TracePacket])]= instead. It will not be possible to get the original
-trace unless encoding is implemented in itm-decode.
+trace unless encoding is implemented in itm-decode. The filename can
+then be simplified to ~blinky-9d0cbf1-$(date)-$(comment hash?).rtic-trace~
 
-**** TODO find the build cache
+**** DONE find the build cache
+     CLOSED: [2021-06-16 Wed 08:40]
 The build cache is ~target/~ by default, which we can find if we go
 backwards over the artifact path until we find the first ~target/~.
 Should be stable enough. Unless we can query ~build.target-dir~.
@@ -1834,6 +1838,32 @@ remote server?
    See http://www.linusakesson.net/programming/tty/index.php.
 
 
+** CMSIS-DAP
+the CMSIS-DAP debug interface, which consists of an abstraction of the
+Cortex Debug Access Port (DAP) command set over a driver-less USB HID
+connection. This provides a USB connection to the DAP that major tool
+vendors have started to support. It even provides the flexibility for
+users to write their own debugger, or debug script using the USB
+bindings in languages like Python.
+
+Read more at
+- https://os.mbed.com/handbook/CMSIS-DAP
+
+*** TODO Read trace clock frequency from hardware
+=setup_swv(config)= calls =Session::get_arm_interface().enable_swo(config)= for SWO setup on probe and
+#+begin_src rust
+  // Configure SWV on the target
+  let components = self.get_arm_components()?;
+  let mut core = self.core(0)?;
+  crate::architecture::arm::component::setup_swv(&mut core, &components, config)
+#+end_src
+
+What does =Session::get_arm_interface().enable_swo(config)= do?
+[[file:~/exjobb/probe-rs/probe-rs/src/probe/stlink/mod.rs::pub fn start_trace_reception(&mut self, config: &SwoConfig) -> Result<(), DebugProbeError> {][It sends some JTAG commands and uses baud value.]]
+
+Okey, what about setup_swv for the arm component?
+[[file:~/exjobb/probe-rs/probe-rs/src/architecture/arm/component/mod.rs::pub fn setup_swv(][It writes a lot to the target, sets prescalar for one]].
+
 ** TODO Check with ST why we get invalid =ExceptionTrace(0)=
    Is in a silicone bug? Undocumented feature?
 
@@ -1843,7 +1873,7 @@ remote server?
 ** TODO Find out when the tools fail
 What happens when bandwidth is exhausted? Overflow? Halt?
 
-** TODO itm-decode: export to figure displaying the task trace graphically
+** CANCELLED itm-decode: export to figure displaying the task trace graphically
 Yatekii's working on the web-frontent in Dart, which I have no interest
 myself in using. Still, I want to be able to produce a graphical
 representation of the trace for easy overview, but also so that they can
