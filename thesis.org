@@ -56,23 +56,46 @@ However, care must be taken when utilizing debugging features on an embedded tar
 # We want to make it very simple for the end user to trace an application
 
 ** Problem definition
-A tracing backend and auxilliary toolset is to be created for RTIC applications.
-
-The backend (henceforth referred to as the "daemon") is to
-- collect trace data;
-- decode the trace data;
-- forward the decoded trace data to a frontend for user presentation; and
-- save the collected trace data to disk for later analysis.
-In a nutshell, this daemon can be implemented via
-#+begin_src bash
-screen /dev/ttyUSB3 115200 # and detach immidiately
-cat /dev/ttyUSB3 | tee itm.bin | itm-decode > to-frontend.sock
-#+end_src
-
-The auxilliary toolset will build upon RTIC to allow hardware and software tasks to be traced with minimal end-user and user application overhead.
+An auxiliary toolset for tracing RTIC applications is to be created.
+This toolset shall be able to
+1. collect raw trace data from the target device;
+2. interpret trace data;
+3. associate trace data to timestamped RTIC tasks;
+4. save the trace data for offline analysis; and
+5. present the trace to an end-user in a human-readable fashion.
 
 ** Contributions
-This thesis aims to offer a "battery-included" toolset for tracing RTIC applications, etc.
+The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
+- ~itm-decode~ :: a library that decodes raw trace data to a set of Rust structures for easy management,
+  thereby fulfilling requirement 1 of [[*Problem definition]].
+- ~cargo-rtic-scope~ :: a cargo subcommand that acts as daemon:
+  it records raw trace data, associates it to timestamped RTIC tasks by help of ~itm-decode~, saves it to file, and forwards it to any spawned frontends; thereby fulfilling requirements 2--4.
+- ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=;
+  thereby fulfilling the last requirement, 5.
+
+From an end-user perspective RTIC Scope offers a "batteries-included" tool that enables great insight into a target RTIC applications,
+provided that a small set of limitations are adhered and specific metadata is added to the application crate in question.
+
+The necessary end-user actions can be summarized by the following commands:
+#+begin_src fundamental
+  $ cargo install cargo-rtic-scope
+  $ cargo install rtic-scope-frontend-dummy
+  $ # Example metadata added to a target RTIC application in a crate named "trace-examples"
+  $ cargo metadata --format-version 1 | jq '.packages[] | select(.name == "trace-examples") | .metadata'
+  {
+    "rtic-scope": {
+      "interrupt_path": "stm32f4::stm32f401::Interrupt",
+      "pac": "stm32f4",
+      "pac_features": [
+        "stm32f401"
+      ]
+    }
+  }
+#+end_src
+
+# XXX what section? next section is thesis limitations
+See the next section on source code limitations.
+
 ** Limitations
 - The design and implementation of a daemon frontend that graphically plots the task names and their states of execution (entered/exited/preempted) is outside the scope of this paper.
 - We will not touch ETM.
