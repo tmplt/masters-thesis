@@ -162,7 +162,10 @@ This paper is structured as follows
 # (Probably) refer to other (proprietary) implementations
 
 * TODO Theory and Methodology
-This section describes the tools employed for the end-goal of tracing, along with descriptions on how required information is and can be derived.
+This section describes the protocols, hardware peripherals, and software frameworks utilized in RTIC Scope for then end-goal of real-time task tracing.
+
+Sections [[*Instrumentation Trace Macrocell (ITM)]]--[[*Trace Port Interface Unit (TPIU)]] detail the peripherals used to generate the packet stream intercepted by RTIC Scope.
+Section [[*RTIC]] detail the RTOS which the target application is expected to be written in, and how its metadata is extracted for use in RTIC Scope.
 
 ** Instrumentation Trace Macrocell (ITM)
 Include Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]]?
