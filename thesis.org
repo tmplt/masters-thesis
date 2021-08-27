@@ -138,9 +138,10 @@ Further:
 
 ** TODO Outline
 This paper is structured as follows
-- [[Introduction]] ::
-- [[Related work]] ::
-- [[Theory]] ::
+- [[Introduction]] :: provides an introduction to Rust, RTIC, ARM hardware peripherals of interest, and the RTIC Scope project.
+- [[Previous work]] :: presents work previously done in the same domain, which this thesis and RTIC Scope builds upon.
+- [[Related work]] :: presents some tools similar to the features of RTIC Scope.
+- [[Theory]] :: covers the exploited ARM peripherals in detail, and what information is required to associate trace data to RTIC tasks.
 - [[Implementation]] ::
 - [[Results]] ::
 - [[Discussion]] ::
