@@ -205,7 +205,8 @@ their visibility at a trace output port.]]
 ** DONE fill in thesis template and submit
    CLOSED: [2021-01-25 Mon 15:34] SCHEDULED: <2021-01-25 Mon>
 
-** TODO Merge Gabriel's notes below into this document
+** CANCELLED Merge Gabriel's notes below into this document
+   CLOSED: [2021-08-14 Sat 18:35]
    Gabriel will work on some other stuff from now on.
 
 *** Notes regarding ITM investigation/research
@@ -265,7 +266,8 @@ their visibility at a trace output port.]]
       implementation error in `itm-decode` or/and something itm/dwt/tpi
       is still somehow misconfigured)
 
-** TODO Publish this document on some public repo, hack.md, or similar.
+** CANCELLED Publish this document on some public repo, hack.md, or similar.
+   CLOSED: [2021-08-14 Sat 18:34]
    Should be easy for others to contribute. (Github?)
    Otherwise, resultant notes are likely to be in the final report.
 
@@ -1849,7 +1851,8 @@ bindings in languages like Python.
 Read more at
 - https://os.mbed.com/handbook/CMSIS-DAP
 
-*** TODO Read trace clock frequency from hardware
+*** CANCELLED Read trace clock frequency from hardware
+    CLOSED: [2021-08-13 Fri 02:55]
 =setup_swv(config)= calls =Session::get_arm_interface().enable_swo(config)= for SWO setup on probe and
 #+begin_src rust
   // Configure SWV on the target
@@ -1870,7 +1873,8 @@ Okey, what about setup_swv for the arm component?
    Wait, have I done something wrong? [[pdf:~/exjobb/docs/DDI0403E_d_armv7m_arm.pdf::525++1.38][DDI0403E_d_armv7m_arm.pdf: Page
    525]] says "16 - External Interrupt 0". An off-by-one?
 
-** TODO Find out when the tools fail
+** CANCELLED Find out when the tools fail
+   CLOSED: [2021-08-13 Fri 02:55]
 What happens when bandwidth is exhausted? Overflow? Halt?
 
 ** CANCELLED itm-decode: export to figure displaying the task trace graphically
@@ -1888,7 +1892,8 @@ working. Some alternatives exist:
   warrants a completely seperate crate. But perhaps we can use pandoc
   here as a library? Or do we just ship a bash-script?
 
-** TODO Create an RFC for embedded HAL to enable tracing
+** CANCELLED Create an RFC for embedded HAL to enable tracing
+   CLOSED: [2021-08-13 Fri 02:55]
 For example, on the STM32F401RE, ~TRACE_MODE~ and ~TRACE_IOEN~ must be configured in the ~DBGMCU_CR~ register via the PAC.
 To abstract as much as possible for the end-user, we thus need to propose a trait addition for ~embedded_hal~.
 Create an RFC following [[https://github.com/rust-embedded/embedded-hal/issues/29][japaric's example]].
@@ -1902,7 +1907,8 @@ Do this last, when the API has been stabilized.
    :END:
    I may be misusing the API. It is confusing.
 
-** TODO Translate ITM timestamps to absolute [80%]
+** DONE Translate ITM timestamps to absolute [80%]
+   CLOSED: [2021-08-13 Fri 02:55]
    :LOGBOOK:
    CLOCK: [2021-02-19 Fri 09:02]--[2021-02-19 Fri 09:13] =>  0:11
    :END:
@@ -2057,7 +2063,7 @@ Do this last, when the API has been stabilized.
       code base. Next up it to copy =itm.bin= from ~itm-tools~, and make
       sure our bitmatch patterns work as expected.
 
-*** TODO Verify that ITM output is expected [2/6]
+*** TODO Verify that ITM output is expected [5/6]
     :LOGBOOK:
     CLOCK: [2021-02-23 Tue 15:16]--[2021-02-23 Tue 16:21] =>  1:05
     CLOCK: [2021-02-23 Tue 12:30]--[2021-02-23 Tue 14:07] =>  1:37
@@ -2069,7 +2075,8 @@ Do this last, when the API has been stabilized.
      This example should periodically schedule a task so that LTS will
      eventually wrap.
 
-**** STARTED Check if global timestamps are supported
+**** DONE Check if global timestamps are supported
+     CLOSED: [2021-08-14 Sat 18:34]
      Gabriel says he only managed to generate GTS with ~ts = 0~. If we
      cannot generate proper GTS we cannot continue.
 
@@ -2082,7 +2089,8 @@ Do this last, when the API has been stabilized.
      - [2021-02-23 Tue 14:05] the stm32f401re may not support global
        timestamps. A ticket has been submitted to ST that asks.
 
-**** TODO Check we get an overflow packet when LTS wraps
+**** DONE Check we get an overflow packet when LTS wraps
+     CLOSED: [2021-08-13 Fri 02:56]
      It seems like we get LTS periodically. Verify this.
 
 **** TODO Check if we can interleave intrumentation packets
@@ -2094,7 +2102,8 @@ Do this last, when the API has been stabilized.
      785]]. An ARMv7-M processor /can implement either or both/ of LTS,
      GTS.
 
-**** TODO Generate a sync packet larger than 48b
+**** CANCELLED Generate a sync packet larger than 48b
+     CLOSED: [2021-08-13 Fri 02:56]
      We need to see what happens when the packet's single set bit isn't
      in the last byte's MSB. Does the stm32f401re actually generate
      sync packets larger than this or does it just send
@@ -2106,7 +2115,8 @@ Do this last, when the API has been stabilized.
 
 ** TODO Add probe-rs feat that properly configures DBGMCU
    So that we do not brick the device.
-** TODO Make sure we can interleave ITM payloads
+** CANCELLED Make sure we can interleave ITM payloads
+   CLOSED: [2021-08-13 Fri 02:56]
    We may want to write arbitrary payloads to the ITM stimulus ports.
    Make sure we can actually do that while we exception trace.
 
