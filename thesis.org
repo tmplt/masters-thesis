@@ -16,11 +16,32 @@
 Here be an abstract...
 #+end_abstract
 
-* Introduction
-- Embedded devices
-- mission-critical systems
-- tracing (debugging) without affecting user application
-- "The aim of this project is thus to investigate if non-intrusive tracing can be sufficiently abstracted and be readily made available for the RTIC end-user."
+* TODO Introduction
+Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices --- serve a key role in the operation of systems with an electronical component (in which the unit is /embedded/) where computations must be made.
+Examples of such systems are digital control systems where sensory input is represented as quantities upon which mathematical operations are applied to calculate derivative quantities fed to output actuators.
+Digital control systems can be found in any system in which a reference value must be held, for example autopilots in aeroplanes where altitude, heading, and ground speed must be maintained; and chemical processes where mixtures of multiple substances, not seldom volatile, must be maintained to generate a wanted product.
+A key design parameter of digital controllers is the sample rate: if too low or unconsistent, the controlled system will end up unstable.
+The aeroplane may thus fly on an incorrect heading and put lives in danger, or the chemical plant may explode, if the sample rate is not maintained.
+This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
+Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation, especially if the embedded system have multiple tasks, such as waiting for over-the-air updates.
+Unfortunately in this context embedded systems are subject to the observer effect: to observe the internal state of a embedded system its operation must be affected.
+This observeration is often realized by exfiltrating data via serial communication, which while usually being an asynchonous peripheral, data must be written to registers (which may be subject to bus contention), which must be done in the user application, potentially disturbing the mainsake procedures.
+A wish is then to minimize this observer effect while recording the state of the system.
+
+The vendor ARM...
+- ITM
+- tracing (debugging) without affecting user application.
+- nothing need to be done from the user applicaiton.
+- watch adresses are impl. by monitoring user application from an otherwise disjoint system (what about clock?)
+- software tasks require user application effect, but RTIC Scope aims for minimal
+- hardware tasks are traced via interrupts, but no effect on user application.
+
+The aim of this project it thus to investigate if non-intrusive tracing can be sufficenty abstracted for "batteries included" usage (minimal overhead for user to utilize) and be readily made available for an emerging RTOS in the form of a toll that fits into the ecosystem.
+
+# TODO throw in a ref to Franklin here regarding sample rate
+# TODO mention sleeping
+# TODO throw in some stats on how much ARM is used in industy
+# TODO "mission-critical systems are thus implemented in worst case scenario, doing more work than necessary, because it is easier to analyze"?
 
 ** Background
 *** Real-time Operating Systems (RTOS)
@@ -47,6 +68,8 @@ ITM is realized in practise by communicating between the embedded system and the
 # This does not fit in the background
 If the embedded system has the capability, tracing data may be buffered locally before it is transferred to an external system.
 The information can also be captured by monitoring a serial pin.
+**** TODO refer to [[*Theory and Methodology]] for further details
+     We only want to cover the basics here in the background.
 
 ** Motivation
 Debugging the user application running on an MCU is an integral part of an embedded work-flow.
