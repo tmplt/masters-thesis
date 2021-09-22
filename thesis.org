@@ -16,40 +16,62 @@
 Here be an abstract...
 #+end_abstract
 
-* TODO Introduction
-Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices --- serve a key role in the operation of systems with electronical components (in which the unit is /embedded/) where computations must be made.
-Examples of such systems are digital control systems which regulate one or more control quantities such that they are kept within a defined bound, often the goal is to match a reference signal.
-A regulator observes the internal states of a system under control via sensors and affect the same system (not always directly) via actuators.
-# rocket or jet plane instead?
-Examples of regulators are autopilots in aeroplanes where an approach vector to an air field must be maintained;
-# nuclear power plant?
-and chemical processes where mixtures of multiple substances, not seldom volatile, must be maintained to generate a wanted product.
-A key design parameter of digital controllers is the sample rate: if too low or unconsistent, the controlled system will end up unstable. cite:franklin
-The aeroplane may thus fly on an incorrect heading and put lives in danger, or the chemical plant may explode.
-This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
-Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation, which grows exponentially in difficulty with the numer of tasks that must be done.
-Unfortunately, embedded systems are subject to the observer effect: to observe the internal state of a embedded system its operation must be affected.
-This observeration is often realized by exfiltrating data via serial communication, which while usually being an asynchonous peripheral, data must be written to registers (which may be subject to bus contention), which must be done in the user application, potentially disturbing the mainsake procedures.
-A wish is then to minimize this observer effect while recording the state of the embedded system, and in effect minimizing the effect on the underlying control system.
+** TODO Introduction
+# What are embedded systems, regulators, and how do they relate?
+Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices --- serve a key role in the operation of systems with electronical components where computations must be made.
+Examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to within derigned characteristics.
+Often the goal is to track a reference signal.
+Such a regulator observes the internal states of a system under control via sensors and affect the system via actuators.
+For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output and keep the reactor in a safe state.
 
-ARM is a ubiquitous vendor for embedded systems with a number of sub-vendors.
+# On the real-time restrictions of control systems; exponential complexity phenomena.
+A key design parameter of digital controllers is the sample rate: if too low or unconsistent, the controlled system will end up unstable. cite:franklin
+The rocket may thus fly off-course, or the nuclear reactor reach a meltdown.
+This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
+Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation, which grows exponentially in difficulty with the number of tasks that must be done[fn:2].
+The same exponential phenomena is observed for dynamic systems with a growing number of states, inputs, and outputs.
+
+# The observer effect; data exfiltration.
+Unfortunately, embedded systems are subject to the observer effect: to observe the internal state of a embedded system (i.e., system variables in memory) its operation must be affected.
+# A proper implementation would not block on a serial write.
+This observeration is often realized by exfiltrating data via serial communication which in the best case is subject to bus contention and full output queues.
+In a perfect implementation, the user application[fn:1] would only concern itself with its mainsake prodecure and leave data exfiltration to a completely disjoint system, thus minimizing the observer effect and thus the effect on the underlying control system.
+
+# ARM, tracing subsystem and possible exploitation.
+ARM is an ubiquitous vendor for embedded systems with a number of sub-vendors (e.g. STMicroelectrics, NXP Semiconductors, Nordic Semiconductors).
 The ARM Cortex-M7 standard offers debugging facilities that enables the developer to trace the system.
 From ARM's documentation, "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing". cite:arm-cortex-learn
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
-Trace generation (with external trace collection) it thus a suitable exploitation candidate for debugging purposes in embedded control systems.
+This trace facility allows an event-based monitoring of
+- interrupt enters and exits (tracing of hardware tasks, e.g. the main control loop);
+- write access to in-memory adress spaces (system state variables, software tasks);
+- comparator matches, among other features.
+The generated trace is then exfiltrated from via serial using a packet protocol, henceforth referred to as the "trace stream".
+This trace stream (with system-external collection) is thus a suitable candidate for exploitation to realize a control system with minimal observer effect.
 
+# Less work, more sleep.
 Further, with non-invasive trace generation, minimal code must be executed in the user application, allowing a shorter duty-cycle of the controlling program.
 With a decreased duty-cycle, the system can be put to sleep longer, and thus conserve energy.
 
-# The vendor ARM...
-# - ITM
-# - tracing (debugging) without affecting user application.
-# - nothing need to be done from the user applicaiton.
-# - watch adresses are impl. by monitoring user application from an otherwise disjoint system (what about clock?)
-# - software tasks require user application effect, but RTIC Scope aims for minimal
-# - hardware tasks are traced via interrupts, but no effect on user application.
+# On real-time implementation restictions, embedded implementation difficulties in general. Enter RTIC.
+The development of embedded system in general is a difficult one.
+In comparison to general-purpose computers, where one often need not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
+# No rich OS; no two embedded platforms are the same.
+An embedded developer seldom have access to a rich operating systems (OS) --- a Linux-based distibution, for example --- which offers general-purpose facilities based upon dynamic allocations and a common environment to simplity implementation.
+Embedded platforms usually differ significantly, and porting an implementation to another platform is no small task.
+This compares to general-purpose computers where a program written on one computer can be executed on another.
+# Side effects and priority inversions.
+Embedded platforms much more subject to side-effects where peripherals are operated by writing data to memory-mapped registers.
+Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
+In summary, it is easy to put an embedded system in an incorrect or unknown state.
+# Enter RTIC.
+In order to lighten the implementation burden one may employ Real-Time Interrupt-driven Concurrency (RTIC), a real-time OS (RTOS) developed at Luleå Technical University based on the extensively studied Stack Resource Policy (SRP), which mitigates priority inversions while also offering determinant scheduling of future tasks and message-passing between tasks.
+# TODO refer to rauk
+RTIC also lends itself to static analysis by help of external tools, further lighening the overhead of an embedded implementation.
 
-The aim of this project is thus to investigate if non-intrusive tracing can be realized and sufficently sufficenty abstracted for "batteries included" usage (minimal overhead for user to utilize) and be readily made available for an emerging RTOS in the form of a tool that fits into the ecosystem.
+# Project aim
+The aim of this thesis is thus to employ and extend upon RTIC with a toolset to leverage ARM's non-intrusive tracing facilites whilst requiring minimal overhead for then end-user developer, greatly lightening the burden to implement digital control systems.
+The resulting toolset will be employed to implement a regulator for a non-trivial dynamic system, and the ergonomics of the toolset evaluated.
 
 # TODO throw in some stats on how much ARM is used in industy
 # TODO "mission-critical systems are thus implemented in worst case scenario, doing more work than necessary, because it is easier to analyze"?
@@ -350,6 +372,9 @@ We should plot the cycle count of traced software tasks when using dispatchers v
 # The results of the R7014E-alike course
 
 * Footnotes
+
+[fn:2] Additional tasks could for example include: handling firmware updates over the air. # TODO more examples?
+[fn:1] The program that executes on the embedded system when initialization has concluded. Also referred to as the "main loop".
 
 [fn:cargo-cdylibs] See
 https://docs.rs/cargo/0.52.0/cargo/core/compiler/struct.Compilation.html#structfield.cdylibs.
