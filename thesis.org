@@ -11,6 +11,14 @@
 #+latex_header: \addbibresource{ref.bib}
 #+latex_header: \usepackage{microtype}
 
+* Org setup
+  #+begin_src emacs-lisp :result output :session :exports both
+    (require 'ox-extra)
+    (ox-extras-activate '(ignore-headlines))
+  #+end_src
+
+* *The Paper*                                                        :ignore:
+
 # Make this a single paragraph; use unambiguous terms; aim for 250 words; 3-5 keywords.
 #+begin_abstract
 Here be an abstract...
@@ -76,300 +84,309 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
 # TODO throw in some stats on how much ARM is used in industy
 # TODO "mission-critical systems are thus implemented in worst case scenario, doing more work than necessary, because it is easier to analyze"?
 
-** Background
-*** Real-time Operating Systems (RTOS)
-*** Real-Time Interrupt-driven Concurrency (RTIC)
-RTIC (cite:rtic) is a real-time operating system (RTOS) based on the stack resource policy (cite:baker90) for task scheduling written in the Rust programming language.
+ # The vendor ARM...
+ # - ITM
+ # - tracing (debugging) without affecting user application.
+ # - nothing need to be done from the user applicaiton.
+ # - watch adresses are impl. by monitoring user application from an otherwise disjoint system (what about clock?)
+ # - software tasks require user application effect, but RTIC Scope aims for minimal
+ # - hardware tasks are traced via interrupts, but no effect on user application.
 
-**** Rust
-***** TODO refer to Tjäder's thesis when it comes to Rust?
-**** RTIC syntax and features
-*** Hardware features
-**** Breakpoints and watchpoints
-**** Tracing
-RTIC supports the ARM Cortex-M4 family of microprocessor core units (MCUs) which, in turn, offer asynchronous debug facilites for real-time tracing support (cite:arm-rm, §C).
-Of chief interest are
-- DWT, :: Data Watchpoint and Trace (cite:arm-rm, §C1.8): contains program counter and address comparators that signal on a match; and
-- ITM, :: Intrumentation Trace Macrocell (cite:arm-rm, §C1.7): trace information generator in the form of packets; multiplexes trace information from other sources (e.g. DWT).
+*** Background
+**** Real-time Operating Systems (RTOS)
+**** Real-Time Interrupt-driven Concurrency (RTIC)
+ RTIC (cite:rtic) is a real-time operating system (RTOS) based on the stack resource policy (cite:baker90) for task scheduling written in the Rust programming language.
 
-# Ref. does not say that ITM is real-time.
-Tracing is the ability to analyse the behavior of an embedded system in real-time without significantly affecting the user application, known as non-intrusive debugging.
-Proper application of tracing allows the developer to verify the behavior of an embedded system.
+***** Rust
+****** TODO refer to Tjäder's thesis when it comes to Rust?
+***** RTIC syntax and features
+**** Hardware features
+***** Breakpoints and watchpoints
+***** Tracing
+ RTIC supports the ARM Cortex-M4 family of microprocessor core units (MCUs) which, in turn, offer asynchronous debug facilites for real-time tracing support (cite:arm-rm, §C).
+ Of chief interest are
+ - DWT, :: Data Watchpoint and Trace (cite:arm-rm, §C1.8): contains program counter and address comparators that signal on a match; and
+ - ITM, :: Intrumentation Trace Macrocell (cite:arm-rm, §C1.7): trace information generator in the form of packets; multiplexes trace information from other sources (e.g. DWT).
 
-ITM is realized in practise by communicating between the embedded system and the analysing system with a packet protocol. (cite:arm-rm, Appendix D4)
+ # Ref. does not say that ITM is real-time.
+ Tracing is the ability to analyse the behavior of an embedded system in real-time without significantly affecting the user application, known as non-intrusive debugging.
+ Proper application of tracing allows the developer to verify the behavior of an embedded system.
 
-# This does not fit in the background
-If the embedded system has the capability, tracing data may be buffered locally before it is transferred to an external system.
-The information can also be captured by monitoring a serial pin.
-**** TODO refer to [[*Theory and Methodology]] for further details
-     We only want to cover the basics here in the background.
+ ITM is realized in practise by communicating between the embedded system and the analysing system with a packet protocol. (cite:arm-rm, Appendix D4)
 
-** Motivation
-Debugging the user application running on an MCU is an integral part of an embedded work-flow.
-Thus, the more debugging facilities that are readily available to the end-user of an RTOS, the better.
-More so if proper usage of such facilities - which are commonly non-trivial on embedded systems  - is abstracted.
-However, care must be taken when utilizing debugging features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and production environment.
+ # This does not fit in the background
+ If the embedded system has the capability, tracing data may be buffered locally before it is transferred to an external system.
+ The information can also be captured by monitoring a serial pin.
+***** TODO refer to [[*Theory and Methodology]] for further details
+      We only want to cover the basics here in the background.
 
-# Talk about RTIC and its increasing usage
-# We want to make it very simple for the end user to trace an application
+*** Motivation
+ Debugging the user application running on an MCU is an integral part of an embedded work-flow.
+ Thus, the more debugging facilities that are readily available to the end-user of an RTOS, the better.
+ More so if proper usage of such facilities - which are commonly non-trivial on embedded systems  - is abstracted.
+ However, care must be taken when utilizing debugging features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and production environment.
 
-** Problem definition
-An auxiliary toolset for tracing RTIC applications is to be created.
-This toolset shall be able to
-1. collect raw trace data from the target device;
-2. interpret trace data;
-3. associate trace data to timestamped RTIC tasks;
-4. save the trace data for offline analysis; and
-5. present the trace to an end-user in a human-readable fashion.
+ # Talk about RTIC and its increasing usage
+ # We want to make it very simple for the end user to trace an application
 
-** Contributions
-The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
-- ~itm-decode~ :: a library that decodes raw trace data to a set of Rust structures for easy management,
-  thereby fulfilling requirement 1 of [[*Problem definition]].
-- ~cargo-rtic-scope~ :: a cargo subcommand that acts as daemon:
-  it records raw trace data, associates it to timestamped RTIC tasks by help of ~itm-decode~, saves it to file, and forwards it to any spawned frontends; thereby fulfilling requirements 2--4.
-- ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=;
-  thereby fulfilling the last requirement, 5.
+*** Problem definition
+ An auxiliary toolset for tracing RTIC applications is to be created.
+ This toolset shall be able to
+ 1. collect raw trace data from the target device;
+ 2. interpret trace data;
+ 3. associate trace data to timestamped RTIC tasks;
+ 4. save the trace data for offline analysis; and
+ 5. present the trace to an end-user in a human-readable fashion.
 
-From an end-user perspective RTIC Scope offers a "batteries-included" tool that enables great insight into a target RTIC applications,
-provided that a small set of limitations are adhered and specific metadata is added to the application crate in question.
+*** Contributions
+ The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
+ - ~itm-decode~ :: a library that decodes raw trace data to a set of Rust structures for easy management,
+   thereby fulfilling requirement 1 of [[*Problem definition]].
+ - ~cargo-rtic-scope~ :: a cargo subcommand that acts as daemon:
+   it records raw trace data, associates it to timestamped RTIC tasks by help of ~itm-decode~, saves it to file, and forwards it to any spawned frontends; thereby fulfilling requirements 2--4.
+ - ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=;
+   thereby fulfilling the last requirement, 5.
 
-The necessary end-user actions can be summarized by the following commands:
-#+begin_src fundamental
-  $ cargo install cargo-rtic-scope
-  $ cargo install rtic-scope-frontend-dummy
-  $ # Example metadata added to a target RTIC application in a crate named "trace-examples"
-  $ cargo metadata --format-version 1 | jq '.packages[] | select(.name == "trace-examples") | .metadata'
-  {
-    "rtic-scope": {
-      "interrupt_path": "stm32f4::stm32f401::Interrupt",
-      "pac": "stm32f4",
-      "pac_features": [
-        "stm32f401"
-      ]
-    }
-  }
-#+end_src
+ From an end-user perspective RTIC Scope offers a "batteries-included" tool that enables great insight into a target RTIC applications,
+ provided that a small set of limitations are adhered and specific metadata is added to the application crate in question.
 
-# XXX what section? next section is thesis limitations
-See the next section on source code limitations.
+ The necessary end-user actions can be summarized by the following commands:
+ #+begin_src fundamental
+   $ cargo install cargo-rtic-scope
+   $ cargo install rtic-scope-frontend-dummy
+   $ # Example metadata added to a target RTIC application in a crate named "trace-examples"
+   $ cargo metadata --format-version 1 | jq '.packages[] | select(.name == "trace-examples") | .metadata'
+   {
+     "rtic-scope": {
+       "interrupt_path": "stm32f4::stm32f401::Interrupt",
+       "pac": "stm32f4",
+       "pac_features": [
+         "stm32f401"
+       ]
+     }
+   }
+ #+end_src
 
-** Limitations
-The work that can be done to solve the [[*Problem definition]] is virtually endless,
-especially regarding the fifth requirement because of the many possible approaches to design an end-user facing application.
-The scope limit of this thesis is thus the implementation of a daemon that fulfills requirements 1--4,
-and a barebones implementation of a frontend for requirement 5.
-As the ~dummy~-suffix implies, this is a frontend that does limited work.
-The reason for this limitation is focus on a delivery of a robust backend that does the heavy lifting.
-The Embedded Rust community is then fully welcome to implement frontends that suit their needs.
+ # XXX what section? next section is thesis limitations
+ See the next section on source code limitations.
 
-Further:
-- the work of this thesis will not stray far from the ITM specification.
-  ETM, for example, will not be exploited.
-- Only RTIC v0.6 (currently in development) will be considered for the final release of RTIC Scope that occur within the frames of this thesis.
-  Releases past those of this thesis will handle future RTIC releases.
+*** Limitations
+ The work that can be done to solve the [[*Problem definition]] is virtually endless,
+ especially regarding the fifth requirement because of the many possible approaches to design an end-user facing application.
+ The scope limit of this thesis is thus the implementation of a daemon that fulfills requirements 1--4,
+ and a barebones implementation of a frontend for requirement 5.
+ As the ~dummy~-suffix implies, this is a frontend that does limited work.
+ The reason for this limitation is focus on a delivery of a robust backend that does the heavy lifting.
+ The Embedded Rust community is then fully welcome to implement frontends that suit their needs.
 
-** TODO Outline
-This paper is structured as follows
-- [[Introduction]] :: provides an introduction to Rust, RTIC, ARM hardware peripherals of interest, and the RTIC Scope project.
-- [[Previous work]] :: presents work previously done in the same domain, which this thesis and RTIC Scope builds upon.
-- [[Related work]] :: presents some tools similar to the features of RTIC Scope.
-- [[Theory]] :: covers the exploited ARM peripherals in detail, and what information is required to associate trace data to RTIC tasks.
-- [[Implementation]] ::
-- [[Results]] ::
-- [[Discussion]] ::
-- [[Conclusions]] ::
-- [[Future work]] ::
-- Appendices ::
-* TODO Previous work
-- itm-tools[fn:itm-tools] :: Some work has already been made to integrate ITM tracing in an RTIC application[fn:itm-tools], but the approach is ad-hoc and not abstracted for the user.
-  Nevertheless, a base to work from is available and will be used.
-- probe-rs :: is an extensible debugging toolkit with in-development support for ITM tracing (cite:probe-rs) that fits into the ecosystem of RTIC.
-  +Work will be done on this toolkit to enable a "batteries included" implementation of the problem solution.+
-- memory lanes[fn:memory-lanes] :: If it is found that more data than what ITM can provide is required for further tracing details, the usage of RTT will be investigated.[fn:memory-lanes]
+ Further:
+ - the work of this thesis will not stray far from the ITM specification.
+   ETM, for example, will not be exploited.
+ - Only RTIC v0.6 (currently in development) will be considered for the final release of RTIC Scope that occur within the frames of this thesis.
+   Releases past those of this thesis will handle future RTIC releases.
 
-* TODO Related work
-- orbuculum :: https://github.com/orbcode/orbuculum. Probably akin to the daemon we want to create.
-- Percepio Tracealyzer :: See https://percepio.com/tracealyzer/.
+*** TODO Previous work
+  - itm-tools[fn:itm-tools] :: Some work has already been made to integrate ITM tracing in an RTIC application[fn:itm-tools], but the approach is ad-hoc and not abstracted for the user.
+    Nevertheless, a base to work from is available and will be used.
+  - probe-rs :: is an extensible debugging toolkit with in-development support for ITM tracing (cite:probe-rs) that fits into the ecosystem of RTIC.
+    +Work will be done on this toolkit to enable a "batteries included" implementation of the problem solution.+
+  - memory lanes[fn:memory-lanes] :: If it is found that more data than what ITM can provide is required for further tracing details, the usage of RTT will be investigated.[fn:memory-lanes]
 
-# (Probably) refer to other (proprietary) implementations
+*** TODO Related work
+  - orbuculum :: https://github.com/orbcode/orbuculum. Probably akin to the daemon we want to create.
+  - Percepio Tracealyzer :: See https://percepio.com/tracealyzer/.
 
-* TODO Theory and Methodology
-This section describes the protocols, hardware peripherals, and software frameworks utilized in RTIC Scope for then end-goal of real-time task tracing.
+  # (Probably) refer to other (proprietary) implementations
 
-Sections [[*Instrumentation Trace Macrocell (ITM)]]--[[*Trace Port Interface Unit (TPIU)]] detail the peripherals used to generate the packet stream intercepted by RTIC Scope.
-Section [[*RTIC]] detail the RTOS which the target application is expected to be written in, and how its metadata is extracted for use in RTIC Scope.
+*** TODO Outline
+ This paper is structured as follows
+ - [[Introduction]] :: provides an introduction to Rust, RTIC, ARM hardware peripherals of interest, and the RTIC Scope project.
+ - [[Previous work]] :: presents work previously done in the same domain, which this thesis and RTIC Scope builds upon.
+ - [[Related work]] :: presents some tools similar to the features of RTIC Scope.
+ - [[Theory]] :: covers the exploited ARM peripherals in detail, and what information is required to associate trace data to RTIC tasks.
+ - [[Implementation]] ::
+ - [[Results]] ::
+ - [[Discussion]] ::
+ - [[Conclusions]] ::
+ - [[Future work]] ::
+ - Appendices ::
+** TODO Method
+ This section describes the protocols, hardware peripherals, and software frameworks utilized in RTIC Scope for then end-goal of real-time task tracing.
 
-** Instrumentation Trace Macrocell (ITM)
-Include Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]]?
-*** Decoding the ITM packet stream
-This is done with https://lib.rs/crates/itm-decode.
-*** Trace collection
-# Talk about the difference between asyncronous serial (via SWO) and
-# synchronous serial communication (when another wire is used as a
-# clock).
+ Sections [[*Instrumentation Trace Macrocell (ITM)]]--[[*Trace Port Interface Unit (TPIU)]] detail the peripherals used to generate the packet stream intercepted by RTIC Scope.
+ Section [[*RTIC]] detail the RTOS which the target application is expected to be written in, and how its metadata is extracted for use in RTIC Scope.
 
-In practise, when using asynchronous serial communication for collecting
-trace data. It it not uncommon that the traced application must be
-restarted a few times until exepceted data is received on the host.
+*** Tools Used
+**** Instrumentation Trace Macrocell (ITM)
+  Include Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]]?
+***** Decoding the ITM packet stream
+  This is done with https://lib.rs/crates/itm-decode.
+***** Trace collection
+  # Talk about the difference between asyncronous serial (via SWO) and
+  # synchronous serial communication (when another wire is used as a
+  # clock).
 
-** Data watchpoint and trace (DWT) units
-   :PROPERTIES:
-   :CUSTOM_ID: DWT
-   :END:
-A data watchpoint and trace (DWT) unit is a hardware component that offers watchpoint functionality and common tracing operations.
-In this project, the watchpoint feature
+  In practise, when using asynchronous serial communication for collecting
+  trace data. It it not uncommon that the traced application must be
+  restarted a few times until exepceted data is received on the host.
 
-*** TODO describe what breakpoints and watchpoints are?
-** Trace Port Interface Unit (TPIU)
-Acts as a bridge between ITM and the outer world.
-** RTIC
-*** Hardware tasks
-Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
-When this interrupt is made pending in hardware, the task function executes.
-An example hardware task is declared via
-#+name: rtic-hw-task-example
-#+begin_src rust
-  #[app]
-  mod app {
-      #[task(bound = EXTI0)]
-      fn foo(_ctx: foo::Context) {
-          // ...
-      }
-  }
-#+end_src
-With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
-After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
+**** Data watchpoint and trace (DWT) units
+     :PROPERTIES:
+     :CUSTOM_ID: DWT
+     :END:
+  A data watchpoint and trace (DWT) unit is a hardware component that offers watchpoint functionality and common tracing operations.
+  In this project, the watchpoint feature
 
-*** Tracing hardware tasks
-Hardware tasks are exclusively bound to singular hardware interrupts.
-Because of this, whenever an interrupt handler executes (and thus the bound hardware task), an =ExceptionTrace { exception, function }= packet is emitted, where =exception= is the exception number as an integer and =function= is the action context of the exception: an exception is either entered, exited, or returned.
-
-*** Resolving hardware task names
-=exception= is a number from (cite:arm-rm; Table B1-4), the external interrupt subset of which is modelled by =PAC::Interrupt=.
-This =Interrupt= enum is used by RTIC.
-To associate an =ExceptionTrace= to an RTIC task one must find
-- which hardware interrupt a task is bound to; and
-- what interrupt number this hardware interrupt is associated with.
-
-For the first issue, as seen in [[rtic-hw-task-example]], the bound hardware interrupt is declared in the source code.
-Associating task name to hardware interrupt can thus be done by parsing the source code.
-This can be done via ~rtic-syntax~ [fn:rtic-syntax].
-
-Finding the hardware interrupt from the interrupt number is a more involved process, even though the information needed is readily available in =PAC::Interrupt=.
-Because Rust does not support reflection it is not possible to inspect different =PAC= types in a single executable.
-The only approach available for resolving is some =Ident -> u8= function.
-There are multiple approaches for how such a function can be implemented.
-They are below enumerated and considered:
-- Parsing the source code of the different =PAC::Interrupt= structures: such a structure can be declared via
+***** TODO describe what breakpoints and watchpoints are?
+**** Trace Port Interface Unit (TPIU)
+  Acts as a bridge between ITM and the outer world.
+**** RTIC
+***** Hardware tasks
+  Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
+  When this interrupt is made pending in hardware, the task function executes.
+  An example hardware task is declared via
+  #+name: rtic-hw-task-example
   #+begin_src rust
-    #[repr(u8)]
-    enum Interrupt {
-        EXTI0 = 6,
-        EXTI1 = 7,
-        // ...
-    }
-  #+end_src
-  It is then possible to download the crate source and parse this structure similar to the RTIC application.
-  Fortunately, as this crate is generated by ~svd2rust~ and it is in the interests of its developers to generate as simple code as possible, the right-hand side of the =Interrupt= variants are always integer literals.
-  These can trivially be converted to the wanted =u8= type.
-  The problem thus minimizes to finding the =enum Interrupt= structure in he crate.
-  The one "clue" given us to this end is the PAC in the =device= argument in the =rtic::app= macro.
-  For example, if an RTIC application is declared with =#[app(divice = stm32f4::stm32f401)]=, it is likely that the =enum Interrupt= structure can be found in some ~/stm32f4/stm32f401/mod.rs~ source file.
-  Alternativly, it may also be inlined in a single source file, say ~lib.rs~:
-  #+begin_src rust
-    mod stm32 {
-        mod stm32f401 {
-            #[repr(u8)]
-            enum Interrupt {
-                // ...
-            }
+    #[app]
+    mod app {
+        #[task(bound = EXTI0)]
+        fn foo(_ctx: foo::Context) {
+            // ...
         }
     }
   #+end_src
-  The host application could support a range of PAC structures to ultimately find the =Interrupt= structure.
-- Dynamically build, load, and call an adhoc cdylib crate that exposes =[Ident -> u8]= functions: All =PAC::Interrupt= structures implement the =bare_metal::Nr= trait.
-  As the name implies, it allow us to call, for example =PAC::Interrupt::EXTI0.nr()= to get the interrupt number of =EXTI0=.
-  This trait can be exploited.
-  For the set of bounds that is parsed from an RTIC application:
-  1. Parse the value of the =rtic::app= macro =device= argument into a =first::second= structure, where =second= is optional.
-     For example, if an application is declared via =#[app(device = stm32f4::stm32f401)]=, =stm32f4= is mapped to =first=; =stm32f401= to =second=.
+  With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
+  After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
 
-     It is here assumed that =first= is the crate that contains the =enum Interrupt= structure;
-     =second= is the required crate feature if specified; and that the =enum Interrupt= is available under =first::second::Interrupt=.
-  2. Create a cdylib[fn:cdylib] crate in a temporary directory that depends on =first= with the feature =second= (if specified).
-  3. For each bind, generate a function that maps the bind to its interrupt numbers. For example, if the bind is =EXTI0=, generate
-     #+begin_src rust
-       #[no_mangle]
-       pub extern fn EXTI0() -> u8 {
-           first::second::Interrupt::EXTI0.nr()
-       }
-     #+end_src
-  4. Build the crate using ~cargo~. [fn:cargo]
-  5. Dynamically load the generated shared object file.
-  6. For each bind, find the associated =extern fn() -> u8= symbol from the bind name, and call the function.
-  7. Collect the bind names and associated interrupt numbers into a =<Ident, u8>= map.
+***** Tracing hardware tasks
+  Hardware tasks are exclusively bound to singular hardware interrupts.
+  Because of this, whenever an interrupt handler executes (and thus the bound hardware task), an =ExceptionTrace { exception, function }= packet is emitted, where =exception= is the exception number as an integer and =function= is the action context of the exception: an exception is either entered, exited, or returned.
 
-With the above approaches, we would have a mapping from RTIC task names to their bound hardware interrupt, and a mapping from hardware interrupt name to the interrupt number.
-Consequently, we would have a mapping from interrupt number to RTIC task name.
-Thus, an =ExceptionTrace= can then readibly be associated with a RTIC hardware task.
-These proposed procedures must be repeated once per application and PAC crate used.
-Of course, caching can be utilized to minimize the number of repeated steps.
+***** Resolving hardware task names
+  =exception= is a number from (cite:arm-rm; Table B1-4), the external interrupt subset of which is modelled by =PAC::Interrupt=.
+  This =Interrupt= enum is used by RTIC.
+  To associate an =ExceptionTrace= to an RTIC task one must find
+  - which hardware interrupt a task is bound to; and
+  - what interrupt number this hardware interrupt is associated with.
 
-While both approaches can be used for the implementation of a =Ident -> u8= function, and both depend on the underlying PAC, they depend on different PAC structure: the source parsing approach depends on the lexical structure of the PAC's source code; and the cdylib approach on the parsed structure of the crate (that is, instead of parsing the source code ourselves, we leave that task to Rust itself).
-Additionally, multiple different lexical structures can map to the same parsed structure; if ~svd2rust~ decides on a lexical change, the host application would have to be changed also.
-It is then understood that the cdylib approach presents the smallest problem when implementing our wanted =Ident -> u8=, and is thus chosen as the best approach.
+  For the first issue, as seen in [[rtic-hw-task-example]], the bound hardware interrupt is declared in the source code.
+  Associating task name to hardware interrupt can thus be done by parsing the source code.
+  This can be done via ~rtic-syntax~ [fn:rtic-syntax].
 
-*** Software tasks
-Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
-For this reason, the used hardware interrupt is considered a "dispatcher".
-
-An example software task is declared via
-#+begin_src rust
-  #[app(dispatchers = [EXTI0])]
-  mod app {
-      #[task]
-      fn bar(_ctx: bar::Context) {
+  Finding the hardware interrupt from the interrupt number is a more involved process, even though the information needed is readily available in =PAC::Interrupt=.
+  Because Rust does not support reflection it is not possible to inspect different =PAC= types in a single executable.
+  The only approach available for resolving is some =Ident -> u8= function.
+  There are multiple approaches for how such a function can be implemented.
+  They are below enumerated and considered:
+  - Parsing the source code of the different =PAC::Interrupt= structures: such a structure can be declared via
+    #+begin_src rust
+      #[repr(u8)]
+      enum Interrupt {
+          EXTI0 = 6,
+          EXTI1 = 7,
           // ...
       }
-  }
-#+end_src
+    #+end_src
+    It is then possible to download the crate source and parse this structure similar to the RTIC application.
+    Fortunately, as this crate is generated by ~svd2rust~ and it is in the interests of its developers to generate as simple code as possible, the right-hand side of the =Interrupt= variants are always integer literals.
+    These can trivially be converted to the wanted =u8= type.
+    The problem thus minimizes to finding the =enum Interrupt= structure in he crate.
+    The one "clue" given us to this end is the PAC in the =device= argument in the =rtic::app= macro.
+    For example, if an RTIC application is declared with =#[app(divice = stm32f4::stm32f401)]=, it is likely that the =enum Interrupt= structure can be found in some ~/stm32f4/stm32f401/mod.rs~ source file.
+    Alternativly, it may also be inlined in a single source file, say ~lib.rs~:
+    #+begin_src rust
+      mod stm32 {
+          mod stm32f401 {
+              #[repr(u8)]
+              enum Interrupt {
+                  // ...
+              }
+          }
+      }
+    #+end_src
+    The host application could support a range of PAC structures to ultimately find the =Interrupt= structure.
+  - Dynamically build, load, and call an adhoc cdylib crate that exposes =[Ident -> u8]= functions: All =PAC::Interrupt= structures implement the =bare_metal::Nr= trait.
+    As the name implies, it allow us to call, for example =PAC::Interrupt::EXTI0.nr()= to get the interrupt number of =EXTI0=.
+    This trait can be exploited.
+    For the set of bounds that is parsed from an RTIC application:
+    1. Parse the value of the =rtic::app= macro =device= argument into a =first::second= structure, where =second= is optional.
+       For example, if an application is declared via =#[app(device = stm32f4::stm32f401)]=, =stm32f4= is mapped to =first=; =stm32f401= to =second=.
 
-In difference to hardware tasks, software tasks can be scheduled by software.
+       It is here assumed that =first= is the crate that contains the =enum Interrupt= structure;
+       =second= is the required crate feature if specified; and that the =enum Interrupt= is available under =first::second::Interrupt=.
+    2. Create a cdylib[fn:cdylib] crate in a temporary directory that depends on =first= with the feature =second= (if specified).
+    3. For each bind, generate a function that maps the bind to its interrupt numbers. For example, if the bind is =EXTI0=, generate
+       #+begin_src rust
+         #[no_mangle]
+         pub extern fn EXTI0() -> u8 {
+             first::second::Interrupt::EXTI0.nr()
+         }
+       #+end_src
+    4. Build the crate using ~cargo~. [fn:cargo]
+    5. Dynamically load the generated shared object file.
+    6. For each bind, find the associated =extern fn() -> u8= symbol from the bind name, and call the function.
+    7. Collect the bind names and associated interrupt numbers into a =<Ident, u8>= map.
 
-*** Tracing software tasks
-Because the implementation of software tasks utilizes hardware interrupts, software tasks can be traced in the same manner as hardware tasks if it is ensured that every dispatcher only manages a single software task.
-However, in practise a dispatcher commonly manager multiple software tasks.
-An emitted =ExceptionTrace= thus tells us when a dispatcher starts, but not which software task it dispatches.
+  With the above approaches, we would have a mapping from RTIC task names to their bound hardware interrupt, and a mapping from hardware interrupt name to the interrupt number.
+  Consequently, we would have a mapping from interrupt number to RTIC task name.
+  Thus, an =ExceptionTrace= can then readibly be associated with a RTIC hardware task.
+  These proposed procedures must be repeated once per application and PAC crate used.
+  Of course, caching can be utilized to minimize the number of repeated steps.
 
-*** Resolving software task names
-The =ExceptionTrace= does not give us all the information we need.
-Instead, a [[#DWT]] unit can be employed to emit =DataTraceValue= packets on software task enter and exit.
-Via this approach, each software task is given a unique ID and code is injected (either by the =rtic::app= macro or by the end-user themselves) to write this unique ID at the start and end of the software task.
-The emitted =DataTraceValue= packets are then analysed by the host application, which maintains a state of which software task is currenly running.[fn:dwt-running-bit]
-The RTIC application source is then parsed to associate =DataTraceValue= payloads back to their software tasks.
+  While both approaches can be used for the implementation of a =Ident -> u8= function, and both depend on the underlying PAC, they depend on different PAC structure: the source parsing approach depends on the lexical structure of the PAC's source code; and the cdylib approach on the parsed structure of the crate (that is, instead of parsing the source code ourselves, we leave that task to Rust itself).
+  Additionally, multiple different lexical structures can map to the same parsed structure; if ~svd2rust~ decides on a lexical change, the host application would have to be changed also.
+  It is then understood that the cdylib approach presents the smallest problem when implementing our wanted =Ident -> u8=, and is thus chosen as the best approach.
 
-In comparison to hardware tasks, which are practically traced for free, software tasks can be traced at the cost of a few register writes and a dedicated DWT unit.
+***** Software tasks
+  Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
+  For this reason, the used hardware interrupt is considered a "dispatcher".
 
-* TODO Implementation
-** Hardware tasks
-** Software tasks
+  An example software task is declared via
+  #+begin_src rust
+    #[app(dispatchers = [EXTI0])]
+    mod app {
+        #[task]
+        fn bar(_ctx: bar::Context) {
+            // ...
+        }
+    }
+  #+end_src
 
-* TODO Results
-** Software task tracing overhead
-Here we can actually test what the overhead is of the two ~u32~ memory writes.
-Perhaps we can figure out the best way to store the watch address in memory too.
-We should plot the cycle count of traced software tasks when using dispatchers vs. DWT units.
-* TODO Discussion
-** Tracing overhead
-* TODO Conclusions
-* TODO Future work
+  In difference to hardware tasks, software tasks can be scheduled by software.
 
-\printbibliography
-\appendices
+***** Tracing software tasks
+  Because the implementation of software tasks utilizes hardware interrupts, software tasks can be traced in the same manner as hardware tasks if it is ensured that every dispatcher only manages a single software task.
+  However, in practise a dispatcher commonly manager multiple software tasks.
+  An emitted =ExceptionTrace= thus tells us when a dispatcher starts, but not which software task it dispatches.
 
-* TODO Application to a non-linear control system
-# The results of the R7014E-alike course
+***** Resolving software task names
+  The =ExceptionTrace= does not give us all the information we need.
+  Instead, a [[#DWT]] unit can be employed to emit =DataTraceValue= packets on software task enter and exit.
+  Via this approach, each software task is given a unique ID and code is injected (either by the =rtic::app= macro or by the end-user themselves) to write this unique ID at the start and end of the software task.
+  The emitted =DataTraceValue= packets are then analysed by the host application, which maintains a state of which software task is currenly running.[fn:dwt-running-bit]
+  The RTIC application source is then parsed to associate =DataTraceValue= payloads back to their software tasks.
+
+  In comparison to hardware tasks, which are practically traced for free, software tasks can be traced at the cost of a few register writes and a dedicated DWT unit.
+
+*** TODO Implementation
+**** Hardware tasks
+**** Software tasks
+
+** TODO Results
+*** Software task tracing overhead
+ Here we can actually test what the overhead is of the two ~u32~ memory writes.
+ Perhaps we can figure out the best way to store the watch address in memory too.
+ We should plot the cycle count of traced software tasks when using dispatchers vs. DWT units.
+** TODO Discussion
+*** Tracing overhead
+*** TODO Conclusions
+*** TODO Future work
+
+  \printbibliography
+  \appendices
+
+** TODO Application to a non-linear control system
+ # The results of the R7014E-alike course
 
 * Footnotes
 
