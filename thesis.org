@@ -27,23 +27,24 @@ Here be an abstract...
 ** TODO Introduction
 # What are embedded systems, regulators, and how do they relate?
 Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices --- serve a key role in the operation of systems with electronical components where computations must be made.
-Examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to within derigned characteristics.
-Often the goal is to track a reference signal.
-Such a regulator observes the internal states of a system under control via sensors and affect the system via actuators.
+A prime examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to designed characteristics.
+Often the goal is to track a reference signal; such a control system is known as a regulator.
+A regulator observes (either directly or by approximation) the internal states of a system under control via sensors and affect the system via actuators.
 For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output and keep the reactor in a safe state.
 
 # On the real-time restrictions of control systems; exponential complexity phenomena.
 A key design parameter of digital controllers is the sample rate: if too low or unconsistent, the controlled system will end up unstable. cite:franklin
-The rocket may thus fly off-course, or the nuclear reactor reach a meltdown.
+The rocket may thus fly off course, or the nuclear reactor reach a meltdown.
 This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
-Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation, which grows exponentially in difficulty with the number of tasks that must be done[fn:2].
-The same exponential phenomena is observed for dynamic systems with a growing number of states, inputs, and outputs.
+Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation.
+This task grows exponentially in difficulty with as the number of system states, inputs, and outputs increase.
+A similar phenomena is observed for embedded systems that have other tasks than to simply regulate[fn:2].
 
 # The observer effect; data exfiltration.
 Unfortunately, embedded systems are subject to the observer effect: to observe the internal state of a embedded system (i.e., system variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
-This observeration is often realized by exfiltrating data via serial communication which in the best case is subject to bus contention and full output queues.
-In a perfect implementation, the user application[fn:1] would only concern itself with its mainsake prodecure and leave data exfiltration to a completely disjoint system, thus minimizing the observer effect and thus the effect on the underlying control system.
+This observeration is often realized by exfiltrating data via serial communication which in the best case can be subject to bus contention and full output queues.
+In a perfect implementation, the user application[fn:1] would only concern itself with its mainsake regulation prodecure and leave data exfiltration to a completely disjoint system, thus minimizing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
 ARM is an ubiquitous vendor for embedded systems with a number of sub-vendors (e.g. STMicroelectrics, NXP Semiconductors, Nordic Semiconductors).
@@ -52,9 +53,9 @@ From ARM's documentation, "Trace refers to the process of capturing data that il
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
 This trace facility allows an event-based monitoring of
 - interrupt enters and exits (tracing of hardware tasks, e.g. the main control loop);
-- write access to in-memory adress spaces (system state variables, software tasks);
+- Read and write access to in-memory adress spaces (system state variables, software tasks); and
 - comparator matches, among other features.
-The generated trace is then exfiltrated from via serial using a packet protocol, henceforth referred to as the "trace stream".
+The generated trace is then exfiltrated via serial using a packet protocol, henceforth referred to as the "trace stream".
 This trace stream (with system-external collection) is thus a suitable candidate for exploitation to realize a control system with minimal observer effect.
 
 # Less work, more sleep.
@@ -62,6 +63,7 @@ Further, with non-invasive trace generation, minimal code must be executed in th
 With a decreased duty-cycle, the system can be put to sleep longer, and thus conserve energy.
 
 # On real-time implementation restictions, embedded implementation difficulties in general. Enter RTIC.
+# TODO generalize? Mention that RTOS helps, present SRP/RTIC in background?
 The development of embedded system in general is a difficult one.
 In comparison to general-purpose computers, where one often need not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
 # No rich OS; no two embedded platforms are the same.
@@ -69,7 +71,7 @@ An embedded developer seldom have access to a rich operating systems (OS) --- a 
 Embedded platforms usually differ significantly, and porting an implementation to another platform is no small task.
 This compares to general-purpose computers where a program written on one computer can be executed on another.
 # Side effects and priority inversions.
-Embedded platforms much more subject to side-effects where peripherals are operated by writing data to memory-mapped registers.
+Embedded platforms are much more subject to side-effects where peripherals are operated by writing data to memory-mapped registers.
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
 In summary, it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
@@ -93,14 +95,15 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
  # - hardware tasks are traced via interrupts, but no effect on user application.
 
 *** Background
-**** Real-time Operating Systems (RTOS)
+This section goes over the theory, tools, and hardware features utilized in order to develop RTIC Scope.
+
 **** Real-Time Interrupt-driven Concurrency (RTIC)
  RTIC (cite:rtic) is a real-time operating system (RTOS) based on the stack resource policy (cite:baker90) for task scheduling written in the Rust programming language.
 
 ***** Rust
 ****** TODO refer to Tjäder's thesis when it comes to Rust?
 ***** RTIC syntax and features
-**** Hardware features
+**** ARM Hardware facilities
 ***** Breakpoints and watchpoints
 ***** Tracing
  RTIC supports the ARM Cortex-M4 family of microprocessor core units (MCUs) which, in turn, offer asynchronous debug facilites for real-time tracing support (cite:arm-rm, §C).
@@ -130,22 +133,17 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
  # We want to make it very simple for the end user to trace an application
 
 *** Problem definition
- An auxiliary toolset for tracing RTIC applications is to be created.
- This toolset shall be able to
- 1. collect raw trace data from the target device;
- 2. interpret trace data;
- 3. associate trace data to timestamped RTIC tasks;
- 4. save the trace data for offline analysis; and
- 5. present the trace to an end-user in a human-readable fashion.
+This thesis explores the possibility of developing a tool (RTIC Scope) that enables an RTIC application developer to gain non-invasive insight into an RTIC application.
+This is done by exploiting the trace generation sub-system (DWT, ITM, and TPIU) of the ARM Cortex-M7 platform and capturing the generated trace stream on a host system for analysis.
+The captured trace stream must be decoded, timestamped, and associated to tasks and resources defined in the RTIC application before being presented to the developer.
+RTIC Scope shall enable the developer to observe the execution and state of the RTIC application in real-time, but also record the trace stream for port-mortem/offline analysis.
 
 *** Contributions
  The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
- - ~itm-decode~ :: a library that decodes raw trace data to a set of Rust structures for easy management,
-   thereby fulfilling requirement 1 of [[*Problem definition]].
+ - ~itm-decode~ :: a library that decodes raw trace data to a set of Rust structures for easy management.
  - ~cargo-rtic-scope~ :: a cargo subcommand that acts as daemon:
-   it records raw trace data, associates it to timestamped RTIC tasks by help of ~itm-decode~, saves it to file, and forwards it to any spawned frontends; thereby fulfilling requirements 2--4.
- - ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=;
-   thereby fulfilling the last requirement, 5.
+   it records raw trace data, associates it to timestamped RTIC tasks by help of ~itm-decode~, saves it to file, and forwards it to any spawned frontends.
+ - ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=.
 
  From an end-user perspective RTIC Scope offers a "batteries-included" tool that enables great insight into a target RTIC applications,
  provided that a small set of limitations are adhered and specific metadata is added to the application crate in question.
@@ -167,23 +165,18 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
    }
  #+end_src
 
- # XXX what section? next section is thesis limitations
- See the next section on source code limitations.
+*** Delimitations
+The number of possible approaches to present the execution and state of an RTIC application to an end-user is virtually infinite.
+For this reason RTIC Scope shall make it easy to develop front-ends that extend the tool for any end-user's needs.
+This shall be done by exposing an JSON API for the end-user.
+Additionally, a barebone CLI frontend will be developed as a proof-of-concept and debugging purposes.
 
-*** Limitations
- The work that can be done to solve the [[*Problem definition]] is virtually endless,
- especially regarding the fifth requirement because of the many possible approaches to design an end-user facing application.
- The scope limit of this thesis is thus the implementation of a daemon that fulfills requirements 1--4,
- and a barebones implementation of a frontend for requirement 5.
- As the ~dummy~-suffix implies, this is a frontend that does limited work.
- The reason for this limitation is focus on a delivery of a robust backend that does the heavy lifting.
- The Embedded Rust community is then fully welcome to implement frontends that suit their needs.
+Further, the work of this thesis will not stray from the ITM specification. ETM, for example, will not be exploited.
+As for RTIC, only v0.6 (in development as of writing) will be considered for the final release of RTIC Scope that occur within the frame of this thesis.
+Releasese past those of this thesis will handle future RTIC releases.
 
- Further:
- - the work of this thesis will not stray far from the ITM specification.
-   ETM, for example, will not be exploited.
- - Only RTIC v0.6 (currently in development) will be considered for the final release of RTIC Scope that occur within the frames of this thesis.
-   Releases past those of this thesis will handle future RTIC releases.
+The reasons for these delimitations is to focus on the delivery of a robust backend that does the heavy lifting extracing the trace stream from the embedded RTIC application.
+The Embedded Rust community is then fully welcome to implement frontends that suit their needs.
 
 *** TODO Previous work
   - itm-tools[fn:itm-tools] :: Some work has already been made to integrate ITM tracing in an RTIC application[fn:itm-tools], but the approach is ad-hoc and not abstracted for the user.
@@ -211,37 +204,61 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
  - [[Future work]] ::
  - Appendices ::
 ** TODO Method
- This section describes the protocols, hardware peripherals, and software frameworks utilized in RTIC Scope for then end-goal of real-time task tracing.
+This section summarizes the protocols, hardware peripherals, and software tools utilized in RTIC Scope.
+For sake of brevity, this section is not exhaustive.
+For more information on each component, refer to the respective documentation.
 
- Sections [[*Instrumentation Trace Macrocell (ITM)]]--[[*Trace Port Interface Unit (TPIU)]] detail the peripherals used to generate the packet stream intercepted by RTIC Scope.
- Section [[*RTIC]] detail the RTOS which the target application is expected to be written in, and how its metadata is extracted for use in RTIC Scope.
+ # Sections [[*Instrumentation Trace Macrocell (ITM)]]--[[*Trace Port Interface Unit (TPIU)]] detail the peripherals used to generate the packet stream intercepted by RTIC Scope.
+ # Section [[*RTIC]] detail the RTOS which the target application is expected to be written in, and how its metadata is extracted for use in RTIC Scope.
 
-*** Tools Used
-**** Instrumentation Trace Macrocell (ITM)
-  Include Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]]?
-***** Decoding the ITM packet stream
-  This is done with https://lib.rs/crates/itm-decode.
-***** Trace collection
-  # Talk about the difference between asyncronous serial (via SWO) and
-  # synchronous serial communication (when another wire is used as a
-  # clock).
+*** Hardware peripherals
+# DWT -> ITM -> TPIU.
+The /Data WatchPoint and Trace/ (DWT) and /Intrumentation Trace Macrocell/ (ITM) are sources of ITM packets which are forwarded to the /Trace Port Interface Unit/ (TPIU) for device exfiltration.
 
-  In practise, when using asynchronous serial communication for collecting
-  trace data. It it not uncommon that the traced application must be
-  restarted a few times until exepceted data is received on the host.
+# DWT summary
+The DWT unit provides the core of the tracing functionality by generating trace packets when (for example)
+- a configured range of data is read or written (data trace), by help of hardware comparators of which there are a limited numbers;
+- whenever the processor enters an exception handler and returns from it;
+Thus, if the memory address of a variable is known (for example a state variable), an ITM packet can be generated whenever it is updated.
+Further, exception packets allows the bookkeeping of the execution states of RTIC hardware tasks.
+We will also know when a task preempts another task.
 
-**** Data watchpoint and trace (DWT) units
-     :PROPERTIES:
-     :CUSTOM_ID: DWT
-     :END:
-  A data watchpoint and trace (DWT) unit is a hardware component that offers watchpoint functionality and common tracing operations.
-  In this project, the watchpoint feature
+All the packets generated by the DWT unit are sent to the ITM unit and then forwarded to the TPIU.
 
-***** TODO describe what breakpoints and watchpoints are?
-**** Trace Port Interface Unit (TPIU)
-  Acts as a bridge between ITM and the outer world.
-**** RTIC
-***** Hardware tasks
+For more information on the DWT unit, refer to [[pdf:~/exjobb/docs/DDI0403E_d_armv7m_arm.pdf::719++1.07][DDI0403E_d_armv7m_arm.pdf: Page 719]].
+
+# ITM summary
+The ITM unit is of an auxilliary nature; it has three functions:
+- the multiplexing of hardware event packets from the DWT unit with its own instrumentation packets;
+- control and generation of timestamp packets; and
+- a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers.
+With the possibility of logging arbitrary data, bookkeeping can be enabled for RTIC software tasks by writing unique identifiers to exclusive stimulus registers in task prologues and epilogues.
+
+The multiplexing functionality then allows the ITM unit to attach a relative timestamp to the generated trace packets. The timestamps are relative to the boot of the device.
+# TODO when exactly is time counting started?
+From this, a timeline of all the generated events can be constructed.
+# TODO add how timestamps relate to packets
+
+For more information on the ITM unit, refer to [[pdf:~/exjobb/docs/DDI0403E_d_armv7m_arm.pdf::709++1.07][DDI0403E_d_armv7m_arm.pdf: Page 709]].
+
+# TPIU summary
+The TPIU enables external visibility of the generated trace packets by serializing these over a set of hardware pins.
+Depending on the platform, these can be GPIO pins which can be configured in parallel mode by use of multiple pins or a singular GPIO pin for an asynchronous port.
+
+For more information on the TPIU, refer to [[pdf:~/exjobb/docs/DDI0403E_d_armv7m_arm.pdf::750++1.07][DDI0403E_d_armv7m_arm.pdf: Page 750]].
+
+# TODO recreate Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]] without ETM component.
+
+**** Decoding the ITM packet stream
+Before the trace stream can be processed, the serialized stream must be decoded into workable Rust structures.
+This is done via /itm-decode/ which pattern-matches the packet header and constructs the relevant structure.
+Additionally, itm-decode generates an absolute ISO timestamp from the relative timestamps in the protocol from a starting point and groups the relevant packets to this timestamp.
+# TODO include a snippet of how packets are decoded
+
+# TODO include reference to the library.
+
+*** RTIC
+**** Hardware tasks
   Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
   When this interrupt is made pending in hardware, the task function executes.
   An example hardware task is declared via
@@ -258,11 +275,11 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
   With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
   After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
 
-***** Tracing hardware tasks
+**** Tracing hardware tasks
   Hardware tasks are exclusively bound to singular hardware interrupts.
   Because of this, whenever an interrupt handler executes (and thus the bound hardware task), an =ExceptionTrace { exception, function }= packet is emitted, where =exception= is the exception number as an integer and =function= is the action context of the exception: an exception is either entered, exited, or returned.
 
-***** Resolving hardware task names
+**** Resolving hardware task names
   =exception= is a number from (cite:arm-rm; Table B1-4), the external interrupt subset of which is modelled by =PAC::Interrupt=.
   This =Interrupt= enum is used by RTIC.
   To associate an =ExceptionTrace= to an RTIC task one must find
@@ -337,7 +354,7 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
   Additionally, multiple different lexical structures can map to the same parsed structure; if ~svd2rust~ decides on a lexical change, the host application would have to be changed also.
   It is then understood that the cdylib approach presents the smallest problem when implementing our wanted =Ident -> u8=, and is thus chosen as the best approach.
 
-***** Software tasks
+**** Software tasks
   Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
   For this reason, the used hardware interrupt is considered a "dispatcher".
 
@@ -354,12 +371,12 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
 
   In difference to hardware tasks, software tasks can be scheduled by software.
 
-***** Tracing software tasks
+**** Tracing software tasks
   Because the implementation of software tasks utilizes hardware interrupts, software tasks can be traced in the same manner as hardware tasks if it is ensured that every dispatcher only manages a single software task.
   However, in practise a dispatcher commonly manager multiple software tasks.
   An emitted =ExceptionTrace= thus tells us when a dispatcher starts, but not which software task it dispatches.
 
-***** Resolving software task names
+**** Resolving software task names
   The =ExceptionTrace= does not give us all the information we need.
   Instead, a [[#DWT]] unit can be employed to emit =DataTraceValue= packets on software task enter and exit.
   Via this approach, each software task is given a unique ID and code is injected (either by the =rtic::app= macro or by the end-user themselves) to write this unique ID at the start and end of the software task.
@@ -368,9 +385,13 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
 
   In comparison to hardware tasks, which are practically traced for free, software tasks can be traced at the cost of a few register writes and a dedicated DWT unit.
 
-*** TODO Implementation
-**** Hardware tasks
-**** Software tasks
+** TODO Implementation
+# go over frontends and backends, sources and sinks
+RTIC Scope is constructed in a single-input, multiple-output manner:
+trace data will be read from a single /source/, and forwarded one or more /sinks/ when information has been recovered.
+RTIC Scope will continue to run as long as the source can be read from, and there is at least one sink available.
+
+# detail how information is recovered, translation maps
 
 ** TODO Results
 *** Software task tracing overhead
@@ -391,7 +412,7 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
 * Footnotes
 
 [fn:2] Additional tasks could for example include: handling firmware updates over the air. # TODO more examples?
-[fn:1] The program that executes on the embedded system when initialization has concluded. Also referred to as the "main loop".
+[fn:1] The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the "main loop".
 
 [fn:cargo-cdylibs] See
 https://docs.rs/cargo/0.52.0/cargo/core/compiler/struct.Compilation.html#structfield.cdylibs.
