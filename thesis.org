@@ -141,21 +141,16 @@ The captured trace stream must be decoded, timestamped, and associated to tasks 
 RTIC Scope shall enable the developer to observe the execution and state of the RTIC application in real-time, but also record the trace stream for port-mortem/offline analysis.
 
 *** Delimitations
-The number of possible approaches to present the execution and state of an RTIC application to an end-user is virtually infinite.
-For this reason RTIC Scope shall make it easy to develop frontends that extend the tool for any end-user's needs.
-This shall be done by exposing an API for the frontend developer.
-Additionally, a reference barebone CLI frontend will be developed as a proof-of-concept and for debugging purposes.
+In order to focus on the delivery of a robust tracing toolset with proper implementation and documentations the scope of this thesis have been limited.
+These limits are enumerated below.
+1. The number of possible approaches to present the execution and state of an RTIC application to an end-user is virtually infinite.
+   For this reason RTIC Scope shall make it easy to develop frontends that extend the tool for any end-user's needs by exposing an backend-frontend API.
+   In order to offer a starting point for future frontends a barebones reference CLI frontend will be developed as a proof-of-concept and for debugging purposes.
+2. The work of this thesis will not stray from the ITM specification. ETM and other Coresight features (except for ETB), for example, will not be investigated.
+3. RTIC Scope targets RTIC version 0.6.
+4. No benchmarks will be done for the host-side tools created during this thesis because there are no other tools of this kind that applies to RTIC.
 
-# TODO detail on Coresight/ETM
-Further, the work of this thesis will not stray from the ITM specification. ETM and other Coresight features (except for ETB), for example, will not be investigated.
-As for RTIC, only v0.6 will be considered for the release of RTIC Scope that occur within the frame of this thesis.
-This release is denoted av v0.3.
-Releases past v0.3 will handle future releases of RTIC.
-
-Lastly, no benchmarks will be done for the host-side tools created during this thesis because there are no other tools of this kind that applies to RTIC.
-
-The reasons for these delimitations is to focus on the delivery of a robust backend that does the heavy lifting of extracing and decoding the trace stream generated on the target.
-With these limitations focus can also be made on proper implementation and documentation, minimizing the friction of further development on the toolset by other parties.
+Following these limits allows time to ultimately yield a documented toolset that minimizes the friction of further development on the toolset by other parties.
 
 *** Previous work
 The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
