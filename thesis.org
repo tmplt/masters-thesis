@@ -157,6 +157,21 @@ Lastly, no benchmarks will be done for the host-side tools created during this t
 The reasons for these delimitations is to focus on the delivery of a robust backend that does the heavy lifting of extracing and decoding the trace stream generated on the target.
 With these limitations focus can also be made on proper implementation and documentation, minimizing the friction of further development on the toolset by other parties.
 
+*** Previous work
+The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
+Of certain note are
+- ~cortex-m~ :: that enable low-level access to Cortex-M processors;
+- ~probe-rs~ :: an extensible embedded debugging toolkit;
+- ~rtic-syntax~ :: RTIC meta language parser library; and
+- ~itm~ (version 0.3) and ~itm-tools~ :: library and tools for analyzing ITM traces.
+
+For a full list of dependant crates used by RTIC Scope, execute
+#+begin_src shell
+  $ cargo install cargo-tree
+  $ git clone https://github.com/rtic-scope/cargo-rtic-scope.git && cd cargo-rtic-scope
+  $ cargo tree
+#+end_src
+
 *** Contributions
 The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
 - ~cargo-rtic-scope~ :: a cargo subcommand that acts as host-side daemon: it
@@ -185,13 +200,8 @@ Aside from these novel crates, the following patches hav been submitted upstream
   - /Implement various interfaces for trace configuration/: https://github.com/rust-embedded/cortex-m/pull/342;
 - rust-embedded/itm ::
   - /replace crate with itm-decode/: https://github.com/rust-embedded/itm/pull/41;
-
-*** TODO Previous work
-  - itm-tools[fn:itm-tools] :: Some work has already been made to integrate ITM tracing in an RTIC application[fn:itm-tools], but the approach is ad-hoc and not abstracted for the user.
-    Nevertheless, a base to work from is available and will be used.
-  - probe-rs :: is an extensible debugging toolkit with in-development support for ITM tracing (cite:probe-rs) that fits into the ecosystem of RTIC.
-    +Work will be done on this toolkit to enable a "batteries included" implementation of the problem solution.+
-  - memory lanes[fn:memory-lanes] :: If it is found that more data than what ITM can provide is required for further tracing details, the usage of RTT will be investigated.[fn:memory-lanes]
+- rtic-rs/rtic-syntax ::
+  - /improve error string if parse_binds is not set/: https://github.com/rtic-rs/rtic-syntax/pull/47.
 
 *** TODO Related work
   - orbuculum :: https://github.com/orbcode/orbuculum. Probably akin to the daemon we want to create.
