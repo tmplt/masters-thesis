@@ -147,8 +147,10 @@ These limits are enumerated below.
    For this reason RTIC Scope shall make it easy to develop frontends that extend the tool for any end-user's needs by exposing an backend-frontend API.
    In order to offer a starting point for future frontends a barebones reference CLI frontend will be developed as a proof-of-concept and for debugging purposes.
 2. The work of this thesis will not stray from the ITM specification. ETM and other Coresight features (except for ETB), for example, will not be investigated.
-3. RTIC Scope targets RTIC version 0.6.
-4. No benchmarks will be done for the host-side tools created during this thesis because there are no other tools of this kind that applies to RTIC.
+3. No benchmarks will be done for the host-side tools created during this thesis because there are no other tools of this kind that applies to RTIC.
+4. This thesis documents the development and implementation of RTIC Scope version 0.3. Any work made or planned beyond this release is considered as future work.
+5. RTIC Scope v0.3 targets RTIC version 0.6.
+6. RTIC Scope v0.3 only supports the ARM Cortex-M platform.
 
 Following these limits allows time to ultimately yield a documented toolset that minimizes the friction of further development on the toolset by other parties.
 
