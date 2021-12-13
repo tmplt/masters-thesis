@@ -150,6 +150,8 @@ As for RTIC, only v0.6 will be considered for the release of RTIC Scope that occ
 This release is denoted av v0.3.
 Releases past v0.3 will handle future releases of RTIC.
 
+Lastly, no benchmarks will be done for the host-side tools created during this thesis because there are no other tools of this kind that applies to RTIC.
+
 The reasons for these delimitations is to focus on the delivery of a robust backend that does the heavy lifting of extracing and decoding the trace stream generated on the target.
 With these limitations focus can also be made on proper implementation and documentation, minimizing the friction of further development on the toolset by other parties.
 
@@ -478,10 +480,21 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 
 # TODO document cortex-m-rtic-trace usage
 
-*** Software task tracing overhead
- Here we can actually test what the overhead is of the two ~u32~ memory writes.
- Perhaps we can figure out the best way to store the watch address in memory too.
- We should plot the cycle count of traced software tasks when using dispatchers vs. DWT units.
+*** Tracing overhead with RTIC Scope
+[[https://developer.arm.com/documentation/102119/0200/Can-trace-capture-affect-a-system-][ARM's /Understanding Trace/, $7]], states that:
+#+begin_quote
+Except for the power that is consumed by the system trace components,
+trace is almost entirely non-invasive. This means that performing trace
+generation and collection does not influence the wider system.
+#+end_quote
+
+The target-side code of RTIC Scope itself has a negligible performance impact during execution:
+- the ITM/DWT/TPIU units need only be configured once in =#[init]= or during some other preparatory stage; and
+- when software tasks are traced, a =u8= variable write must be done when entering and exiting the task.
+
+The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dummy~ have not been measured.
+
+# TODO DWT unit consumption
 
 ** TODO Discussion
 *** Tracing overhead
