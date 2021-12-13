@@ -186,6 +186,7 @@ Because of its more general nature and detachment from RTIC Scope it is not part
 
 Aside from these novel crates, the following patches hav been submitted upstream in order to add functionality to upstream crates (listed in no particular order):
 # TODO use latex escape for proper italics when / is must be italics also
+# TODO convert to references
 - probe-rs/probe-rs ::
   - /Reintroduce ~CargoOptions~ in ~mod common_options~/: https://github.com/probe-rs/probe-rs/pull/760;
   - /arm: enable exception trace on ~setup_swv~/: https://github.com/probe-rs/probe-rs/pull/758;
@@ -205,11 +206,13 @@ Aside from these novel crates, the following patches hav been submitted upstream
   - /book: detail import resolving for 0.6 migration/: https://github.com/rtic-rs/cortex-m-rtic/pull/479;
   - /book: update outdated required init signature/: https://github.com/rtic-rs/cortex-m-rtic/pull/478.
 
-*** TODO Related work
-  - orbuculum :: https://github.com/orbcode/orbuculum. Probably akin to the daemon we want to create.
-  - Percepio Tracealyzer :: See https://percepio.com/tracealyzer/.
+*** Related work
+# TODO convert to references
+Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
+- orbuculum :: https://github.com/orbcode/orbuculum, an ARM Cortex-M trace stream demuxer and post-processor;
+- Percepio Tracealyzer :: https://percepio.com/tracealyzer/, proprietary visual trace diagnostic tool that supports a multitude of platforms and RTOSs.
 
-  # (Probably) refer to other (proprietary) implementations
+Neither of the tools support RTIC, nor have any inspiration been taken from them during the development of RTIC Scope.
 
 *** TODO Outline
  This paper is structured as follows
