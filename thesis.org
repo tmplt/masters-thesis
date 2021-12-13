@@ -48,7 +48,7 @@ In a perfect implementation, the user application[fn:1] would only concern itsel
 
 # ARM, tracing subsystem and possible exploitation.
 ARM is an ubiquitous vendor for embedded systems with a number of sub-vendors (e.g. STMicroelectrics, NXP Semiconductors, Nordic Semiconductors).
-The ARM Cortex-M7 standard offers debugging facilities that enables the developer to trace the system.
+The ARMv7-M standard offers debugging facilities that enables the developer to trace the system.
 From ARM's documentation, "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing". cite:arm-cortex-learn
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
 This trace facility allows an event-based monitoring of
@@ -83,8 +83,8 @@ RTIC also lends itself to static analysis by help of external tools, further lig
 The aim of this thesis is thus to employ and extend upon RTIC with a toolset to leverage ARM's non-intrusive tracing facilites whilst requiring minimal overhead for then end-user developer, greatly lightening the burden to implement digital control systems.
 The resulting toolset will be employed to implement a regulator for a non-trivial dynamic system, and the ergonomics of the toolset evaluated.
 
-# TODO throw in some stats on how much ARM is used in industy
-# TODO "mission-critical systems are thus implemented in worst case scenario, doing more work than necessary, because it is easier to analyze"?
+# TODO throw in some stats on how much ARM is used in industy?
+# TODO "mission-critical systems are thus implemented in worst case scenario, doing more work than necessary, because it is easier to analyze"? Do we have a source on this?
 
  # The vendor ARM...
  # - ITM
@@ -126,57 +126,89 @@ This section goes over the theory, tools, and hardware features utilized in orde
 *** Motivation
  Debugging the user application running on an MCU is an integral part of an embedded work-flow.
  Thus, the more debugging facilities that are readily available to the end-user of an RTOS, the better.
- More so if proper usage of such facilities - which are commonly non-trivial on embedded systems  - is abstracted.
- However, care must be taken when utilizing debugging features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and production environment.
+ More so if proper usage of such facilities --- which are commonly non-trivial on embedded systems --- is abstracted.
+ However, care must be taken when utilizing debugging features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and release environment.
 
- # Talk about RTIC and its increasing usage
- # We want to make it very simple for the end user to trace an application
+ # TODO Talk about RTIC and its increasing usage
+ # TODO We want to make it very simple for the end user to trace an application, lookup "batteries included" definition.
 
 *** Problem definition
-This thesis explores the possibility of developing a tool (RTIC Scope) that enables an RTIC application developer to gain non-invasive insight into an RTIC application.
-This is done by exploiting the trace generation sub-system (DWT, ITM, and TPIU) of the ARM Cortex-M7 platform and capturing the generated trace stream on a host system for analysis.
-The captured trace stream must be decoded, timestamped, and associated to tasks and resources defined in the RTIC application before being presented to the developer.
+This thesis explores the possibility of developing a toolset (RTIC Scope) that enables an RTIC application developer to gain non-invasive insight into an RTIC application.
+This is done by exploiting the trace generation sub-system (DWT and ITM) of the ARMv7-M platform and capturing the generated trace stream on a host system for analysis (via ETB or TPIU).
+The captured trace stream must be decoded, timestamped, and associated to tasks and resources defined in the RTIC application before being presented to the user.
 RTIC Scope shall enable the developer to observe the execution and state of the RTIC application in real-time, but also record the trace stream for port-mortem/offline analysis.
 
+*** Delimitations
+The number of possible approaches to present the execution and state of an RTIC application to an end-user is virtually infinite.
+For this reason RTIC Scope shall make it easy to develop frontends that extend the tool for any end-user's needs.
+This shall be done by exposing an API for the frontend developer.
+Additionally, a reference barebone CLI frontend will be developed as a proof-of-concept and for debugging purposes.
+
+# TODO detail on Coresight/ETM
+Further, the work of this thesis will not stray from the ITM specification. ETM and other Coresight features (except for ETB), for example, will not be investigated.
+As for RTIC, only v0.6 will be considered for the release of RTIC Scope that occur within the frame of this thesis.
+This release is denoted av v0.3.
+Releases past v0.3 will handle future releases of RTIC.
+
+The reasons for these delimitations is to focus on the delivery of a robust backend that does the heavy lifting of extracing and decoding the trace stream generated on the target.
+With these limitations focus can also be made on proper implementation and documentation, minimizing the friction of further development on the toolset by other parties.
+
 *** Contributions
- The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
- - ~itm-decode~ :: a library that decodes raw trace data to a set of Rust structures for easy management.
- - ~cargo-rtic-scope~ :: a cargo subcommand that acts as daemon:
-   it records raw trace data, associates it to timestamped RTIC tasks by help of ~itm-decode~, saves it to file, and forwards it to any spawned frontends.
- - ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=.
+The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
+- ~cargo-rtic-scope~ :: a cargo subcommand that acts as host-side daemon: it
+  - records raw trace data;
+  - associates it to timestamped RTIC tasks, relative to target boot;
+  - serializes this resolved trace to a file on disk and to any frontends; and
+  - echoes any messages a frontend writes to =stderr=.
+- ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=.
+- ~rtic-scope-api~ :: the API implemented by ~cargo-rtic-scope~ an any frontend.
+- ~cortex-m-rtic-trace~ :: an auxilliary target-side crate that properly configures the ITM/DWT/TPIU units.
 
- From an end-user perspective RTIC Scope offers a "batteries-included" tool that enables great insight into a target RTIC applications,
- provided that a small set of limitations are adhered and specific metadata is added to the application crate in question.
+Internally, ~cargo-rtic-scope~ relies on the ~itm~ crate --- also developed as part of this thesis --- to decode the ITM packet protocol generated by the target to manageable Rust structures.
+Because of its more general nature and detachment from RTIC Scope it is not part of the project itself.
 
- The necessary end-user actions can be summarized by the following commands:
+Aside from these novel crates, the following patches hav been submitted upstream in order to add functionality to upstream crates (listed in no particular order):
+# TODO use latex escape for proper italics when / is must be italics also
+- probe-rs/probe-rs ::
+  - /Reintroduce ~CargoOptions~ in ~mod common_options~/: https://github.com/probe-rs/probe-rs/pull/760;
+  - /arm: enable exception trace on ~setup_swv~/: https://github.com/probe-rs/probe-rs/pull/758;
+  - /cargo: bump bitvec/: https://github.com/probe-rs/probe-rs/pull/757;
+  - /arm=/=itm: doc fields, enable global timestamps/: https://github.com/probe-rs/probe-rs/pull/728;
+  - /Add generic probe=/=session logic from cargo-flash/: https://github.com/probe-rs/probe-rs/pull/723;
+  - /deprecate internal ITM=/=DWT packet decoder in favour of itm-decode/: https://github.com/probe-rs/probe-rs/pull/564;
+- rust-embedded/cortex-m ::
+  - /scb: derive serde, Hash, PartialOrd for VectActive behind gates/: https://github.com/rust-embedded/cortex-m/pull/363;
+  - /Implement various interfaces for trace configuration/: https://github.com/rust-embedded/cortex-m/pull/342;
+- rust-embedded/itm ::
+  - /replace crate with itm-decode/: https://github.com/rust-embedded/itm/pull/41;
+
+From an end-user perspective RTIC Scope offers a "batteries-included" toolset that enables great insight into a target RTIC applications,
+provided that a small set of limitations are adhered to and specific metadata is added to the application crate in question.
+The necessary end-user actions can be summarized by the following commands:
  #+begin_src fundamental
    $ cargo install cargo-rtic-scope
    $ cargo install rtic-scope-frontend-dummy
-   $ # Example metadata added to a target RTIC application in a crate named "trace-examples"
-   $ cargo metadata --format-version 1 | jq '.packages[] | select(.name == "trace-examples") | .metadata'
+   $ # Example metadata added to a target RTIC application in a crate named "rtic-scope-example-applications"
+   $ cargo metadata --format-version 1 | jq '.packages[] | select(.name == "rtic-scope-example-applications") | .metadata'
    {
      "rtic-scope": {
+       "dwt_enter_id": 1,
+       "dwt_exit_id": 2,
+       "expect_malformed": true,
        "interrupt_path": "stm32f4::stm32f401::Interrupt",
-       "pac": "stm32f4",
+       "lts_prescaler": 1,
        "pac_features": [
          "stm32f401"
-       ]
+       ],
+       "pac_name": "stm32f4",
+       "pac_version": "0.13",
+       "tpiu_baud": 115200,
+       "tpiu_freq": 16000000
      }
    }
  #+end_src
 
-*** Delimitations
-The number of possible approaches to present the execution and state of an RTIC application to an end-user is virtually infinite.
-For this reason RTIC Scope shall make it easy to develop front-ends that extend the tool for any end-user's needs.
-This shall be done by exposing an JSON API for the end-user.
-Additionally, a barebone CLI frontend will be developed as a proof-of-concept and debugging purposes.
-
-Further, the work of this thesis will not stray from the ITM specification. ETM, for example, will not be exploited.
-As for RTIC, only v0.6 (in development as of writing) will be considered for the final release of RTIC Scope that occur within the frame of this thesis.
-Releasese past those of this thesis will handle future RTIC releases.
-
-The reasons for these delimitations is to focus on the delivery of a robust backend that does the heavy lifting extracing the trace stream from the embedded RTIC application.
-The Embedded Rust community is then fully welcome to implement frontends that suit their needs.
+# TODO document cortex-m-rtic-trace usage
 
 *** TODO Previous work
   - itm-tools[fn:itm-tools] :: Some work has already been made to integrate ITM tracing in an RTIC application[fn:itm-tools], but the approach is ad-hoc and not abstracted for the user.
