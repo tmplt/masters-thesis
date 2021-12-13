@@ -11,7 +11,8 @@
 #+latex_header: \addbibresource{ref.bib}
 #+latex_header: \usepackage{microtype}
 
-# TODO typeset TODOS for easier reviewing
+# TODO typeset TODOS for easier reviewing (is this even possible? TODOs are mostly comments)
+# TODO install and apply a grammar checker.
 
 * Org setup
   #+begin_src emacs-lisp :result output :session :exports both
