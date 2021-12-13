@@ -202,6 +202,10 @@ Aside from these novel crates, the following patches hav been submitted upstream
   - /replace crate with itm-decode/: https://github.com/rust-embedded/itm/pull/41;
 - rtic-rs/rtic-syntax ::
   - /improve error string if parse_binds is not set/: https://github.com/rtic-rs/rtic-syntax/pull/47.
+- rtic-rs/cortex-m-rtic ::
+  - /book=/=migration=/=v5: update init signature, fix example syntax/: https://github.com/rtic-rs/cortex-m-rtic/pull/480;
+  - /book: detail import resolving for 0.6 migration/: https://github.com/rtic-rs/cortex-m-rtic/pull/479;
+  - /book: update outdated required init signature/: https://github.com/rtic-rs/cortex-m-rtic/pull/478.
 
 *** TODO Related work
   - orbuculum :: https://github.com/orbcode/orbuculum. Probably akin to the daemon we want to create.
