@@ -210,7 +210,7 @@ When this interrupt is made pending in hardware, the task function executes.
 An example hardware task is declared via
 #+name: rtic-hw-task-example
 #+begin_src rust
-  #[app]
+  #[rtic::app]
   mod app {
       #[task(bound = EXTI0)]
       fn foo(_ctx: foo::Context) {
@@ -228,7 +228,7 @@ With this declaration, =foo= will be executed when ~EXTI0~ is made pending in ha
 
   An example software task is declared via
   #+begin_src rust
-    #[app(dispatchers = [EXTI0])]
+    #[rtic::app(dispatchers = [EXTI0])]
     mod app {
         #[task]
         fn bar(_ctx: bar::Context) {
