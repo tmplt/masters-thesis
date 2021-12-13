@@ -182,34 +182,6 @@ Aside from these novel crates, the following patches hav been submitted upstream
 - rust-embedded/itm ::
   - /replace crate with itm-decode/: https://github.com/rust-embedded/itm/pull/41;
 
-From an end-user perspective RTIC Scope offers a "batteries-included" toolset that enables great insight into a target RTIC applications,
-provided that a small set of limitations are adhered to and specific metadata is added to the application crate in question.
-The necessary end-user actions can be summarized by the following commands:
- #+begin_src fundamental
-   $ cargo install cargo-rtic-scope
-   $ cargo install rtic-scope-frontend-dummy
-   $ # Example metadata added to a target RTIC application in a crate named "rtic-scope-example-applications"
-   $ cargo metadata --format-version 1 | jq '.packages[] | select(.name == "rtic-scope-example-applications") | .metadata'
-   {
-     "rtic-scope": {
-       "dwt_enter_id": 1,
-       "dwt_exit_id": 2,
-       "expect_malformed": true,
-       "interrupt_path": "stm32f4::stm32f401::Interrupt",
-       "lts_prescaler": 1,
-       "pac_features": [
-         "stm32f401"
-       ],
-       "pac_name": "stm32f4",
-       "pac_version": "0.13",
-       "tpiu_baud": 115200,
-       "tpiu_freq": 16000000
-     }
-   }
- #+end_src
-
-# TODO document cortex-m-rtic-trace usage
-
 *** TODO Previous work
   - itm-tools[fn:itm-tools] :: Some work has already been made to integrate ITM tracing in an RTIC application[fn:itm-tools], but the approach is ad-hoc and not abstracted for the user.
     Nevertheless, a base to work from is available and will be used.
@@ -475,10 +447,42 @@ RTIC Scope will continue to run as long as the source can be read from, and ther
 # detail how information is recovered, translation maps
 
 ** TODO Results
+*** Using RTIC Scope
+From an end-user perspective RTIC Scope offers a "batteries-included" toolset that enables great insight into a target RTIC applications,
+provided that a small set of limitations are adhered to and specific metadata is added to the application crate in question.
+To install RTIC Scope, an end-user executes
+#+begin_src shell
+  $ cargo install cargo-rtic-scope
+  $ cargo install rtic-scope-frontend-dummy
+#+end_src
+and adds the following metadata to their RTIC application's ~Cargo.toml~:
+#+begin_src toml
+  [package.metadata.rtic-scope]
+  # necessary information for RTIC metadata recovery
+  pac_name = "stm32f4"
+  pac_features = ["stm32f401"]
+  pac_version = "0.13"
+  interrupt_path = "stm32f4::stm32f401::Interrupt"
+
+  # ITM/DWT/TPIU parameters
+  tpiu_freq = 16000000
+  tpiu_baud = 115200
+  dwt_enter_id = 1
+  dwt_exit_id = 2
+  lts_prescaler = 1
+
+  # Whether it is expected that the target generates packets that do not adhere to the ITM standard.
+  # For debugging purposes.
+  expect_malformed = true
+#+end_src
+
+# TODO document cortex-m-rtic-trace usage
+
 *** Software task tracing overhead
  Here we can actually test what the overhead is of the two ~u32~ memory writes.
  Perhaps we can figure out the best way to store the watch address in memory too.
  We should plot the cycle count of traced software tasks when using dispatchers vs. DWT units.
+
 ** TODO Discussion
 *** Tracing overhead
 *** TODO Conclusions
