@@ -11,6 +11,8 @@
 #+latex_header: \addbibresource{ref.bib}
 #+latex_header: \usepackage{microtype}
 
+# TODO typeset TODOS for easier reviewing
+
 * Org setup
   #+begin_src emacs-lisp :result output :session :exports both
     (require 'ox-extra)
@@ -24,7 +26,7 @@
 Here be an abstract...
 #+end_abstract
 
-** TODO Introduction
+** Introduction
 # What are embedded systems, regulators, and how do they relate?
 Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices --- serve a key role in the operation of systems with electronical components where computations must be made.
 A prime examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to designed characteristics.
