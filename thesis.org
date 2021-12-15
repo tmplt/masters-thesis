@@ -339,8 +339,6 @@ Neither of the tools support RTIC, nor have any inspiration been taken from them
  - [[Conclusions]] ::
  - [[Future work]] ::
  - Appendices ::
-** TODO Method
-# git, github, issue workflow
 
 ** TODO Implementation
 # go over frontends and backends, sources and sinks
