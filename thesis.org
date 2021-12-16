@@ -374,93 +374,151 @@ This packet contains three fields of information: the DWT comparator number that
 
 These two packets cannot be associated to RTIC tasks on their own.
 The recovery step of RTIC Scope must thus generate host-side lookup maps that map IRQ numbers to hardware tasks and data trace values and DWT comparator numbers to software tasks.
+These translation maps are aptly named the =recovery::SoftwareMap= and =recovery::HardwareMap=.
+Together they constitute the information available in a =recovery::TraceLookupMaps=.
 
-**** TODO Hardware tasks
+**** Generating the =recovery::HardwareMap=
+In order to generate a =recovery::HardwareMap= the RTIC application declaration must be parsed.
+This is done when the RTIC app is built via =cargo build= when the =#[rtic::app(..)]= macro is expanded by help of ~rtic_syntax::parse{,2}~ functions which yelds yields (among other) a =rtic_syntax::App=.
+This structure is not communicated to RTIC Scope which means that the RTIC app must be parsed one additional time.
+
+In order to generate a =rtic_syntax::App= for recovery purposes =rtic_syntax::parse2= must be called directly with the arguments of =#[rtic::app(..)]= and with the input to the macro.
+For example, in [[lst:recovery-example]], =device = stm32f4::stm32f401= is the macro arguments, and =mod app { ... }= is the macro input.
+#+CAPTION: Example RTIC application declaration for execution on the STMicroelectronics STM32 NUCLEO-F401RE.
+#+NAME: lst:recovery-example
+#+begin_src rust
+  #[rtic::app(device = stm32f4::stm32f401)]
+  mod app {
+      #[shared]
+      struct Shared {}
+
+      #[local]
+      struct Local {}
+
+      #[init]
+      fn init(mut ctx: init::Context) -> (Shared, Local, init::Monotonics) {
+          // ...
+          (Shared {}, Local {}, init::Monotonics())
+      }
+
+      #[task(binds = SysTick)]
+      fn task1(_: task1::Context) {
+          // ...
+      }
+
+      #[task(binds = EXTI1)]
+      fn task2(_: task2::Context) {
+          // ...
+      }
+  }
+#+end_src
+However, these \glspl{AST} are not readily available without further preparatory work; they must first be extracted from the source file containing [[lst:recovery-example]].
 
 
-**** TODO Software tasks
+To find the source file, the RTIC app must first be built. This is done via =build::CargoWrapper::new= [fn:recovery-build] which intercepts the output of =cargo build --message-format=json-diagnostic-rendered-ansi= by help of the =cargo_metadata= crate.
+This output contains the absolute path to the source file that contains [[lst:recovery-example]].
 
-*** Tracing hardware tasks
-Hardware tasks are exclusively bound to singular hardware interrupts.
-Because of this, whenever an interrupt handler executes (and thus the bound hardware task), an =ExceptionTrace { exception, function }= packet is emitted, where =exception= is the exception number as an integer and =function= is the action context of the exception: an exception is either entered, exited, or returned.
-*** Resolving hardware task names
-=exception= is a number from (cite:arm-rm; Table B1-4), the external interrupt subset of which is modelled by =PAC::Interrupt=.
-This =Interrupt= enum is used by RTIC.
-To associate an =ExceptionTrace= to an RTIC task one must find
-- which hardware interrupt a task is bound to; and
-- what interrupt number this hardware interrupt is associated with.
+With the source file readily available it is parsed as a \gls{tokenstream} by skipping \glspl{token} until =#[rtic::app]= is found, after which the =rtic_syntax= parsing explained above is done.
 
-  For the first issue, as seen in [[rtic-hw-task-example]], the bound hardware interrupt is declared in the source code.
-  Associating task name to hardware interrupt can thus be done by parsing the source code.
-  This can be done via ~rtic-syntax~ [fn:rtic-syntax].
+At this point we have the necessary =rtic_syntax::App= structure to continue: =rtic_syntax::App::hardware_tasks= is a collection of =rtic_syntax::HardwareTask= that lists what interrupt handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]=.
+After parsing [[lst:recovery-example]], =hardware_tasks= contains [fn:: abstracted for brevity.]
+#+begin_export latex
+$$
+\langle \text{\texttt{app::task1} binds to \texttt{SysTick}} \rangle, \langle \text{\texttt{app::task2} binds to \texttt{EXTI1}} \rangle
+$$
+#+end_export
+Of these, the =app::task1= bind is considered known, and the =app::task2= bind is considered unknown.
+A known bind is one that no more recovery work must be applied on.
+This follows from the specification of the exception trace packet: [[tbl:irqns]] enumerates all numbers that can be in the packet's IRQ field.
+All $\text{IRQn} < 16$ are common to all ARMv7-M targets, the name of which can be directly mapped to the RTIC task that binds the IRQ name.
+All $\text{IRQn} \geq 16$ on the other hand, are not common to all ARMv7-M, and are thus treated as platform-specific because the labels (specified via =#[task(binds = ...)]=) are unknown.
+Additional recovery must be done to find these labels.
 
-  Finding the hardware interrupt from the interrupt number is a more involved process, even though the information needed is readily available in =PAC::Interrupt=.
-  Because Rust does not support reflection it is not possible to inspect different =PAC= types in a single executable.
-  The only approach available for resolving is some =Ident -> u8= function.
-  There are multiple approaches for how such a function can be implemented.
-  They are below enumerated and considered:
-  - Parsing the source code of the different =PAC::Interrupt= structures: such a structure can be declared via
-    #+begin_src rust
-      #[repr(u8)]
-      enum Interrupt {
+#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Copied from (cite:arm-rm; Table B1-4).
+#+NAME: tbl:irqns
+#+ATTR_HTML: :rules all
+| Exception number | Exception name/label   |
+|------------------+------------------------|
+|                1 | Reset                  |
+|                2 | NMI                    |
+|                3 | HardFault              |
+|                4 | MemManage              |
+|                5 | BusFault               |
+|             7-10 | Reserved               |
+|               11 | SVCall                 |
+|               12 | DebugMonitor           |
+|               13 | Reserved               |
+|               14 | PendSV                 |
+|               15 | SysTick                |
+|               16 | External interrupt 0   |
+|                . | .                      |
+|                . | .                      |
+|                . | .                      |
+|         16 + $N$ | External interrupt $N$ |
+|------------------+------------------------|
+
+For any RTIC application, the labels are available in the =PAC::Interrupt= enum. For [[lst:recovery-example]], =PAC= is =stm32::stm32f401=.
+An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
+#+NAME: lst:pac-interrupt-example
+#+CAPTION: Example declaration of a =PAC::Interrupt= enum. Left-hand side of =Interrupt= is the IRQ label; right-hand is $N$ in [[tbl:irqns]].
+#+begin_src rust
+  pub mod PAC {
+      #[derive(Debug)]
+      #[repr(u16)]
+      pub enum Interrupt {
+          PVD = 1,
           EXTI0 = 6,
           EXTI1 = 7,
           // ...
       }
-    #+end_src
-    It is then possible to download the crate source and parse this structure similar to the RTIC application.
-    Fortunately, as this crate is generated by ~svd2rust~ and it is in the interests of its developers to generate as simple code as possible, the right-hand side of the =Interrupt= variants are always integer literals.
-    These can trivially be converted to the wanted =u8= type.
-    The problem thus minimizes to finding the =enum Interrupt= structure in he crate.
-    The one "clue" given us to this end is the PAC in the =device= argument in the =rtic::app= macro.
-    For example, if an RTIC application is declared with =#[app(divice = stm32f4::stm32f401)]=, it is likely that the =enum Interrupt= structure can be found in some ~/stm32f4/stm32f401/mod.rs~ source file.
-    Alternativly, it may also be inlined in a single source file, say ~lib.rs~:
-    #+begin_src rust
-      mod stm32 {
-          mod stm32f401 {
-              #[repr(u8)]
-              enum Interrupt {
-                  // ...
-              }
+
+      unsafe impl cortex_m::interrupt::InterruptNumber for Interrupt {
+          #[inline(always)]
+          fn number(self) -> u16 {
+              self as u16
           }
       }
-    #+end_src
-    The host application could support a range of PAC structures to ultimately find the =Interrupt= structure.
-  - Dynamically build, load, and call an adhoc cdylib crate that exposes =[Ident -> u8]= functions: All =PAC::Interrupt= structures implement the =bare_metal::Nr= trait.
-    As the name implies, it allow us to call, for example =PAC::Interrupt::EXTI0.nr()= to get the interrupt number of =EXTI0=.
-    This trait can be exploited.
-    For the set of bounds that is parsed from an RTIC application:
-    1. Parse the value of the =rtic::app= macro =device= argument into a =first::second= structure, where =second= is optional.
-       For example, if an application is declared via =#[app(device = stm32f4::stm32f401)]=, =stm32f4= is mapped to =first=; =stm32f401= to =second=.
+  }
+#+end_src
+By finding the label used in =#[task(bind = ...)]= in =PAC::Interrupt= we find what enum constructor to use.
+With the enum in hand, we construct it and get the IRQ number offset $N$ via
+#+begin_src rust
+  let label = PAC::Interrupt::EXTI1;
+  assert_eq!(label.number(), 7);
+#+end_src
+To get the IRQ number of this unknown bind we simly sum it with $16$, as documented by [[tbl:irqns]]:
+#+begin_src rust
+  let irq_nr = label.number() + 16;
+  assert_eq!(irq_nr, 23);
+#+end_src
+This process is unfortunately non-trivial: Rust does not have dynamic programming features and an ideal evaluation function of
+#+begin_src rust
+  fn resolve_irq_nr(label: &str) -> u16 {
+      quote!(PAC::Interrupt::$label).eval().number() + 16;
+  }
+#+end_src
+is not realizable.
 
-       It is here assumed that =first= is the crate that contains the =enum Interrupt= structure;
-       =second= is the required crate feature if specified; and that the =enum Interrupt= is available under =first::second::Interrupt=.
-    2. Create a cdylib[fn:cdylib] crate in a temporary directory that depends on =first= with the feature =second= (if specified).
-    3. For each bind, generate a function that maps the bind to its interrupt numbers. For example, if the bind is =EXTI0=, generate
-       #+begin_src rust
-         #[no_mangle]
-         pub extern fn EXTI0() -> u8 {
-             first::second::Interrupt::EXTI0.nr()
-         }
-       #+end_src
-    4. Build the crate using ~cargo~. [fn:cargo]
-    5. Dynamically load the generated shared object file.
-    6. For each bind, find the associated =extern fn() -> u8= symbol from the bind name, and call the function.
-    7. Collect the bind names and associated interrupt numbers into a =<Ident, u8>= map.
+Enter =recovery::resolve_int_nrs=: given a list of labels, the function
+1. extracts an embedded file tree constituting a crate to the RTIC application's ~target/cargo-rtic-trace-libadhoc~;
+2. adds a user-specified crate dependency for the PAC in ~Cargo.toml~;
+3. for each label: adds a non-mangled function with the same name as the label that returns the associated IRQ number offset, $N$ (for [[lst:recovery-example]] the generated code can be seen in [[lst:resolve_int_nrs-example]]);
+   #+begin_src rust
+     #[no_mangle]
+     pub extern fn EXTI1() -> u16 {
+         Interrupt::EXTI0.number()
+     }
+   #+end_src
+4. builds the crate as a cdylib[fn:cdylib];
+5. loads the library into memory;
+6. for each label: calls the associated function in the library to get the offset $N$ and sums it with 16; and
+7. collects the results.
+This collection then merges with the collection of known maps.
 
-  With the above approaches, we would have a mapping from RTIC task names to their bound hardware interrupt, and a mapping from hardware interrupt name to the interrupt number.
-  Consequently, we would have a mapping from interrupt number to RTIC task name.
-  Thus, an =ExceptionTrace= can then readibly be associated with a RTIC hardware task.
-  These proposed procedures must be repeated once per application and PAC crate used.
-  Of course, caching can be utilized to minimize the number of repeated steps.
+# TODO, explain where user-supplied information comes from.
 
-  While both approaches can be used for the implementation of a =Ident -> u8= function, and both depend on the underlying PAC, they depend on different PAC structure: the source parsing approach depends on the lexical structure of the PAC's source code; and the cdylib approach on the parsed structure of the crate (that is, instead of parsing the source code ourselves, we leave that task to Rust itself).
-  Additionally, multiple different lexical structures can map to the same parsed structure; if ~svd2rust~ decides on a lexical change, the host application would have to be changed also.
-  It is then understood that the cdylib approach presents the smallest problem when implementing our wanted =Ident -> u8=, and is thus chosen as the best approach.
-*** Tracing software tasks
-  Because the implementation of software tasks utilizes hardware interrupts, software tasks can be traced in the same manner as hardware tasks if it is ensured that every dispatcher only manages a single software task.
-  However, in practise a dispatcher commonly manager multiple software tasks.
-  An emitted =ExceptionTrace= thus tells us when a dispatcher starts, but not which software task it dispatches.
+**** TODO Generating the =recovery::SoftwareMap=
+
 *** Resolving software task names
   The =ExceptionTrace= does not give us all the information we need.
   Instead, a [[#DWT]] unit can be employed to emit =DataTraceValue= packets on software task enter and exit.
@@ -543,6 +601,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
  # The results of the R7014E-alike course
 
 * Footnotes
+[fn:recovery-build] A positive side-effect of this step is that the RTIC Scope user does not have to manually call =cargo build= before =cargo rtic-scope trace=.
 
 [fn:2] Additional tasks could for example include: handling firmware updates over the air. # TODO more examples?
 [fn:1] The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the "main loop".
