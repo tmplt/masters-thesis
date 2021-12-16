@@ -13,6 +13,9 @@
 
 # TODO typeset TODOS for easier reviewing (is this even possible? TODOs are mostly comments)
 # TODO install and apply a grammar checker.
+# TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
+# TODO +NAME all listings?
+# TODO cite any mentioned crates.
 
 * Org setup
   #+begin_src emacs-lisp :result output :session :exports both
