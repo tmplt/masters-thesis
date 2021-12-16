@@ -16,6 +16,7 @@
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
 # TODO +NAME all listings?
 # TODO cite any mentioned crates.
+# TODO call an RTIC app just that, or firmware, throughout.
 
 * Org setup
   #+begin_src emacs-lisp :result output :session :exports both
