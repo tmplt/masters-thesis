@@ -290,6 +290,14 @@ For a full list of dependant crates used by RTIC Scope, execute
   $ cargo tree
 #+end_src
 
+*** Related work
+# TODO convert to references
+Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
+- orbuculum :: https://github.com/orbcode/orbuculum, an ARM Cortex-M trace stream demuxer and post-processor;
+- Percepio Tracealyzer :: https://percepio.com/tracealyzer/, proprietary visual trace diagnostic tool that supports a multitude of platforms and RTOSs.
+
+Neither of the tools support RTIC, nor have any inspiration been taken from them during the development of RTIC Scope.
+
 *** Contributions
 The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
 - ~cargo-rtic-scope~ :: a cargo subcommand that acts as host-side daemon: it
@@ -325,14 +333,6 @@ Aside from these novel crates, the following patches hav been submitted upstream
   - /book=/=migration=/=v5: update init signature, fix example syntax/: https://github.com/rtic-rs/cortex-m-rtic/pull/480;
   - /book: detail import resolving for 0.6 migration/: https://github.com/rtic-rs/cortex-m-rtic/pull/479;
   - /book: update outdated required init signature/: https://github.com/rtic-rs/cortex-m-rtic/pull/478.
-
-*** Related work
-# TODO convert to references
-Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
-- orbuculum :: https://github.com/orbcode/orbuculum, an ARM Cortex-M trace stream demuxer and post-processor;
-- Percepio Tracealyzer :: https://percepio.com/tracealyzer/, proprietary visual trace diagnostic tool that supports a multitude of platforms and RTOSs.
-
-Neither of the tools support RTIC, nor have any inspiration been taken from them during the development of RTIC Scope.
 
 *** TODO Outline
  This paper is structured as follows
