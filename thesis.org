@@ -1,6 +1,6 @@
 # -*- eval: (visual-line-mode t) -*-
 #+TITLE: RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework
-#+AUTHOR: Viktor Sonesten
+#+AUTHOR: Viktor Vilhelm Sonesten
 #+EMAIL: vikson-6@student.ltu.se
 #+LATEX_CLASS: article
 #+LATEX_CLASS_OPTIONS: [twocolumn]
