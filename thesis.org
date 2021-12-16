@@ -353,13 +353,16 @@ Aside from these novel crates, the following patches hav been submitted upstream
 
 ** TODO Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
-First of, what is dubbed the "recovery step" is covered after which the implementation is presented in a downstream manner: how
-1. ~cortex-m-rtic-trace~ enables trace generation from =#[init]=, and how the =#[trace]= macro is applied;
-2. the trace stream exfiltrates via ETB/TPIU;
-3. ~cargo-rtic-scope~ reads the raw trace stream from the source;
-4. ~itm~ decodes this stream into manageable Rust structures;
-5. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream; and
-6. this resolved trace stream is forwarded to sinks.
+First of, the usage of the ~corte-m-rtic-trace~ and the preparatory recovery step of ~cargo-rtic-scope~ is covered after which the implementation is presented in a downstream manner: that is, how
+1. the trace stream exfiltrates via ETB/TPIU;
+2. ~cargo-rtic-scope~ reads the raw trace stream from the source;
+3. ~itm~ decodes this stream into manageable Rust structures;
+4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream; and
+5. this resolved trace stream is forwarded to sinks.
+
+# TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
+
+*** ~cortex-m-rtic-trace~ and its application
 
 *** The recovery step
 # source file parsing, trace lookup maps
@@ -380,7 +383,7 @@ Together they constitute the information available in a =recovery::TraceLookupMa
 
 **** Generating the =recovery::HardwareMap=
 In order to generate a =recovery::HardwareMap= the RTIC application declaration must be parsed.
-This is done when the RTIC app is built via =cargo build= when the =#[rtic::app(..)]= macro is expanded by help of ~rtic_syntax::parse{,2}~ functions which yelds yields (among other) a =rtic_syntax::App=.
+This is done when the RTIC app is built via =cargo build= when the =#[rtic::app(...)]= macro is expanded by help of ~rtic_syntax::parse{,2}~ functions which yelds yields (among other) a =rtic_syntax::App=.
 This structure is not communicated to RTIC Scope which means that the RTIC app must be parsed one additional time.
 
 In order to generate a =rtic_syntax::App= for recovery purposes =rtic_syntax::parse2= must be called directly with the arguments of =#[rtic::app(..)]= and with the input to the macro.
@@ -544,29 +547,15 @@ PAC information in ~Cargo.toml~ is persisent, and simplifies an iterative workfl
 
 **** TODO Generating the =recovery::SoftwareMap=
 
-*** Resolving software task names
-  The =ExceptionTrace= does not give us all the information we need.
-  Instead, a [[#DWT]] unit can be employed to emit =DataTraceValue= packets on software task enter and exit.
-  Via this approach, each software task is given a unique ID and code is injected (either by the =rtic::app= macro or by the end-user themselves) to write this unique ID at the start and end of the software task.
-  The emitted =DataTraceValue= packets are then analysed by the host application, which maintains a state of which software task is currenly running.[fn:dwt-running-bit]
-  The RTIC application source is then parsed to associate =DataTraceValue= payloads back to their software tasks.
+*** TODO 1: Trace stream exfiltration from target
 
-  In comparison to hardware tasks, which are practically traced for free, software tasks can be traced at the cost of a few register writes and a dedicated DWT unit.
-*** Decoding the ITM packet stream
-Before the trace stream can be processed, the serialized stream must be decoded into workable Rust structures.
-This is done via /itm-decode/ which
-1. pattern matches the packet header;
-2. checks if the payload is of the expected size; and
-3. constructs the relevant structure.
-If the packet cannot be decoded, an error structure is instead constructed, detailing why the packet is incorrect.
-An erroneous packet can be received if the connection between embedded target and host system is not configured properly (e.g. baud-rate mismatch), or if the target itself does not adhere to the ITM packet protocol specification.
+*** TODO 2: Reading the trace stream from the source
 
-Additionally, itm-decode generates an absolute ISO timestamp from the relative timestamps in the protocol from a starting point and groups the relevant packets to this timestamp.
+*** TODO 3: Decoding the ITM packet stream
 
-# TODO include a figure of the control flow
-# TODO include reference to the library.
-*** Summary
-# TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
+*** TODO 4: Associating trace packets with RTIC task events
+
+*** TODO 5: Forwarding resolved trace stream to sinks
 
 ** TODO Results
 *** Using RTIC Scope
