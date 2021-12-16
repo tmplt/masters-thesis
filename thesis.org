@@ -349,22 +349,33 @@ Aside from these novel crates, the following patches hav been submitted upstream
 
 ** TODO Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
-The implementations are presented in a downstream manner and only covers hardware tasks in a first pass: how
-1. ~cortex-m-rtic-trace~ enables trace generation from =#[init]=;
+First of, what is dubbed the "recovery step" is covered after which the implementation is presented in a downstream manner: how
+1. ~cortex-m-rtic-trace~ enables trace generation from =#[init]=, and how the =#[trace]= macro is applied;
 2. the trace stream exfiltrates via ETB/TPIU;
 3. ~cargo-rtic-scope~ reads the raw trace stream from the source;
-4. ~itm~ decodes this stream into managable Rust structures;
-5. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream;
-6. forwards the resolved stream to sinks.
+4. ~itm~ decodes this stream into manageable Rust structures;
+5. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream; and
+6. this resolved trace stream is forwarded to sinks.
 
-# when recovering metadata, refer to a section on how translation maps are generated before tracing begins. Refer to this as the "Recovery step"
+*** The recovery step
+# source file parsing, trace lookup maps
+The ITM packet protocol allows us to trace both hardware and software tasks.
+Hardware tasks are traced via exception trace packets.
+These are emitted when an interrupt handler is entered, exited, or returned to from another interrupt handler that preempted it with a higher priority.
+This packet contains two fields of information: the IRQ number of the associated interrupt handler, and whether the handler was entered, exited, or returned to.
 
-# go over frontends and backends, sources and sinks
-RTIC Scope is constructed in a single-input, multiple-output manner:
-trace data will be read from a single /source/, and forwarded one or more /sinks/ when information has been recovered.
-RTIC Scope will continue to run as long as the source can be read from, and there is at least one sink available.
+Software tasks are traced via data trace value packets.
+These are emitted when a watch address is written to, given that a DWT comparator is properly configured.
+A watch address can be any address that the user code have access to.
+This packet contains three fields of information: the DWT comparator number that registered the match, whether the watch address was written to or read, and the value written to or read from the watch address.
 
-# detail how information is recovered, translation maps
+These two packets cannot be associated to RTIC tasks on their own.
+The recovery step of RTIC Scope must thus generate host-side lookup maps that map IRQ numbers to hardware tasks and data trace values and DWT comparator numbers to software tasks.
+
+**** TODO Hardware tasks
+
+
+**** TODO Software tasks
 
 *** Tracing hardware tasks
 Hardware tasks are exclusively bound to singular hardware interrupts.
