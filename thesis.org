@@ -516,7 +516,31 @@ Enter =recovery::resolve_int_nrs=: given a list of labels, the function
 7. collects the results.
 This collection then merges with the collection of known maps.
 
-# TODO, explain where user-supplied information comes from.
+The last piece of the puzzle is from where to source user-supplied information.
+Four fields of information is required to complete the second step above: the PAC name, version, features (if any), and the path to the =PAC::Interrupt= enum.
+There are two methods the user can supply this information: via commandline options, see [[lst:recovery-user-info-cmdopt]];
+or by entering the fields into the ~rtic-scope~ metadata block of the application's ~Cargo.toml~, see [[lst:recovery-user-info-toml]].
+#+NAME: lst:recovery-user-info-cmdopt
+#+CAPTION: Supplying information to RTIC Scope for recovery purposes via command line options.
+#+begin_src shell
+  $ cargo rtic-scope trace --pac-name stm32f4 --pac-version 0.13 --pac-features stm32f401 --pac-features some-other-feature --interrupt-path "stm32f4::stm32f401::Interrupt"
+#+end_src
+
+#+NAME: lst:recovery-user-info-toml
+#+CAPTION: Supplying information to RTIC Scope for recovery purposes via ~Cargo.toml~ metadata.
+#+begin_src toml
+# ...
+
+[package.metadata.rtic-scope]
+pac_name = "stm32f4"
+pac_features = ["stm32f401", "some-other-feature"]
+pac_version = "0.13"
+interrupt_path = "stm32f4::stm32f401::Interrupt"
+
+# ...
+#+end_src
+
+PAC information in ~Cargo.toml~ is persisent, and simplifies an iterative workflow.
 
 **** TODO Generating the =recovery::SoftwareMap=
 
