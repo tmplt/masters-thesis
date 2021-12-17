@@ -1,15 +1,30 @@
-# -*- eval: (visual-line-mode t) -*-
+# -*- eval: (org-indent-mode +1) -*-
+# -*- eval: (visual-line-mode +1) -*-
+
 #+TITLE: RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework
 #+AUTHOR: Viktor Vilhelm Sonesten
 #+EMAIL: vikson-6@student.ltu.se
+
+#+EXPORT_EXCLUDE_TAGS: noexport
+
 #+LATEX_CLASS: article
 #+LATEX_CLASS_OPTIONS: [twocolumn]
-#+options: toc:nil
 #+latex_header: \usepackage{libertine}
 #+latex_header: \usepackage{inconsolata}
 #+latex_header: \usepackage[citestyle=authoryear-icomp,bibstyle=authoryear, hyperref=true,maxcitenames=3,url=true,backend=biber,natbib=true]{biblatex}
 #+latex_header: \addbibresource{ref.bib}
 #+latex_header: \usepackage{microtype}
+#+LATEX_HEADER: \usepackage[utf8]{inputenc}
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage{bm}
+#+LATEX_HEADER: \usepackage{mathtools}
+#+LATEX_HEADER: \usepackage{newfloat}
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \setminted{frame=lines,breaklines,breakafter=/}
+#+LATEX_HEADER: \usepackage{enumitem}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black,breaklinks=true}
 
 # TODO typeset TODOS for easier reviewing (is this even possible? TODOs are mostly comments)
 # TODO install and apply a grammar checker.
@@ -18,11 +33,18 @@
 # TODO cite any mentioned crates.
 # TODO call an RTIC app just that, or firmware, throughout.
 
-* Org setup
+* Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
+    ; ignore some headlines
     (require 'ox-extra)
     (ox-extras-activate '(ignore-headlines))
+
+    ; minted code listings
+    (require 'ox-latex)
+    (setq org-latex-listings 'minted)
+
   #+end_src
+#+RESULTS:
 
 * *The Paper*                                                        :ignore:
 
@@ -653,11 +675,12 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 # TODO Cargo-flash hints?
 
 # TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
-
+** Appendices                                                       :ignore:
+#+begin_export latex
 \printbibliography
 \appendices
-
-** TODO Application to a complex control system
+#+end_export
+*** Application to a complex control system
  # The results of the R7014E-alike course
 
 * Footnotes
