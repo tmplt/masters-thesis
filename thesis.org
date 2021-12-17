@@ -144,13 +144,12 @@ This section summarizes the ITM packet protocol and the hardware peripherals res
 For sake of brevity this section is not exhaustible.
 For more information on each component, refer to the respective technical reference documentation.
 
-***** Hardware peripherals
 # DWT -> ITM -> TPIU/ETB.
 RTIC Scope utilizes the /Data WatchPoint and Trace/ (DWT), /Intrumentation Trace Macrocell/ (ITM), and the /Trace Port Interface Unit/ (TPIU) peripherals for on-target trace generation and trace extraction.
 The DWT and ITM peripherals are sources of ITM packets which are forwarded to the TPIU for device exfiltration.
 These peripherals are summarized below.
 
-****** Data Watchpoint and Trace (DWT)
+***** Data Watchpoint and Trace (DWT)
 # Summarize DWT functionality exploited in RTIC Scope
 The DWT peripheral provides the core of the utilized hardware tracing functionality by generating trace packets when (for example)
 - a configured range of data is read or written (known as data tracing) by help of 15 hardware comparators at maximum; and
@@ -176,7 +175,7 @@ For more information on the DWT unit, refer to [[parencite:&arm-rm C1.8]].
 
 # TODO DWT packets are known as hardware event packets
 
-****** Instrumentation Trace Macrocell (ITM)
+***** Instrumentation Trace Macrocell (ITM)
 # Summarize ITM functionality
 The ITM unit is of an auxilliary nature; it has three functions:
 - the multiplexing of hardware event packets from the DWT unit with its own instrumentation packets which are then forwarded to the TPIU;
@@ -210,7 +209,7 @@ Local timestamps also contain information on the relationship between the local 
 
 For more information on the ITM unit, refer to [[parencite:&arm-rm C1.7]]. For more information on global and local timestamps, refer to  [[parencite:&arm-rm C1-710]].
 
-****** Trace Port Interface Unit (TPIU)
+***** Trace Port Interface Unit (TPIU)
 # Summarize TPIU functionality
 The TPIU provides external visibility of the trace packet stream by serializing...
 
@@ -225,8 +224,9 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
 
-****** TODO Embedded Trace Buffer (ETB)
+***** TODO Embedded Trace Buffer (ETB)
 
+**** The Rust programming language
 **** Real-Time Interrupt-driven Concurrency (RTIC)
 ***** TODO Device initialization
 # explain how #[init] works
