@@ -7,14 +7,14 @@
 
 #+EXPORT_EXCLUDE_TAGS: noexport
 
+#+LATEX_COMPILER: xelatex
 #+LATEX_CLASS: article
 #+LATEX_CLASS_OPTIONS: [twocolumn]
 #+latex_header: \usepackage{libertine}
 #+latex_header: \usepackage{inconsolata}
-#+latex_header: \usepackage[citestyle=authoryear-icomp,bibstyle=authoryear, hyperref=true,maxcitenames=3,url=true,backend=biber,natbib=true]{biblatex}
-#+latex_header: \addbibresource{ref.bib}
+#+latex_header: \usepackage[citestyle=authoryear-icomp,bibstyle=authoryear, hyperref=true,maxcitenames=3,url=true]{biblatex}
+#+latex_header: \addbibresource{./ref.bib}
 #+latex_header: \usepackage{microtype}
-#+LATEX_HEADER: \usepackage[utf8]{inputenc}
 #+LATEX_HEADER: \usepackage[T1]{fontenc}
 #+LATEX_HEADER: \usepackage{bm}
 #+LATEX_HEADER: \usepackage{mathtools}
@@ -25,6 +25,19 @@
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{hyperref}
 #+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black,breaklinks=true}
+#+LATEX_HEADER: \usepackage{glossaries}
+#+LATEX_HEADER: \makeglossaries
+
+#+NAME: glossary
+| label       | name        | description |
+|-------------+-------------+-------------|
+| tokenstream | tokenstream | cock        |
+| token       | token       | TODO        |
+| TPIU        | TPIU        | TPIU        |
+| DWT         | DWT         | DWT         |
+| DCB         | DCB         | DCB         |
+| ITM         | ITM         | ITM         |
+| AST         | AST         | AST         |
 
 # TODO typeset TODOS for easier reviewing (is this even possible? TODOs are mostly comments)
 # TODO install and apply a grammar checker.
@@ -62,7 +75,7 @@ A regulator observes (either directly or by approximation) the internal states o
 For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output and keep the reactor in a safe state.
 
 # On the real-time restrictions of control systems; exponential complexity phenomena.
-A key design parameter of digital controllers is the sample rate: if too low or unconsistent, the controlled system will end up unstable. cite:franklin
+A key design parameter of digital controllers is the sample rate: if too low or unconsistent, the controlled system will end up unstable. [[cite:&franklin]]
 The rocket may thus fly off course, or the nuclear reactor reach a meltdown.
 This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation.
@@ -78,7 +91,7 @@ In a perfect implementation, the user application[fn:1] would only concern itsel
 # ARM, tracing subsystem and possible exploitation.
 ARM is an ubiquitous vendor for embedded systems with a number of sub-vendors (e.g. STMicroelectrics, NXP Semiconductors, Nordic Semiconductors).
 The ARMv7-M standard offers debugging facilities that enables the developer to trace the system.
-From ARM's documentation, "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing". cite:arm-cortex-learn
+From ARM's documentation, "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing". [[cite:&arm-cortex-learn]]
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
 This trace facility allows an event-based monitoring of
 - interrupt enters and exits (tracing of hardware tasks, e.g. the main control loop);
@@ -214,16 +227,16 @@ For more information on the TPIU, refer to [[pdf:~/exjobb/docs/DDI0403E_d_armv7m
 
 ****** TODO Embedded Trace Buffer (ETB)
 ***** TODO Tracing (Old), merge with the above?
-RTIC supports the ARM Cortex-M4 family of microprocessor core units (MCUs) which, in turn, offer asynchronous debug facilites for real-time tracing support (cite:arm-rm, §C).
+RTIC supports the ARM Cortex-M4 family of microprocessor core units (MCUs) which, in turn, offer asynchronous debug facilites for real-time tracing support (cite:&arm-rm, §C).
 Of chief interest are
-- DWT, :: Data Watchpoint and Trace (cite:arm-rm, §C1.8): contains program counter and address comparators that signal on a match; and
-- ITM, :: Intrumentation Trace Macrocell (cite:arm-rm, §C1.7): trace information generator in the form of packets; multiplexes trace information from other sources (e.g. DWT).
+- DWT, :: Data Watchpoint and Trace (cite:&arm-rm, §C1.8): contains program counter and address comparators that signal on a match; and
+- ITM, :: Intrumentation Trace Macrocell (cite:&arm-rm, §C1.7): trace information generator in the form of packets; multiplexes trace information from other sources (e.g. DWT).
 
   # Ref. does not say that ITM is real-time.
 Tracing is the ability to analyse the behavior of an embedded system in real-time without significantly affecting the user application, known as non-intrusive debugging.
 Proper application of tracing allows the developer to verify the behavior of an embedded system.
 
-ITM is realized in practise by communicating between the embedded system and the analysing system with a packet protocol. (cite:arm-rm, Appendix D4)
+ITM is realized in practise by communicating between the embedded system and the analysing system with a packet protocol. (cite:&arm-rm, Appendix D4)
 
 # This does not fit in the background
 If the embedded system has the capability, tracing data may be buffered locally before it is transferred to an external system.
@@ -362,15 +375,15 @@ Aside from these novel crates, the following patches hav been submitted upstream
 
 *** TODO Outline
  This paper is structured as follows
- - [[Introduction]] :: provides an introduction to Rust, RTIC, ARMv7-M hardware peripherals of interest, and the RTIC Scope project.
- - [[Previous work]] :: presents work previously done in the same domain, which this thesis builds upon.
- - [[Related work]] :: presents some tools similar to the features of RTIC Scope.
- - [[Implementation]] :: covers the implementation of RTIC Scope and the ~itm~ crate.
- - [[Results]] ::
- - [[Discussion]] ::
- - [[Conclusions]] ::
- - [[Future work]] ::
- - Appendices ::
+ - Introduction :: provides an introduction to Rust, RTIC, ARMv7-M hardware peripherals of interest, and the RTIC Scope project.
+ - Previous work :: presents work previously done in the same domain, which this thesis builds upon.
+ - Related work :: presents some tools similar to the features of RTIC Scope.
+ - Implementation :: covers the implementation of RTIC Scope and the ~itm~ crate.
+ - Results :: TODO
+ - Discussion :: TODO
+ - Conclusions :: TODO
+ - Future work :: TODO
+ - Appendices :: TODO
 
 ** TODO Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
@@ -384,7 +397,7 @@ First of, the usage of the ~corte-m-rtic-trace~ and the preparatory recovery ste
 # TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
 
 *** TODO ~cortex-m-rtic-trace~ and its application
-~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the \gls{DCB}, \gls{TPIU}, \gls{DWT}, and \gls{ITM} --- for tracing.
+~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[gls:DCB][DCB]], [[gls:TPIU][TPIU]], [[gls:DWT][DWT]], [[gls:ITM][ITM]], -- for tracing.
 
 # TODO document how user-supplied configuration is sourced.
 
@@ -444,14 +457,14 @@ For example, in [[lst:recovery-example]], =device = stm32f4::stm32f401= is the m
       }
   }
 #+end_src
-However, these \glspl{AST} are not readily available without further preparatory work; they must first be extracted from the source file containing [[lst:recovery-example]].
+However, these [[gls:AST][AST]] are not readily available without further preparatory work; they must first be extracted from the source file containing [[lst:recovery-example]].
 
 # But wait: where is the source file?
 To find the source file, the RTIC app must first be built. This is done via =build::CargoWrapper::new= [fn:recovery-build] which intercepts the output of =cargo build --message-format=json-diagnostic-rendered-ansi= by help of the =cargo_metadata= crate.
 This output contains the absolute path to the source file that contains [[lst:recovery-example]].
 
 # Skipping tokens
-With the source file readily available it is parsed as a \gls{tokenstream} by skipping \glspl{token} until =#[rtic::app]= is found, after which the =rtic_syntax= parsing explained above is done.
+With the source file readily available it is parsed as a [[gls:tokenstream][tokenstream]] by skipping [[gls:token][token]] until =#[rtic::app]= is found, after which the =rtic_syntax= parsing explained above is done.
 
 # known and unknown maps
 At this point we have the necessary =rtic_syntax::App= structure to continue: =rtic_syntax::App::hardware_tasks= is a collection of =rtic_syntax::HardwareTask= that lists what interrupt handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]=.
@@ -468,7 +481,7 @@ All $\text{IRQn} < 16$ are common to all ARMv7-M targets, the name of which can 
 All $\text{IRQn} \geq 16$ on the other hand, are not common to all ARMv7-M, and are thus treated as platform-specific because the labels (specified via =#[task(binds = ...)]=) are unknown.
 Additional recovery must be done to find these labels.
 
-#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Copied from (cite:arm-rm; Table B1-4).
+#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Copied from ([[cite:&arm-rm]]; Table B1-4).
 #+NAME: tbl:irqns
 #+ATTR_HTML: :rules all
 | Exception number | Exception name/label   |
@@ -661,7 +674,6 @@ The target-side code of RTIC Scope itself has a negligible performance impact du
 The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dummy~ have not been measured.
 
 # TODO DWT unit consumption
-*** TODO Conclusions
 *** TODO Future work
 # Link to relevant issues
 
@@ -675,13 +687,18 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 # TODO Cargo-flash hints?
 
 # TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
+** TODO Conclusion
+** Glossary & Bibliography                                          :ignore:
+[[printglossaries:]]
+[[printbibliography:]]
 ** Appendices                                                       :ignore:
 #+begin_export latex
-\printbibliography
-\appendices
+\appendix
 #+end_export
-*** Application to a complex control system
+*** TODO Application to a complex control system
  # The results of the R7014E-alike course
+
+
 
 * Footnotes
 [fn:recovery-build] A positive side-effect of this step is that the RTIC Scope user does not have to manually call =cargo build= before =cargo rtic-scope trace=.
