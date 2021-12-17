@@ -587,7 +587,7 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 # TODO tracing nested functions
 # TODO task dispatchers, the events of which are ignored
 
-*** TODO 1: Trace stream exfiltration from target
+*** TODO Trace stream exfiltration from target
 
 **** TODO Embedded Trace Buffer
 # TODO look up coresight documentation and summarize its operation
@@ -595,20 +595,20 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 **** TODO TPIU
 # TODO the different modes, multiple pins, baud rate and clock
 
-*** TODO 2: Reading the trace stream from the source
+*** TODO Reading the trace stream from the source
 # TODO serial and probe source
 # TODO probe-rs
 # TODO POSIX-compliance?
 
-*** TODO 3: Decoding the ITM packet stream
+*** TODO Decoding the ITM packet stream
 # TODO the decoding part, draw/borrow some figures from standard
 # TODO iter.rs, specifically Timestamps, timestamp formula, GTS logic, etc.
 # TODO everything is unit tested.
 
-*** TODO 4: Associating trace packets with RTIC task events
+*** TODO Associating trace packets with RTIC task events
 # TODO build_event_chunk
 
-*** TODO 5: Forwarding resolved trace stream to sinks
+*** TODO Forwarding resolved trace stream to sinks
 # TODO
 
 ** TODO Results
