@@ -657,7 +657,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 \printbibliography
 \appendices
 
-** TODO Application to a non-linear control system
+** TODO Application to a complex control system
  # The results of the R7014E-alike course
 
 * Footnotes
