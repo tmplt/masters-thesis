@@ -645,7 +645,7 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 
 ** TODO Discussion
 *** Tracing overhead with RTIC Scope
-[[https://developer.arm.com/documentation/102119/0200/Can-trace-capture-affect-a-system-][ARM's /Understanding Trace/, $7]], states that:
+[[parencite:&arm-cortex-learn 24]] states:
 #+begin_quote
 Except for the power that is consumed by the system trace components,
 trace is almost entirely non-invasive. This means that performing trace
