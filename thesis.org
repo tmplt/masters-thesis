@@ -343,7 +343,6 @@ Aside from these novel crates, the following patches hav been submitted upstream
  - [[Introduction]] :: provides an introduction to Rust, RTIC, ARMv7-M hardware peripherals of interest, and the RTIC Scope project.
  - [[Previous work]] :: presents work previously done in the same domain, which this thesis builds upon.
  - [[Related work]] :: presents some tools similar to the features of RTIC Scope.
- - [[Theory]] :: covers the exploited ARM peripherals in detail, and what information is required to associate trace data to RTIC tasks.
  - [[Implementation]] :: covers the implementation of RTIC Scope and the ~itm~ crate.
  - [[Results]] ::
  - [[Discussion]] ::
