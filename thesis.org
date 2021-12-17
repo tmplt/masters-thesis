@@ -362,30 +362,37 @@ First of, the usage of the ~corte-m-rtic-trace~ and the preparatory recovery ste
 
 # TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
 
-*** ~cortex-m-rtic-trace~ and its application
+*** TODO ~cortex-m-rtic-trace~ and its application
+~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the \gls{DCB}, \gls{TPIU}, \gls{DWT}, and \gls{ITM} --- for tracing.
+
+# TODO document how user-supplied configuration is sourced.
 
 *** The recovery step
-# source file parsing, trace lookup maps
+# How hardware tasks are traced
 The ITM packet protocol allows us to trace both hardware and software tasks.
 Hardware tasks are traced via exception trace packets.
 These are emitted when an interrupt handler is entered, exited, or returned to from another interrupt handler that preempted it with a higher priority.
 This packet contains two fields of information: the IRQ number of the associated interrupt handler, and whether the handler was entered, exited, or returned to.
 
+# How software tasks are traced
 Software tasks are traced via data trace value packets.
 These are emitted when a watch address is written to, given that a DWT comparator is properly configured.
 A watch address can be any address that the user code have access to.
 This packet contains three fields of information: the DWT comparator number that registered the match, whether the watch address was written to or read, and the value written to or read from the watch address.
 
+# We need to recover information to associate packets to RTIC task events
 These two packets cannot be associated to RTIC tasks on their own.
 The recovery step of RTIC Scope must thus generate host-side lookup maps that map IRQ numbers to hardware tasks and data trace values and DWT comparator numbers to software tasks.
 These translation maps are aptly named the =recovery::SoftwareMap= and =recovery::HardwareMap=.
 Together they constitute the information available in a =recovery::TraceLookupMaps=.
 
 **** Generating the =recovery::HardwareMap=
+# Overview: what to we need?
 In order to generate a =recovery::HardwareMap= the RTIC application declaration must be parsed.
 This is done when the RTIC app is built via =cargo build= when the =#[rtic::app(...)]= macro is expanded by help of ~rtic_syntax::parse{,2}~ functions which yelds yields (among other) a =rtic_syntax::App=.
 This structure is not communicated to RTIC Scope which means that the RTIC app must be parsed one additional time.
 
+# We must the source for the ASTs
 In order to generate a =rtic_syntax::App= for recovery purposes =rtic_syntax::parse2= must be called directly with the arguments of =#[rtic::app(..)]= and with the input to the macro.
 For example, in [[lst:recovery-example]], =device = stm32f4::stm32f401= is the macro arguments, and =mod app { ... }= is the macro input.
 #+CAPTION: Example RTIC application declaration for execution on the STMicroelectronics STM32 NUCLEO-F401RE.
@@ -418,12 +425,14 @@ For example, in [[lst:recovery-example]], =device = stm32f4::stm32f401= is the m
 #+end_src
 However, these \glspl{AST} are not readily available without further preparatory work; they must first be extracted from the source file containing [[lst:recovery-example]].
 
-
+# But wait: where is the source file?
 To find the source file, the RTIC app must first be built. This is done via =build::CargoWrapper::new= [fn:recovery-build] which intercepts the output of =cargo build --message-format=json-diagnostic-rendered-ansi= by help of the =cargo_metadata= crate.
 This output contains the absolute path to the source file that contains [[lst:recovery-example]].
 
+# Skipping tokens
 With the source file readily available it is parsed as a \gls{tokenstream} by skipping \glspl{token} until =#[rtic::app]= is found, after which the =rtic_syntax= parsing explained above is done.
 
+# known and unknown maps
 At this point we have the necessary =rtic_syntax::App= structure to continue: =rtic_syntax::App::hardware_tasks= is a collection of =rtic_syntax::HardwareTask= that lists what interrupt handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]=.
 After parsing [[lst:recovery-example]], =hardware_tasks= contains [fn:: abstracted for brevity.]
 #+begin_export latex
@@ -461,6 +470,7 @@ Additional recovery must be done to find these labels.
 |         16 + $N$ | External interrupt $N$ |
 |------------------+------------------------|
 
+# PAC::Interrupt and known/unknown partitioning; Rust reflection woes
 For any RTIC application, the labels are available in the =PAC::Interrupt= enum. For [[lst:recovery-example]], =PAC= is =stm32::stm32f401=.
 An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
 #+NAME: lst:pac-interrupt-example
@@ -503,6 +513,7 @@ This process is unfortunately non-trivial: Rust does not have dynamic programmin
 #+end_src
 is not realizable.
 
+# libadhoc
 Enter =recovery::resolve_int_nrs=: given a list of labels, the function
 1. extracts an embedded file tree constituting a crate to the RTIC application's ~target/cargo-rtic-trace-libadhoc~;
 2. adds a user-specified crate dependency for the PAC in ~Cargo.toml~;
@@ -519,10 +530,13 @@ Enter =recovery::resolve_int_nrs=: given a list of labels, the function
 7. collects the results.
 This collection then merges with the collection of known maps.
 
+# user-supplied information
 The last piece of the puzzle is from where to source user-supplied information.
 Four fields of information is required to complete the second step above: the PAC name, version, features (if any), and the path to the =PAC::Interrupt= enum.
 There are two methods the user can supply this information: via commandline options, see [[lst:recovery-user-info-cmdopt]];
 or by entering the fields into the ~rtic-scope~ metadata block of the application's ~Cargo.toml~, see [[lst:recovery-user-info-toml]].
+PAC information in ~Cargo.toml~ is persisent, and simplifies an iterative workflow.
+
 #+NAME: lst:recovery-user-info-cmdopt
 #+CAPTION: Supplying information to RTIC Scope for recovery purposes via command line options.
 #+begin_src shell
@@ -543,11 +557,23 @@ interrupt_path = "stm32f4::stm32f401::Interrupt"
 # ...
 #+end_src
 
-PAC information in ~Cargo.toml~ is persisent, and simplifies an iterative workflow.
-
 **** TODO Generating the =recovery::SoftwareMap=
+The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap=.
+The intercepted data trace value packet contains a DWT comparator number, a payload, and whether the watch address was written to or read.
+~cortex-m-rtic-trace~ ensures that the DWT only matches on writes, so packets that indicate a read are forwarded as an unknown event: only the comparator number and payload are of interest.
+
+# TODO two dwt channels are used: one for exits and one for enters. Each write is u8.
+# TODO parsing and how we associate an UID to each task
+# TODO tracing nested functions
+# TODO task dispatchers, the events of which are ignored
 
 *** TODO 1: Trace stream exfiltration from target
+
+**** TODO Embedded Trace Buffer
+# TODO look up coresight documentation and summarize its operation
+
+**** TODO TPIU
+# TODO the different modes, multiple pins,
 
 *** TODO 2: Reading the trace stream from the source
 
