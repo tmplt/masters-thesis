@@ -641,6 +641,18 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 # TODO DWT unit consumption
 *** TODO Conclusions
 *** TODO Future work
+# Link to relevant issues
+
+# TODO deprecating cortex-m-rtic-trace: push upstream to RTIC, probe-rs
+# TODO cargo-embed functionality, RTICScope.toml
+# TODO queries from frontend
+# TODO replace serde with protobuf
+# TODO HIL testing?
+# TODO replace bash scripts with xtask testing
+# TODO Cargo warning/errors not propagated when building application
+# TODO Cargo-flash hints?
+
+# TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
 
 \printbibliography
 \appendices
