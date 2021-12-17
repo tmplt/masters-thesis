@@ -224,13 +224,13 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
 
-***** TODO Embedded Trace Buffer (ETB)
+***** Embedded Trace Buffer (ETB)
 
 **** The Rust programming language
 **** Real-Time Interrupt-driven Concurrency (RTIC)
-***** TODO Device initialization
+***** Device initialization
 # explain how #[init] works
-***** TODO The special idle task
+***** The special idle task
 # explain how #[idle] works, wfi, etc.
 
 ***** Hardware tasks
@@ -358,7 +358,7 @@ Aside from these novel crates, the following patches hav been submitted upstream
   - /book: detail import resolving for 0.6 migration/: https://github.com/rtic-rs/cortex-m-rtic/pull/479;
   - /book: update outdated required init signature/: https://github.com/rtic-rs/cortex-m-rtic/pull/478.
 
-*** TODO Outline
+*** Outline
  This paper is structured as follows
  - Introduction :: provides an introduction to Rust, RTIC, ARMv7-M hardware peripherals of interest, and the RTIC Scope project.
  - Previous work :: presents work previously done in the same domain, which this thesis builds upon.
@@ -370,7 +370,7 @@ Aside from these novel crates, the following patches hav been submitted upstream
  - Future work :: TODO
  - Appendices :: TODO
 
-** TODO Implementation
+** Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
 First of, the usage of the ~corte-m-rtic-trace~ and the preparatory recovery step of ~cargo-rtic-scope~ is covered after which the implementation is presented in a downstream manner: that is, how
 1. the trace stream exfiltrates via ETB/TPIU;
@@ -381,7 +381,7 @@ First of, the usage of the ~corte-m-rtic-trace~ and the preparatory recovery ste
 
 # TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
 
-*** TODO ~cortex-m-rtic-trace~ and its application
+*** ~cortex-m-rtic-trace~ and its application
 ~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[gls:DCB][DCB]], [[gls:TPIU][TPIU]], [[gls:DWT][DWT]], [[gls:ITM][ITM]], -- for tracing.
 
 # TODO document how user-supplied configuration is sourced.
@@ -577,7 +577,7 @@ interrupt_path = "stm32f4::stm32f401::Interrupt"
 # ...
 #+end_src
 
-**** TODO Generating the =recovery::SoftwareMap=
+**** Generating the =recovery::SoftwareMap=
 The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap=.
 The intercepted data trace value packet contains a DWT comparator number, a payload, and whether the watch address was written to or read.
 ~cortex-m-rtic-trace~ ensures that the DWT only matches on writes, so packets that indicate a read are forwarded as an unknown event: only the comparator number and payload are of interest.
@@ -587,31 +587,31 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 # TODO tracing nested functions
 # TODO task dispatchers, the events of which are ignored
 
-*** TODO Trace stream exfiltration from target
+*** Trace stream exfiltration from target
 
-**** TODO Embedded Trace Buffer
+**** Embedded Trace Buffer
 # TODO look up coresight documentation and summarize its operation
 
-**** TODO TPIU
+**** TPIU
 # TODO the different modes, multiple pins, baud rate and clock
 
-*** TODO Reading the trace stream from the source
+*** Reading the trace stream from the source
 # TODO serial and probe source
 # TODO probe-rs
 # TODO POSIX-compliance?
 
-*** TODO Decoding the ITM packet stream
+*** Decoding the ITM packet stream
 # TODO the decoding part, draw/borrow some figures from standard
 # TODO iter.rs, specifically Timestamps, timestamp formula, GTS logic, etc.
 # TODO everything is unit tested.
 
-*** TODO Associating trace packets with RTIC task events
+*** Associating trace packets with RTIC task events
 # TODO build_event_chunk
 
-*** TODO Forwarding resolved trace stream to sinks
+*** Forwarding resolved trace stream to sinks
 # TODO
 
-** TODO Results
+** Results
 *** Using RTIC Scope
 From an end-user perspective RTIC Scope offers a "batteries-included" toolset that enables great insight into a target RTIC applications,
 provided that a small set of limitations are adhered to and specific metadata is added to the application crate in question.
@@ -643,7 +643,7 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 
 # TODO document cortex-m-rtic-trace usage
 
-** TODO Discussion
+** Discussion
 *** Tracing overhead with RTIC Scope
 [[parencite:&arm-cortex-learn 24]] states:
 #+begin_quote
@@ -659,7 +659,7 @@ The target-side code of RTIC Scope itself has a negligible performance impact du
 The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dummy~ have not been measured.
 
 # TODO DWT unit consumption
-*** TODO Future work
+*** Future work
 # Link to relevant issues
 
 # TODO deprecating cortex-m-rtic-trace: push upstream to RTIC, probe-rs
@@ -672,7 +672,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 # TODO Cargo-flash hints?
 
 # TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
-** TODO Conclusion
+** Conclusion
 ** Glossary & Bibliography                                          :ignore:
 [[printglossaries:]]
 [[printbibliography:]]
@@ -680,7 +680,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 #+begin_export latex
 \appendix
 #+end_export
-*** TODO Application to a complex control system
+*** Application to a complex control system
  # The results of the R7014E-alike course
 
 
