@@ -226,21 +226,6 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
 
 ****** TODO Embedded Trace Buffer (ETB)
-***** TODO Tracing (Old), merge with the above?
-RTIC supports the ARM Cortex-M4 family of microprocessor core units (MCUs) which, in turn, offer asynchronous debug facilites for real-time tracing support [[parencite:&arm-rm C]].
-Of chief interest are
-- DWT, :: Data Watchpoint and Trace [[parencite:&arm-rm C1.8]]: contains program counter and address comparators that signal on a match; and
-- ITM, :: Intrumentation Trace Macrocell [[parencite:&arm-rm C1.7]]: trace information generator in the form of packets; multiplexes trace information from other sources (e.g. DWT).
-
-  # Ref. does not say that ITM is real-time.
-Tracing is the ability to analyse the behavior of an embedded system in real-time without significantly affecting the user application, known as non-intrusive debugging.
-Proper application of tracing allows the developer to verify the behavior of an embedded system.
-
-ITM is realized in practise by communicating between the embedded system and the analysing system with a packet protocol. [[parencite:&arm-rm D4]]
-
-# This does not fit in the background
-If the embedded system has the capability, tracing data may be buffered locally before it is transferred to an external system.
-The information can also be captured by monitoring a serial pin.
 
 **** Real-Time Interrupt-driven Concurrency (RTIC)
 ***** TODO Device initialization
