@@ -517,6 +517,7 @@ Enter =recovery::resolve_int_nrs=: given a list of labels, the function
 1. extracts an embedded file tree constituting a crate to the RTIC application's ~target/cargo-rtic-trace-libadhoc~;
 2. adds a user-specified crate dependency for the PAC in ~Cargo.toml~;
 3. for each label: adds a non-mangled function with the same name as the label that returns the associated IRQ number offset, $N$ (for [[lst:recovery-example]] the generated code can be seen in [[lst:resolve_int_nrs-example]]);
+   #+NAME: lst:resolve_int_nrs-example
    #+begin_src rust
      #[no_mangle]
      pub extern fn EXTI1() -> u16 {
