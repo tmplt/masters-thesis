@@ -26,7 +26,7 @@
 #+LATEX_HEADER: \usepackage{enumitem}
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{hyperref}
-#+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor=black,citecolor=black,breaklinks=true}
+#+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,breaklinks=true}
 #+LATEX_HEADER: \usepackage{glossaries}
 #+LATEX_HEADER: \makeglossaries
 
