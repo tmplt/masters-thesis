@@ -8,20 +8,6 @@
   url =          {https://doi.org/10.1109/real.1990.128747},
   DATE_ADDED =   {Fri Jan 22 15:37:27 2021},
 }
-@online{rtic,
-author = {{RTIC developers}},
-title = {{RTIC: Real-Time Interrupt-driven Concurrency}},
-subtitle = {A concurrency framework for building real-time systems},
-url = {https://rtic.rs},
-urldate = {2021-01-22},
-}
-@online{probe-rs,
-author = {{probe-rs developers}},
-title = {probe-rs},
-subtitle = {a modern, embedded debugging toolkit, written in Rust},
-url = {https://probe.rs},
-urldate = {2021-01-23},
-}
 @manual{nucleo-rm,
 title = {RM0368 Reference manual},
 subtitle = {STM32F401xB/C and STM32F401xD/E advanced ARM-based 32-bit MCUs},
@@ -70,4 +56,43 @@ year = 2015,
 publisher = "Pearson",
 note = "seventh edition",
 isbn = "978-1-29-206890-9",
+}
+
+@software{rtic,
+title = {{Real-Time Interrupt-Driven Concurrency (RTIC)}},
+abstract = {A concurrency framework for building real-time systems},
+author = {Aparicio, Jorge and Tjäder, Henrik and Fresk, Emil and Lindgren, Per},
+url = {https://rtic.rs/1.0/book/en/},
+repository = {https://github.com/rtic-rs/cortex-m-rtic},
+version = {1.0.0},
+date = {2021-12-25},
+}
+
+@software{rtic-scope,
+title = {{RTIC Scope}},
+abstract = {Toolset for zero-cost tracing RTIC programs on ARMv7-M targets by exploiting hardware debug features},
+author = {Sonesten, Viktor Vilhelm},
+url = {https://github.com/rtic-scope},
+repository = {https://github.com/rtic-scope/cargo-rtic-scope/releases/tag/v0.3.0},
+version = {0.3.0},
+date = {2022-01-05},
+}
+
+@software{probe-rs,
+abstract = {a modern, embedded debugging toolkit, written in Rust},
+author = {{\texttt{probe-rs} developers}},
+title = {{\texttt{probe-rs}}},
+url = {https://probe.rs},
+repository = {https://github.com/probe-rs/probe-rs/commit/29ba14a678fe95cc13bccdfe4aad36d04444fc49},
+version = {0.12-g29ba14a},
+date = {2022-01-06},
+note = {Unreleased version.},
+}
+
+@software{rust-lang,
+abstract = {A language empowering everyone to build reliable and efficient software.},
+author = {{The Rust Foundation}},
+title = {The Rust Programming Language},
+url = {https://rust-lang.org},
+date = {2022-01},
 }
