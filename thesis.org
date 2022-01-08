@@ -140,15 +140,15 @@ Embedded platforms are much more subject to side-effects where peripherals are o
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
 In summary it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
-In order to lighten the implementation burden one may employ [[gls:RTIC][Real-Time Interrupt-driven Concurrency (RTIC)]], [[textcite:&rtic]]: a [[gls:RTOS][real-time operating system (RTOS)]] developed at Luleå Technical University based on the extensively studied [[gls:SRP][Stack Resource Policy (SRP)]], which
+In order to lighten the implementation burden one may employ [[Acrfull:RTIC]] (see [[#rtic]]), [[textcite:&rtic]]: a [[Acrfull:RTOS]] developed at Luleå Technical University based on the extensively studied [[Acrfull:SRP]], which
 - prevents deadlocks;
 - mitigates priority inversions; and
-- is compatible with [[gls:EDF]] sheduling [[parencite:&srp]].
+- is compatible with [[Acrfull:EDF]] sheduling [[parencite:&srp]].
 RTIC thus removes some burden out-of-the-box while also
 - implementing message passing between tasks;
 - incurring a minimal scheduling overhead;
 - being highly efficient on memory usage; and
-- being amenable to [[gls:WCET]] analysis [[parencite:&rauk]].
+- being amenable to [[Acrfull:WCET]] analysis [[parencite:&rauk]].
 
 # Oh yeah, and Rust
 RTIC is written in Rust which removes additional developer overhead (see [[#rust]]).
@@ -184,6 +184,10 @@ In the embedded Rust ecosystems, these are two kinds of PACs:
 A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
 
 **** [[Acrfull:RTIC]]
+:PROPERTIES:
+:CUSTOM_ID: rtic
+:END:
+
 # TODO Expand: briefly cover rtic::app, how an application is declared, hardware tasks (PAC usage) and task dispatchers.
 Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
 When this interrupt is made pending in hardware, the task function executes.
