@@ -44,21 +44,21 @@
 
 # XXX some of these should link to the glossary
 #+NAME: acronyms
-| key  | abbreviation | full form                                  |
-|------+--------------+--------------------------------------------|
-| PC   | PC           | program counter                            |
-| CPU  | CPU          | central processing unit                    |
-| RTIC | RTIC         | Real-Time Interrupt-driven Concurrency     |
-| RTOS | RTOS         | real-time operating system                 |
-| SRP  | SRP          | Stack Resource Policy                      |
-| ITM  | ITM          | \textit{Instrumentation Trace Macrocell}   |
-| TPIU | TPIU         | \textit{Trace Port Interface Unit}         |
-| DWT  | DWT          | \textit{Data Watchpoint and Trace}         |
-| ETB  | ETB          | \textit{Embedded Trace Buffer}             |
-| WCET | WCET         | \textit{Worst Case Execution Time}         |
-| EDF  | EDF          | \textit{Earliest Deadline First}           |
-| PACs | PACs         | \textit{Peripheral Access Crates}          |
-| API  | API          | \textit{Application Programming Interface} |
+| key  | abbreviation | full form                                       |
+|------+--------------+-------------------------------------------------|
+| PC   | PC           | \textit{program counter}                        |
+| CPU  | CPU          | \textit{central processing unit}                |
+| RTIC | RTIC         | \textit{Real-Time Interrupt-driven Concurrency} |
+| RTOS | RTOS         | \textit{real-time operating system}             |
+| SRP  | SRP          | \textit{Stack Resource Policy}                  |
+| ITM  | ITM          | \textit{Instrumentation Trace Macrocell}        |
+| TPIU | TPIU         | \textit{Trace Port Interface Unit}              |
+| DWT  | DWT          | \textit{Data Watchpoint and Trace}              |
+| ETB  | ETB          | \textit{Embedded Trace Buffer}                  |
+| WCET | WCET         | \textit{Worst Case Execution Time}              |
+| EDF  | EDF          | \textit{Earliest Deadline First}                |
+| PACs | PACs         | \textit{Peripheral Access Crates}               |
+| API  | API          | \textit{Application Programming Interface}      |
 
 
 # TODO install and apply a grammar checker.
@@ -120,12 +120,12 @@ Additionally, "[Trace generation is] almost entirely non-invasive. [Trace genera
 These trace facilities allows for an event-based monitoring of
 - interrupt handler enters and exits (tracing of hardware-bound tasks);
 - Read and write access to in-memory address spaces (system state variables, software tasks); and
-- [[gls:PC][program counter]] samples, among other features.
+- [[acrfull:PC]] samples, among other features.
 The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the "trace stream".
 These facilities are not disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system (as per [[citeauthor:&arm-cortex-learn]]) the trace stream (with system-external collection) is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
-Further, with non-invasive trace generation, less code must be executed by the [[gls:CPU][central processing unit]], allowing a shorter duty-cycle of the user application.
+Further, with non-invasive trace generation, less code must be executed by the [[acrfull:CPU]], allowing a shorter duty-cycle of the user application.
 With a decreased duty-cycle, the system can be put to sleep longer, and thus conserve energy.
 
 # On real-time implementation restictions, embedded implementation difficulties in general. Enter RTIC.
@@ -183,7 +183,7 @@ In the embedded Rust ecosystems, these are two kinds of PACs:
 # svd2rust
 A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
 
-**** Real-Time Interrupt-driven Concurrency (RTIC)
+**** [[Acrfull:RTIC]]
 # TODO Expand: briefly cover rtic::app, how an application is declared, hardware tasks (PAC usage) and task dispatchers.
 Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
 When this interrupt is made pending in hardware, the task function executes.
