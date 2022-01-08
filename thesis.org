@@ -55,6 +55,8 @@
 | TPIU | TPIU         | \textit{Trace Port Interface Unit}       |
 | DWT  | DWT          | \textit{Data Watchpoint and Trace}       |
 | ETB  | ETB          | \textit{Embedded Trace Buffer}           |
+| WCET | WCET         | \textit{Worst Case Execution Time}       |
+| EDF  | EDF          | \text{Earliest Deadline First}           |
 
 
 # TODO install and apply a grammar checker.
@@ -118,8 +120,7 @@ These trace facilities allows for an event-based monitoring of
 - Read and write access to in-memory address spaces (system state variables, software tasks); and
 - [[gls:PC][program counter]] samples, among other features.
 The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the "trace stream".
-These facilities are not disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system per [[citeauthor:&arm-cortex-learn]]'s words,
-the trace stream (with system-external collection) is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
+These facilities are not disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system (as per [[citeauthor:&arm-cortex-learn]]) the trace stream (with system-external collection) is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
 Further, with non-invasive trace generation, less code must be executed by the [[gls:CPU][central processing unit]], allowing a shorter duty-cycle of the user application.
@@ -137,11 +138,18 @@ Embedded platforms are much more subject to side-effects where peripherals are o
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
 In summary it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
-In order to lighten the implementation burden one may employ [[gls:RTIC][Real-Time Interrupt-driven Concurrency (RTIC)]], a [[gls:RTOS][real-time operating system (RTOS)]] developed at Luleå Technical University based on the extensively studied [[gls:SRP][Stack Resource Policy (SRP)]], which mitigates priority inversions while also offering determinant scheduling of future tasks and message-passing between tasks [[parencite:&rtic]].
-# TODO refer to rauk
-RTIC also lends itself to [[gls:static-anal][static analysis]] by help of external tools, further lighening the overhead during implementation.
-# TODO: Oh yeah, and Rust
-RTIC is written in Rust, which further lightens the load of implementation [[parencite:&rust-lang]].\todo{summarize the embedded aspects}
+In order to lighten the implementation burden one may employ [[gls:RTIC][Real-Time Interrupt-driven Concurrency (RTIC)]], [[textcite:&rtic]]: a [[gls:RTOS][real-time operating system (RTOS)]] developed at Luleå Technical University based on the extensively studied [[gls:SRP][Stack Resource Policy (SRP)]], which
+- prevents deadlocks;
+- mitigates priority inversions; and
+- is compatible with [[gls:EDF]] sheduling [[parencite:&srp]].
+RTIC thus removes some burden out-of-the-box while also
+- implementing message passing between tasks;
+- incurring a minimal scheduling overhead;
+- being highly efficient on memory usage; and
+- being amenable to [[gls:WCET]] analysis [[parencite:&rauk]].
+
+# Oh yeah, and Rust
+RTIC is written in Rust which removes additional developer overhead (see [[#rust]]).
 
 # Project aim
 The aim of this thesis is thus to employ and extend upon RTIC with a toolset, aptly named RTIC Scope, to leverage [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites while requiring minimal overhead for the end-user developer to apply the toolset, greatly lightening the burden when implementing a digital control systems.
@@ -151,7 +159,13 @@ The resulting toolset will be employed to implement a regulator for a non-trivia
 This section covers the theory, tools, and the ARMv7-M hardware features utilized in order to develop RTIC Scope.
 
 **** The Rust programming language
-# TODO Summarize what Rust is and why it's used, expand on the embedded aspect touched upon in the introduction.
+:PROPERTIES:
+:CUSTOM_ID: rust
+:END:
+Rust is a system programming language that guarantees the absence of mutable aliasing and defined run-time behavior as long as code is written in a /safe/ context.
+Refer to [[textcite:&rust-lang]].
+
+For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
 
 **** Peripheral Access Crates (PACs)
 # TODO What are PACs, what are they used for? svd2rust
@@ -281,13 +295,14 @@ These peripherals are summarized below.
 - ETB ::
 
 *** Motivation
- Debugging the user application running on an MCU is an integral part of an embedded work-flow.
- Thus, the more debugging facilities that are readily available to the end-user of an RTOS, the better.
- More so if proper usage of such facilities --- which are commonly non-trivial on embedded systems --- is abstracted.
- However, care must be taken when utilizing debugging features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and release environment.
+Debugging the user application running on an MCU is an integral part of an embedded work-flow.
+Thus, the more debug facilities that are readily available to the end-user of an RTOS, the better.
+However, care must be taken when utilizing debug features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and release environment.
+Proper usage of such facilities --- which is commonly a non-trivial task on embedded systems --- should then be abstracted.
 
- # TODO Talk about RTIC and its increasing usage
- # TODO We want to make it very simple for the end user to trace an application, lookup "batteries included" definition.
+RTIC Scope is developed to offer a "batteries included" toolset for the RTIC RTOS, to remove developer overhead when implementing embedded applications.
+
+# TODO Talk about RTIC and its increasing usage?
 
 *** Problem definition
 This thesis explores the possibility of developing a toolset (RTIC Scope) that enables an RTIC application developer to gain non-invasive insight into an RTIC application.
