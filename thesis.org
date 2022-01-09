@@ -22,7 +22,7 @@
 #+LATEX_HEADER: \usepackage{mathtools}
 #+LATEX_HEADER: \usepackage{newfloat}
 #+LATEX_HEADER: \usepackage{minted}
-#+LATEX_HEADER: \setminted{frame=lines,breaklines,breakafter=/.,fontsize=\footnotesize}
+#+LATEX_HEADER: \setminted{frame=lines,breaklines,breakafter=/.,fontsize=\footnotesize,linenos}
 #+LATEX_HEADER: \usepackage[inline]{enumitem}
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{hyperref}
