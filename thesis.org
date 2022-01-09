@@ -295,7 +295,7 @@ The regulation of a complex dynamic system is chosen because an RTIC application
 :END:
 This thesis covers the development of an analysis toolset, RTIC Scope, that enables an RTIC application developer to gain non-invasive insight into the run-time of said application by exploiting the trace stream generated and exfiltrated by the debug facilities (see [[#debug-periphs]]) made available by the ARMv7-M standard, which RTIC supports by targeting Cortex-M platforms.
 
-The set of /requirements/ RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope shall be able to
+The set of /requirements/ RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] be able to
 1. <<req:itm-gen>> enable trace stream generation of hardware and software tasks (as defined by RTIC), and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
 2. <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
 3. decode the stream stream to Rust structures;
@@ -306,43 +306,22 @@ The set of /requirements/ RTIC Scope must fulfill within the scope of this thesi
 8. be invoked as a ~cargo~ subcommand.
 
 Delimitations to the above requirements apply, see [[#delimitations]].
-
 *** Delimitations
 :PROPERTIES:
 :CUSTOM_ID: delimitations
 :END:
 # TODO refer to that one RFC for how to interpret MUST, MUST NOT, etc.
 In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
-These /delimitations/, which are related to the requirements enumerated in [[#requirements]], are as follows:
-1. Requirement [[req:itm-gen]]: RTIC Scope need only apply the device mutations that are common to all ARM Cortex-M targets in order to enable trace stream generation and exfiltration. RTIC Scope must not apply device-specific mutations.
-2. Requirement [[req:input]]: RTIC Scope does not have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope must fail (or optionally warn the end-user) if it is unable to correctly decode the read data stream.
-3. Requirement [[req:rtic]]: RTIC Scope will only need to support RTIC version 1.0.0, see [[textcite:&rtic]]. RTIC Scope must only recover metadata necessary to report the timestamped status of hardware and software tasks, as defined by RTIC.
-4. Requirement [[req:report]]: The defined communication protocol must enable one-way communication from the ~cargo~ subcommand /backend/ to the reference /frontend/. The protocol must not enable two-way communication.
+These /delimitations/[fn:: Uses the key words *MUST* and *SHOULD NOT* which are to be interpreted as described in [[textcite:&rfc2119]].], which are related to the requirements enumerated in [[#requirements]], are as follows:
+1. Requirement [[req:itm-gen]]: RTIC Scope *MUST* apply the device mutations that are common to all ARM Cortex-M targets in order to enable trace stream generation and exfiltration. RTIC Scope *SHOULD NOT* apply device-specific mutations.
+2. Requirement [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope *MUST* fail or warn the end-user if it is unable to correctly decode the read data stream.
+3. Requirement [[req:rtic]]: RTIC Scope *MUST* support RTIC version 1.0.0, see [[textcite:&rtic]].
+   RTIC Scope *MUST* must recover metadata necessary to report the timestamped status of hardware and software tasks, as defined by RTIC.
+4. Requirement [[req:report]]: The defined communication protocol *MUST* enable one-way communication from the ~cargo~ subcommand /backend/ to the reference /frontend/. The protocol *SHOULD NOT* enable two-way communication.
 
 Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
 
-*** Previous work
-The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
-Of certain note are
-- ~cortex-m~ :: that enable low-level access to Cortex-M processors;
-- ~probe-rs~ :: an extensible embedded debugging toolkit;
-- ~rtic-syntax~ :: RTIC meta language parser library; and
-- ~itm~ (version 0.3) and ~itm-tools~ :: library and tools for analyzing ITM traces.
-
-For a full list of dependant crates used by RTIC Scope, execute
-#+begin_src shell
-  $ cargo install cargo-tree
-  $ git clone https://github.com/rtic-scope/cargo-rtic-scope.git && cd cargo-rtic-scope
-  $ cargo tree
-#+end_src
-
-*** Related work
-# TODO convert to references
-Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
-- orbuculum :: https://github.com/orbcode/orbuculum, an ARM Cortex-M trace stream demuxer and post-processor;
-- Percepio Tracealyzer :: https://percepio.com/tracealyzer/, proprietary visual trace diagnostic tool that supports a multitude of platforms and RTOSs.
-
-Neither of the tools support RTIC, nor have any inspiration been taken from them during the development of RTIC Scope.
+The use of the key words *MUST* and *SHOULD NOT* used above as to be interpreted as described in [[textcite:&rfc2119]].
 
 *** Contributions
 The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
@@ -391,6 +370,30 @@ Aside from these novel crates, the following patches hav been submitted upstream
  - Conclusions :: TODO
  - Future work :: TODO
  - Appendices :: TODO
+
+** Previous and Related Work
+*** Related work
+# TODO convert to references
+Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
+- orbuculum :: https://github.com/orbcode/orbuculum, an ARM Cortex-M trace stream demuxer and post-processor;
+- Percepio Tracealyzer :: https://percepio.com/tracealyzer/, proprietary visual trace diagnostic tool that supports a multitude of platforms and RTOSs.
+
+Neither of the tools support RTIC, nor have any inspiration been taken from them during the development of RTIC Scope.
+
+*** Previous work
+The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
+Of certain note are
+- ~cortex-m~ :: that enable low-level access to Cortex-M processors;
+- ~probe-rs~ :: an extensible embedded debugging toolkit;
+- ~rtic-syntax~ :: RTIC meta language parser library; and
+- ~itm~ (version 0.3) and ~itm-tools~ :: library and tools for analyzing ITM traces.
+
+For a full list of dependant crates used by RTIC Scope, execute
+#+begin_src shell
+  $ cargo install cargo-tree
+  $ git clone https://github.com/rtic-scope/cargo-rtic-scope.git && cd cargo-rtic-scope
+  $ cargo tree
+#+end_src
 
 ** Theory
 This chapter covers the theory, tools, and the ARMv7-M hardware features utilized in order to develop RTIC Scope.
