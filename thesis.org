@@ -264,6 +264,7 @@ In difference to hardware tasks, software tasks can be scheduled by software.
 Debugging the code being executed in an embedded system is an integral part of an embedded work-flow similar to how it is common to attach to and debug a process of a program being developed on a general-purpose computer.
 The latter process can be considered trivial because no hardware boundries must be crossed; the debugger and debugged program are (usually) contained within the same system.
 Debugging an embedded system is on the other hand non-trivial: the embedded system is its own contained system and a line of communication[fn:: Which requires a hardware debugger.] must be established with a host system to debug the embedded system.
+\missingfigure{Draw a comparison between conventional debugging and embedded debugging.}
 
 # We want to be able to debug in real-time (read: trace), but also record it.
 An important aspect of debugging is the act of debugging in real-time, often referred to as the act of "tracing".
@@ -289,24 +290,36 @@ This is done in order to establish a base-line for the end-user experience of th
 The regulation of a complex dynamic system is chosen because an RTIC application for such a task is non-trivial, and it provides an ample opportunity to improve one's capabilities for control engineering.
 
 *** Problem definition
-This thesis explores the possibility of developing a toolset (RTIC Scope) that enables an RTIC application developer to gain non-invasive insight into an RTIC application.
-This is done by exploiting the trace generation sub-system (DWT and ITM) of the ARMv7-M platform and capturing the generated trace stream on a host system for analysis (via ETB or TPIU).
-The captured trace stream must be decoded, timestamped, and associated to tasks and resources defined in the RTIC application before being presented to the user.
-RTIC Scope shall enable the developer to observe the execution and state of the RTIC application in real-time, but also record the trace stream for port-mortem/offline analysis.
+:PROPERTIES:
+:CUSTOM_ID: requirements
+:END:
+This thesis covers the development of an analysis toolset, RTIC Scope, that enables an RTIC application developer to gain non-invasive insight into the run-time of said application by exploiting the trace stream generated and exfiltrated by the debug facilities (see [[#debug-periphs]]) made available by the ARMv7-M standard, which RTIC supports by targeting Cortex-M platforms.
+
+The set of /requirements/ RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope shall be able to
+1. <<req:itm-gen>> enable trace stream generation of hardware and software tasks (as defined by RTIC), and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
+2. <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
+3. decode the stream stream to Rust structures;
+4. <<req:rtic>> recover RTIC application metadata not contained within the trace stream;
+5. associate timestamps to RTIC task events;
+6. <<req:report>> report RTIC task events in real-time to the RTIC Scope end-user by use of a defined communication protocol while also offering a reference implementation of a /frontend/ which implements this protocol;
+7. record a trace to file which can be replayed offline; and
+8. be invoked as a ~cargo~ subcommand.
+
+Delimitations to the above requirements apply, see [[#delimitations]].
 
 *** Delimitations
-In order to focus on the delivery of a robust tracing toolset with proper implementation and documentations the scope of this thesis have been limited.
-These limits are enumerated below.
-1. The number of possible approaches to present the execution and state of an RTIC application to an end-user is virtually infinite.
-   For this reason RTIC Scope shall make it easy to develop frontends that extend the tool for any end-user's needs by exposing an backend-frontend API.
-   In order to offer a starting point for future frontends a barebones reference CLI frontend will be developed as a proof-of-concept and for debugging purposes.
-2. The work of this thesis will not stray from the ITM specification. ETM and other Coresight features (except for ETB), for example, will not be investigated.
-3. No benchmarks will be done for the host-side tools created during this thesis because there are no other tools of this kind that applies to RTIC.
-4. This thesis documents the development and implementation of RTIC Scope version 0.3. Any work made or planned beyond this release is considered as future work.
-5. RTIC Scope v0.3 targets RTIC version 0.6.
-6. RTIC Scope v0.3 only supports the ARM Cortex-M platform.
+:PROPERTIES:
+:CUSTOM_ID: delimitations
+:END:
+# TODO refer to that one RFC for how to interpret MUST, MUST NOT, etc.
+In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
+These /delimitations/, which are related to the requirements enumerated in [[#requirements]], are as follows:
+1. Requirement [[req:itm-gen]]: RTIC Scope need only apply the device mutations that are common to all ARM Cortex-M targets in order to enable trace stream generation and exfiltration. RTIC Scope must not apply device-specific mutations.
+2. Requirement [[req:input]]: RTIC Scope does not have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope must fail (or optionally warn the end-user) if it is unable to correctly decode the read data stream.
+3. Requirement [[req:rtic]]: RTIC Scope will only need to support RTIC version 1.0.0, see [[textcite:&rtic]]. RTIC Scope must only recover metadata necessary to report the timestamped status of hardware and software tasks, as defined by RTIC.
+4. Requirement [[req:report]]: The defined communication protocol must enable one-way communication from the ~cargo~ subcommand /backend/ to the reference /frontend/. The protocol must not enable two-way communication.
 
-Following these limits allows time to ultimately yield a documented toolset that minimizes the friction of further development on the toolset by other parties.
+Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
 
 *** Previous work
 The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
@@ -392,6 +405,8 @@ For more information on each peripheral, refer to the respective sections in [[t
 # DWT -> ITM -> TPIU -> ETB.
 RTIC Scope utilizes the [[Acrfull:DWT]], ITM, [[Acrfull:TPIU]], and [[Acrfull:ETB]] peripherals for on-target trace generation and trace extraction.
 The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU and ETB for device exfiltration via serial communication.
+\missingfigure{Draw the DWT -> ITM -> TPIU -> ETB relationship.}
+
 These peripherals are summarized below.
 
 **** [[Acrfull:DWT]]
@@ -779,7 +794,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 #+begin_export latex
 \appendix
 #+end_export
-*** Application to a complex control system
+*** TODO Application to a complex control system
 :PROPERTIES:
 :CUSTOM_ID: control-application
 :END:
