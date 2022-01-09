@@ -31,6 +31,7 @@
 #+LATEX_HEADER: \usepackage{glossaries}
 #+latex_header: \usepackage{microtype}
 #+latex_header: \usepackage{tocbibind}
+#+latex_header: \usepackage{todonotes}
 #+LATEX_HEADER: \makeglossaries
 
 #+NAME: glossary
@@ -109,12 +110,18 @@
   \listof{listing}{\listoflistingscaption}
 }
 
+\listoftodos
 \tableofcontents
 \listoftables
 \listoffigures
 \listoflistings
 
+% Start counting with arabic numbers
 \mainmatter
+
+% Fix todonotes behavior
+\setlength{\marginparwidth}{2cm}
+\reversemarginpar
 #+end_export
 
 * *The Paper*                                                        :ignore:
@@ -198,15 +205,88 @@ Refer to [[textcite:&rust-lang]].
 
 For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
 
+**** [[Acrfull:PAC]]
+# What is a PAC and what are they used for?
+A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
+Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
+
+# Differentiate {architecture,device}-specific PACs
+In the embedded Rust ecosystems, these are two kinds of PACs:
+- architecture-specific :: Architecture-specific PACs expose an API for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
+- device-specific :: Device-specific PACs expose an API for hardware peripherals available on a smaller family of embedded systems.
+  For example, ~stm32-rs~ [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
+
+# svd2rust
+A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
+
+**** [[Acrfull:RTIC]]
+:PROPERTIES:
+:CUSTOM_ID: rtic
+:END:
+
+# TODO Expand: briefly cover rtic::app, how an application is declared, hardware tasks (PAC usage) and task dispatchers.
+Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
+When this interrupt is made pending in hardware, the task function executes.
+An example hardware task is declared via
+#+name: rtic-hw-task-example
+#+begin_src rust
+  #[rtic::app]
+  mod app {
+      #[task(bound = EXTI0)]
+      fn foo(_ctx: foo::Context) {
+          // ...
+      }
+  }
+#+end_src
+With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
+After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
+
+
+Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
+For this reason, the used hardware interrupt is considered a "dispatcher".
+An example software task is declared via
+#+begin_src rust
+  #[rtic::app(dispatchers = [EXTI0])]
+  mod app {
+      #[task]
+      fn bar(_ctx: bar::Context) {
+          // ...
+      }
+  }
+#+end_src
+
+In difference to hardware tasks, software tasks can be scheduled by software.
+**** Hardware debuggers (probes)
+# TODO required for a host system to flash and read data from an embedded system
+
 *** Motivation
-Debugging the user application running on an MCU is an integral part of an embedded work-flow.
-Thus, the more debug facilities that are readily available to the end-user of an RTOS, the better.
-However, care must be taken when utilizing debug features on an embedded target as it should not significantly affect the user application, lest real-time properties will differ between a debug and release environment.
-Proper usage of such facilities --- which is commonly a non-trivial task on embedded systems --- should then be abstracted.
+# We must cross a hardware boundry when debugging embedded systems.
+Debugging the code being executed in an embedded system is an integral part of an embedded work-flow similar to how it is common to attach to and debug a process of a program being developed on a general-purpose computer.
+The latter process can be considered trivial because no hardware boundries must be crossed; the debugger and debugged program are (usually) contained within the same system.
+Debugging an embedded system is on the other hand non-trivial: the embedded system is its own contained system and a line of communication[fn:: Which requires a hardware debugger.] must be established with a host system to debug the embedded system.
 
-RTIC Scope is developed to offer a "batteries included" toolset for the RTIC RTOS, to remove developer overhead when implementing embedded applications.
+# We want to be able to debug in real-time (read: trace), but also record it.
+An important aspect of debugging is the act of debugging in real-time, often referred to as the act of "tracing".
+By tracing an embedded system it is possible to verify its internal operations continuously as long as a debugger is attached.
+Another important aspect of debugging are post-mortem analyses: being able to analyse a system's run-time behavior before it ended up in an invalid or unexpected state after the fact.
+Port-mortem analyses are realized by recording a trace from the attached debugger.
+Such analyses are useful for systems deployed "in the field" which are seldom continuously controlled by human hands.
+An example of such a system is a charger for electrical vehicles: verifying the operation of the charger is much easier before it is permanently installed at a parking space and expected to operate continuously.
+If the charger breaks the responsible engineers will want to have a detailed log of events that occured before the device broke in order to improve it.
 
-# TODO Talk about RTIC and its increasing usage?
+# Tracing is zero-cost by help of hardware, but not trivial to configure.
+Tracing is supported by hardware debug facilities on the ARMv7-M platform, as is the exfiltration of the trace stream from the device (a line of communication which can be read by a host system).
+Enabling and correctly configuring these facilites to generate a trace stream and decoding the trace stream itself is no trivial task, however.
+
+# The emergence of RTIC, and its lack of debug tools.
+RTIC is a novel RTOS which offers improvements over conventional RTOSs [[parencite:&tjader2021rtic 23]].
+The motivation behind RTIC Scope is thus to offer a "batteries included"[fn:: where details regarding trace stream generation and decoding is abstracted, and where no additional work must be done to utilize the tool.] toolset that enables instant insight into an RTIC application.
+Such a toolset would make it easier to verify the implementation of an RTIC application.
+
+# Control application.
+RTIC Scope will then be used to verify the implementation of a regulator for a complex dynamic system (see [[#control-application]]).
+This is done in order to establish a base-line for the end-user experience of the toolset, in order to improve upon it; and provide an example where the toolset is applied to a realistic RTIC application, in the hopes of increasing the usage of RTIC and RTIC Scope. \todo{rephrase?}
+The regulation of a complex dynamic system is chosen because an RTIC application for such a task is non-trivial, and it provides an ample opportunity to improve one's capabilities for control engineering.
 
 *** Problem definition
 This thesis explores the possibility of developing a toolset (RTIC Scope) that enables an RTIC application developer to gain non-invasive insight into an RTIC application.
@@ -385,57 +465,6 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
 **** [[Acrfull:ETB]]
-
-*** [[Acrfull:PAC]]
-# What is a PAC and what are they used for?
-A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
-Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
-
-# Differentiate {architecture,device}-specific PACs
-In the embedded Rust ecosystems, these are two kinds of PACs:
-- architecture-specific :: Architecture-specific PACs expose an API for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
-- device-specific :: Device-specific PACs expose an API for hardware peripherals available on a smaller family of embedded systems.
-  For example, ~stm32-rs~ [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
-
-# svd2rust
-A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
-*** [[Acrfull:RTIC]]
-:PROPERTIES:
-:CUSTOM_ID: rtic
-:END:
-
-# TODO Expand: briefly cover rtic::app, how an application is declared, hardware tasks (PAC usage) and task dispatchers.
-Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
-When this interrupt is made pending in hardware, the task function executes.
-An example hardware task is declared via
-#+name: rtic-hw-task-example
-#+begin_src rust
-  #[rtic::app]
-  mod app {
-      #[task(bound = EXTI0)]
-      fn foo(_ctx: foo::Context) {
-          // ...
-      }
-  }
-#+end_src
-With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
-After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
-
-
-Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
-For this reason, the used hardware interrupt is considered a "dispatcher".
-An example software task is declared via
-#+begin_src rust
-  #[rtic::app(dispatchers = [EXTI0])]
-  mod app {
-      #[task]
-      fn bar(_ctx: bar::Context) {
-          // ...
-      }
-  }
-#+end_src
-
-In difference to hardware tasks, software tasks can be scheduled by software.
 
 ** Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
