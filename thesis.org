@@ -43,6 +43,9 @@
 | DCB         | DCB             | DCB         |
 | static-anal | static analysis | TODO        |
 | sample-rate | sample rate     | TODO        |
+| downstream  | downstream      | TODO        |
+| frontend    | frontend        | TODO        |
+| upstream    | upstream        | TODO        |
 
 # XXX some of these should link to the glossary
 #+NAME: acronyms
@@ -298,12 +301,13 @@ This thesis covers the development of an analysis toolset, RTIC Scope, that enab
 The set of /requirements/ RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] be able to
 1. <<req:itm-gen>> enable trace stream generation of hardware and software tasks (as defined by RTIC), and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
 2. <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
-3. decode the stream stream to Rust structures;
+3. <<req:decode>> decode the trace stream to Rust structures;
 4. <<req:rtic>> recover RTIC application metadata not contained within the trace stream;
-5. associate timestamps to RTIC task events;
-6. <<req:report>> report RTIC task events in real-time to the RTIC Scope end-user by use of a defined communication protocol while also offering a reference implementation of a /frontend/ which implements this protocol;
-7. record a trace to file which can be replayed offline; and
-8. be invoked as a ~cargo~ subcommand.
+5. <<req:timestamps>> associate timestamps to RTIC task events;
+6. <<req:protocol>> report RTIC task events in real-time to the RTIC Scope end-user by use of a defined communication protocol.
+7. <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the the protocol described in Requirement [[req:protocol]].
+8. <<req:record>> record a trace to file which can be replayed offline; and
+9. <<req:cargo>> be invoked as a ~cargo~ subcommand.
 
 Delimitations to the above requirements apply, see [[#delimitations]].
 *** Delimitations
@@ -317,39 +321,55 @@ These /delimitations/[fn:: Uses the key words *MUST* and *SHOULD NOT* which are 
 2. Requirement [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope *MUST* fail or warn the end-user if it is unable to correctly decode the read data stream.
 3. Requirement [[req:rtic]]: RTIC Scope *MUST* support RTIC version 1.0.0, see [[textcite:&rtic]].
    RTIC Scope *MUST* must recover metadata necessary to report the timestamped status of hardware and software tasks, as defined by RTIC.
-4. Requirement [[req:report]]: The defined communication protocol *MUST* enable one-way communication from the ~cargo~ subcommand /backend/ to the reference /frontend/. The protocol *SHOULD NOT* enable two-way communication.
+4. Requirement [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the ~cargo~ subcommand /backend/ to the reference /frontend/. The protocol *SHOULD NOT* enable two-way communication.
 
 Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
 
 The use of the key words *MUST* and *SHOULD NOT* used above as to be interpreted as described in [[textcite:&rfc2119]].
 
 *** Contributions
-The realization of such a toolset is a collection of crates that constitute the RTIC Scope project:
-- ~cargo-rtic-scope~ :: a cargo subcommand that acts as host-side daemon: it
-  - records raw trace data;
-  - associates it to timestamped RTIC tasks, relative to target boot;
-  - serializes this resolved trace to a file on disk and to any frontends; and
-  - echoes any messages a frontend writes to =stderr=.
-- ~rtic-scope-frontend-dummy~ :: a reference frontend implementation that simply prints timestamped RTIC tasks to =stderr=.
-- ~rtic-scope-api~ :: the API implemented by ~cargo-rtic-scope~ an any frontend.
-- ~cortex-m-rtic-trace~ :: an auxilliary target-side crate that properly configures the ITM/DWT/TPIU units.
+The development of RTIC Scope has yielded a number of [[gls:downstream]] contributions, namely a collection of crates:
+- ~cargo-rtic-scope~ :: A ~cargo~ subcommand acting as the RTIC Scope backend (or host-side /daemon/) which fulfill Requirements [[req:input]]--[[req:protocol]] and [[req:cargo]].
+  See [[#impl:cargo-rtic-scope]].
+- ~rtic-scope-frontend-dummy~ :: A reference implementation of a RTIC Scope frontend, which fulfill Requirement [[req:dummy]].
+  See [[#impl:rtic-scope-frontend-dummy]].
+- ~rtic-scope-api~ :: The communication protocol the ~cargo-rtic-scope~ uses to report RTIC task events in real-time to ~rtic-scope-frontend-dummy~, as described by Requirement [[req:protocol]].
+  See [[#impl:api]].
+- ~cortex-m-rtic-trace~ :: An auxilliary target-side crate that properly configure the device for trace stream generation and exfiltration, which fulfills Requirement [[req:itm-gen]].
+  See [[#impl:rtic-trace]].
+- ~itm~ :: A library crate for decoding the trace stream exfiltrated from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
+  See [[#impl:itm]].
 
-Internally, ~cargo-rtic-scope~ relies on the ~itm~ crate --- also developed as part of this thesis --- to decode the ITM packet protocol generated by the target to manageable Rust structures.
-Because of its more general nature and detachment from RTIC Scope it is not part of the project itself.
+Of certain note it ~itm~ which ~cargo-rtic-scope~ relies on: its implementation does not rely on RTIC and can be used independently of RTIC Scope; ~itm~ can be used to decode trace stream generated by a target using an RTOS other than RTIC.
+Because of this general nature and detachment from RTIC Scope it must not necessarily be a part of the RTIC Scope project itself, but is as of writing for reasons of convenience.
+See [[#disc:itm-embedded-wg]] for a discussion on under what banner ~itm~ belongs.
 
-Aside from these novel crates, the following patches hav been submitted upstream in order to add functionality to upstream crates (listed in no particular order):
+Further, a number of [[gls:upstream]] contributions have been made to the crates which RTIC Scope depends on.
+An exhaustive summary of these contributions are described below (listed in no particular order).
+
 # TODO use latex escape for proper italics when / is must be italics also
 # TODO convert to references
-- probe-rs/probe-rs ::
-  - /Reintroduce ~CargoOptions~ in ~mod common_options~/: https://github.com/probe-rs/probe-rs/pull/760;
-  - /arm: enable exception trace on ~setup_swv~/: https://github.com/probe-rs/probe-rs/pull/758;
-  - /cargo: bump bitvec/: https://github.com/probe-rs/probe-rs/pull/757;
-  - /arm=/=itm: doc fields, enable global timestamps/: https://github.com/probe-rs/probe-rs/pull/728;
-  - /Add generic probe=/=session logic from cargo-flash/: https://github.com/probe-rs/probe-rs/pull/723;
-  - /deprecate internal ITM=/=DWT packet decoder in favour of itm-decode/: https://github.com/probe-rs/probe-rs/pull/564;
-- rust-embedded/cortex-m ::
-  - /scb: derive serde, Hash, PartialOrd for VectActive behind gates/: https://github.com/rust-embedded/cortex-m/pull/363;
-  - /Implement various interfaces for trace configuration/: https://github.com/rust-embedded/cortex-m/pull/342;
+- ~probe-rs/probe-rs~ ::
+  A "a modern, embedded debugging toolkit, written in Rust" [[parencite:&probe-rs]] utilized to fulfill Requirement [[req:input]].
+  Contributions are:
+  - /Reintroduce ~CargoOptions~ in ~mod common_options~/: patch set included in a larger refactor [[parencite:&pr:probe-rs:760]].
+  - /arm: enable exception trace on ~setup_swv~/: improves tracing support for ARM targets [[parencite:&pr:probe-rs:758]].
+  - /cargo: bump bitvec/: updates a dependency [[parencite:&pr:probe-rs:757]].
+  - \textit{arm/itm: doc fields, enable global timestamps}: improves documentation [[parencite:&pr:probe-rs:728]].
+  - \textit{Add generic probe/session logic from cargo-flash}: improves composability with RTIC Scope [[parencite:&pr:probe-rs:723]].
+  - \textit{deprecate internal ITM/DWT packet decoder in favour of itm-decode}: replaces an unfinished internal trace stream decoder with an ~itm~ precursor; see [[#impl:itm]] [[parencite:&pr:probe-rs:564]].
+- ~probe-rs/cargo-flash~ ::
+  A "cargo extension for programming microcontrollers" [[parencite:&cargo-flash]], functionality of which is used by ~cargo-rtic-scope~.
+  Contributions are:
+  - /move probe, session logic, flash downloader to probe-rs-cli-util/: moves functionality from ~cargo-flash~ to an auxilliary ~probe-rs~ library crate such that they can be utilized by ~cargo-rtic-scope~ [[parencite:&pr:cargo-flash:188]].
+
+- ~rust-embedded/cortex-m~ :: A library crate that enables "low level access to Cortex-M processors" [[parencite:&cortex-m]], utilized to fulfill Requirement [[req:itm-gen]], [[req:decode]] and [[req:record]].
+
+  - /scb: derive serde, Hash, PartialOrd for VectActive behind gates/: adds features used by ~itm~ [[parencite:&pr:cortex-m:363]].
+  - /Implement various interfaces for trace configuration/: adds features used by ~cortex-m-rtic-trace~ [[parencite:&pr:cortex-m:363]].
+  - \textit{TPIU: swo\textunderscore supports: make struct fields public, improve documentation}: fixes an issue in a library module and improves documentation [[parencite:&pr:cortex-m:381]].
+  - /CHANGELOG: add missing items/: adds documentation about added features [[parencite:&pr:cortex-m:378]].
+  - /itm: derive serde for \texttt{LocalTimestampOptions}, impl gated \texttt{TryFrom<u8>}/: adds features used by ~cargo-rtic-scope~  [[parencite:&pr:cortex-m:366]].
 - rust-embedded/itm ::
   - /replace crate with itm-decode/: https://github.com/rust-embedded/itm/pull/41;
 - rtic-rs/rtic-syntax ::
@@ -494,6 +514,29 @@ First of, the usage of the ~corte-m-rtic-trace~ and the preparatory recovery ste
 5. this resolved trace stream is forwarded to sinks.
 
 # TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
+
+*** ~cargo-rtic-scope~
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope
+:END:
+*** ~rtic-scope-frontend-dummy~
+:PROPERTIES:
+:CUSTOM_ID: impl:rtic-scope-frontend-dummy
+:END:
+*** ~rtic-scope-api~
+:PROPERTIES:
+:CUSTOM_ID: impl:api
+:END:
+
+*** ~cortex-m-rtic-trace~
+:PROPERTIES:
+:CUSTOM_ID: impl:rtic-trace
+:END:
+
+*** ~itm~
+:PROPERTIES:
+:CUSTOM_ID: impl:itm
+:END:
 
 *** ~cortex-m-rtic-trace~ and its application
 ~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[gls:DCB][DCB]], [[gls:TPIU][TPIU]], [[gls:DWT][DWT]], [[gls:ITM][ITM]], -- for tracing.
@@ -761,6 +804,11 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 :PROPERTIES:
 :CUSTOM_ID: discussion
 :END:
+*** What project does ~itm~ belong to?
+:PROPERTIES:
+:CUSTOM_ID: disc:itm-embedded-wg
+:END:
+# TODO discuss on where the final itm actually belongs. Link to the RFC discussion.
 *** Tracing overhead with RTIC Scope
 [[parencite:&arm-cortex-learn 24]] states:
 #+begin_quote
@@ -777,7 +825,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 
 # TODO DWT unit consumption
 *** Future work
-# Link to relevant issues
+# Link to all(?) issues
 
 # TODO deprecating cortex-m-rtic-trace: push upstream to RTIC, probe-rs
 # TODO cargo-embed functionality, RTICScope.toml
@@ -789,6 +837,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 # TODO Cargo-flash hints?
 
 # TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
+
 ** Conclusion
 ** Glossary & Bibliography                                          :ignore:
 [[printglossaries:]]
