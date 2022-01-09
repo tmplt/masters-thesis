@@ -5,31 +5,32 @@
 #+AUTHOR: Viktor Vilhelm Sonesten
 #+EMAIL: vikson-6@student.ltu.se
 #+LANGUAGE: en
-#+OPTIONS: ':t
+#+OPTIONS: ':t toc:nil title:nil todo:nil
 
 #+EXPORT_EXCLUDE_TAGS: noexport
 
 #+LATEX_COMPILER: xelatex
-#+LATEX_CLASS: article
-#+LATEX_CLASS_OPTIONS: [twocolumn]
+#+LATEX_CLASS: book-noparts
+#+LATEX_CLASS_OPTIONS: [10pt]
+#+latex_header: \usepackage{kpfonts}[maths]
 #+latex_header: \usepackage{libertine}
 #+latex_header: \usepackage{inconsolata}
 #+latex_header: \usepackage[style=apa,hyperref=true,url=true,backend=biber]{biblatex}
 #+latex_header: \addbibresource{./ref.bib}
-#+latex_header: \usepackage{microtype}
 #+LATEX_HEADER: \usepackage[T1]{fontenc}
 #+LATEX_HEADER: \usepackage{bm}
 #+LATEX_HEADER: \usepackage{mathtools}
 #+LATEX_HEADER: \usepackage{newfloat}
 #+LATEX_HEADER: \usepackage{minted}
 #+LATEX_HEADER: \setminted{frame=lines,breaklines,breakafter=/.,fontsize=\footnotesize}
-#+LATEX_HEADER: \usepackage{enumitem}
+#+LATEX_HEADER: \usepackage[inline]{enumitem}
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{hyperref}
-#+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue,breaklinks=true}
+#+LATEX_HEADER: \usepackage[dvipsnames]{xcolor}
+#+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor=Maroon,citecolor=blue,breaklinks=true}
 #+LATEX_HEADER: \usepackage{glossaries}
-#+LATEX_HEADER: \usepackage{todonotes}
-#+LATEX_HEADER: \setlength{\marginparwidth}{2cm}
+#+latex_header: \usepackage{microtype}
+#+latex_header: \usepackage{tocbibind}
 #+LATEX_HEADER: \makeglossaries
 
 #+NAME: glossary
@@ -70,25 +71,53 @@
 
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
-    ; ignore some headlines
+    ;; ignore some headlines
     (require 'ox-extra)
     (ox-extras-activate '(ignore-headlines))
 
-    ; minted code listings
+    ;; minted code listings
     (require 'ox-latex)
     (setq org-latex-listings 'minted)
+
+    ;; use the book class, but without any \parts
+    (add-to-list 'org-latex-classes
+                 '("book-noparts"
+                   "\\documentclass{book}"
+                   ("\\chapter{%s}" . "\\chapter*{%s}")
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
   #+end_src
 #+RESULTS:
 
-* *The Paper*                                                        :ignore:
-
-\listoftodos
-
+* Frontmatter                                                        :ignore:
+#+LATEX: \frontmatter
 # Make this a single paragraph; use unambiguous terms; aim for 250 words; 3-5 keywords.
-#+begin_abstract
-Here be an abstract...
-#+end_abstract
+# #+begin_abstract
+# Here be an abstract...
+# #+end_abstract
+#+begin_export latex
+\newlist{inline-enum}{enumerate*}{1}
+\setlist[inline-enum]{label=(\roman*)}
 
+% Include "List of Listings" in the TOC
+\renewcommand{\listoflistings}{
+  \cleardoublepage
+  \addcontentsline{toc}{chapter}{\listoflistingscaption}
+  \listof{listing}{\listoflistingscaption}
+}
+
+\tableofcontents
+\listoftables
+\listoffigures
+\listoflistings
+
+\mainmatter
+#+end_export
+
+* *The Paper*                                                        :ignore:
 ** Introduction
 # What are embedded systems, regulators, and how do they relate?
 Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices --- serve a key role in the operation of systems with electronical components where computations must be made.
