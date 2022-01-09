@@ -58,7 +58,7 @@
 | ETB  | ETB          | \textit{Embedded Trace Buffer}                  |
 | WCET | WCET         | \textit{Worst Case Execution Time}              |
 | EDF  | EDF          | \textit{Earliest Deadline First}                |
-| PACs | PACs         | \textit{Peripheral Access Crates}               |
+| PAC  | PAC          | \textit{Peripheral Access Crates}               |
 | API  | API          | \textit{Application Programming Interface}      |
 
 
@@ -187,7 +187,7 @@ The aim of this thesis is thus to employ and extend upon RTIC with a toolset, ap
 The resulting toolset will be employed to implement a regulator for a non-trivial dynamic system (see [[#control-application]]), and the functionality and ergonomics of the toolset evaluated (see [[#discussion]]).
 
 *** Background
-This section covers the theory, tools, and the ARMv7-M hardware features utilized in order to develop RTIC Scope.
+This introductory section covers the software components that have realized RTIC Scope.
 
 **** The Rust programming language
 :PROPERTIES:
@@ -197,147 +197,6 @@ Rust is a system programming language that guarantees the absence of mutable ali
 Refer to [[textcite:&rust-lang]].
 
 For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
-
-**** [[Acrfull:PACs]]
-# What is a PAC and what are they used for?
-A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
-Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
-
-# Differentiate {architecture,device}-specific PACs
-In the embedded Rust ecosystems, these are two kinds of PACs:
-- architecture-specific :: Architecture-specific PACs expose an API for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
-- device-specific :: Device-specific PACs expose an API for hardware peripherals available on a smaller family of embedded systems.
-  For example, ~stm32-rs~ [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
-
-# svd2rust
-A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
-
-**** [[Acrfull:RTIC]]
-:PROPERTIES:
-:CUSTOM_ID: rtic
-:END:
-
-# TODO Expand: briefly cover rtic::app, how an application is declared, hardware tasks (PAC usage) and task dispatchers.
-Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
-When this interrupt is made pending in hardware, the task function executes.
-An example hardware task is declared via
-#+name: rtic-hw-task-example
-#+begin_src rust
-  #[rtic::app]
-  mod app {
-      #[task(bound = EXTI0)]
-      fn foo(_ctx: foo::Context) {
-          // ...
-      }
-  }
-#+end_src
-With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
-After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
-
-
-Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
-For this reason, the used hardware interrupt is considered a "dispatcher".
-An example software task is declared via
-#+begin_src rust
-  #[rtic::app(dispatchers = [EXTI0])]
-  mod app {
-      #[task]
-      fn bar(_ctx: bar::Context) {
-          // ...
-      }
-  }
-#+end_src
-
-In difference to hardware tasks, software tasks can be scheduled by software.
-
-**** ARMv7-M debug facilities
-:PROPERTIES:
-:CUSTOM_ID: debug-periphs
-:END:
-This section summarizes the [[gls:ITM][ITM]] packet protocol and the hardware peripherals responsible for its generation and device exfiltration.
-For sake of brevity this section is not exhaustible and only covers the subset of ITM packets that RTIC Scope utilizes as of version v0.3.0 [[parencite:&rtic-scope]].
-For more information on each peripheral, refer to the respective sections in [[textcite:&arm-rm]].
-
-# DWT -> ITM -> TPIU -> ETB.
-RTIC Scope utilizes the [[gls:DWT][DWT]], ITM, [[gls:TPIU][TPIU]], and [[gls:ETB][ETB]] peripherals for on-target trace generation and trace extraction.
-The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU and ETB for device exfiltration via serial communication.
-These peripherals are summarized below.
-
-
-- DWT ::
-  # Summarize DWT functionality exploited in RTIC Scope
-  # TODO "responsible for hardware events"
-  The DWT peripheral provides the core of the utilized hardware tracing functionality by generating packets when
-  - a configured range of data is read or written by help of hardware comparators (known as "data tracing"); and
-  - whenever the processor enters an exception handler and returns from it (known as "exception tracing").
-  Thus, tracing of hardware-bound RTIC tasks can be achieved by intercepting exception trace packets, and software tasks can be traced by writing a unique task identifier to a monitored address and intercepting the data trace packets.
-
-  # DWT comparators /can/ trace RTIC resources, but its complex
-  # TODO move to future work
-  # RTIC resources can theoretically also be traced by help of DWT comparators, but such as approach would be relatively complex.
-  # A data trace value packet contains up to one word (32 bits) of information.
-  # If the RTIC resources fits within a word only a single packet must be intercepted.
-  # However, a more common praxis is the usage of non-primitive resources which have differing sizes between an debug and optimized build of the target application.
-  # The more common case is then the need to intercept multiple data trace value packets from which the resources must be reconstructed.
-  # The need to emit more packets increases the possibility of DWT buffer overflows events, during which the packet is dropped and an overflow packet is generated instead.
-  # Of note is that the overflow packet does not contain any information on what caused the overflow.
-  # Assuming that all packets can be send and intercepted without buffer overflows, the issue of reconstucting the most-likely non-primitive data structures remain.
-  # This requires DWARF information and is a project on its own.
-
-  All the packets generated by the DWT unit are known as "hardware event packets" and are sent to the ITM unit and then forwarded to the TPIU.
-
-  Refer to [[textcite:&arm-rm C1.8]] for more information on the DWT unit.
-
-- ITM ::
-  # Summarize ITM functionality
-  The ITM unit is of an auxilliary nature; it has three functions:
-  - the multiplexing of hardware event packets from the DWT unit with its own instrumentation packets which are then forwarded to the TPIU;
-  - control and generation of timestamp packets; and
-  - a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers, unused by RTIC Scope.
-
-  # Summarize timestamp packets
-  Timestamp packets are appended to a set of non-timestamp packets that occur at a common timestamp and come in two forms: global and local.
-  # TODO when exactly is the time counting started?
-  Global timestamps are absolute and starts counting at the boot of the target device.
-  Local timestamps are relative to the last local timestamp and resets its count when a new one is generated.
-  An up-to-date absolute timestamp can be calculated by applying all local timestamp values upon the last global timestamp.
-  For example, if a global timestamp with the value $10$ is emitted after which two local timestamps with the respective values of $3$ and $4$ are emitted, an up-to-date absolute timestamp is calculated via $10 + 3 + 4 = 17$.
-  Local timestamps also contain information on the relationship between the local timestamp generation and the corresponding trace packets. The timestamp can be
-  - synchronous to the generated packets: the timestamp is the counter value when the non-timestamp packets were generated;
-  - delayed relative to the packets: the timestamp is the counter value when the timestamp packet was generated (the local timestamp value corresponding to the non-timestamp packet generation event is thus unknown, but must be between the previous and current local timestamp value);
-  - delayed relative to the associated event: synchronous to the generated packets, but the packets themselves were delayed because of other trace output packets; or
-  - delayed relative to the packets and associated event: a combination of the last two conditions.
-
-  # TODO explain what clock drives the global timestamp clock (P710)
-  # TODO document sync packets (P712)
-  # TODO document arbitration between packets from different sources (P713)
-
-  # TODO Instrumentation packets and RTIC resource tracing
-  # 32b per stim register, each has a FIFOREADY bit, each instrumentation packet contains at max 4B = 32b
-  # port number, 0-31
-
-  # XXX ITM stims has its own output buffer not related to the DWT output buffer, the status of the ITM output buffer can be queried via FIFOREADY in ITM_STIMx
-
-  # TODO add an example figure how a collection of back-to-back trace packets may look like. Timestamp is last in the chain
-
-  For more information on the ITM unit, refer to [[parencite:&arm-rm C1.7]]. For more information on global and local timestamps, refer to  [[parencite:&arm-rm C1-710]].
-
-- TPIU ::
-  # Summarize TPIU functionality
-  The TPIU provides external visibility of the trace packet stream by serializing...
-
-  by serializing these over a set of exposed hardware pins or via the MCU programmer unit (depending on target platform).
-  Depending on the platform, these can be GPIO pins which can be configured in parallel mode by use of multiple pins or a singular GPIO pin for an asynchronous port.
-
-  # Embedded Trace Buffer (ETB), SWO, or parallel trace port
-
-  For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
-
-  # TODO recreate Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]] without ETM component.
-
-  # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
-
-- ETB ::
 
 *** Motivation
 Debugging the user application running on an MCU is an integral part of an embedded work-flow.
@@ -439,6 +298,144 @@ Aside from these novel crates, the following patches hav been submitted upstream
  - Conclusions :: TODO
  - Future work :: TODO
  - Appendices :: TODO
+
+** Theory
+This chapter covers the theory, tools, and the ARMv7-M hardware features utilized in order to develop RTIC Scope.
+*** ARMv7-M debug facilities
+:PROPERTIES:
+:CUSTOM_ID: debug-periphs
+:END:
+This section summarizes the [[Acrfull:ITM]] packet protocol and the hardware peripherals responsible for its generation and device exfiltration.
+For sake of brevity this section is not exhaustible and only covers the subset of ITM packets that RTIC Scope utilizes as of version v0.3.0 [[parencite:&rtic-scope]].
+For more information on each peripheral, refer to the respective sections in [[textcite:&arm-rm]].
+
+# DWT -> ITM -> TPIU -> ETB.
+RTIC Scope utilizes the [[Acrfull:DWT]], ITM, [[Acrfull:TPIU]], and [[Acrfull:ETB]] peripherals for on-target trace generation and trace extraction.
+The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU and ETB for device exfiltration via serial communication.
+These peripherals are summarized below.
+
+**** [[Acrfull:DWT]]
+# Summarize DWT functionality exploited in RTIC Scope
+# TODO "responsible for hardware events"
+The DWT peripheral provides the core of the utilized hardware tracing functionality by generating packets when
+- a configured range of data is read or written by help of hardware comparators (known as "data tracing"); and
+- whenever the processor enters an exception handler and returns from it (known as "exception tracing").
+Thus, tracing of hardware-bound RTIC tasks can be achieved by intercepting exception trace packets, and software tasks can be traced by writing a unique task identifier to a monitored address and intercepting the data trace packets.
+
+# DWT comparators /can/ trace RTIC resources, but its complex
+# TODO move to future work
+# RTIC resources can theoretically also be traced by help of DWT comparators, but such as approach would be relatively complex.
+# A data trace value packet contains up to one word (32 bits) of information.
+# If the RTIC resources fits within a word only a single packet must be intercepted.
+# However, a more common praxis is the usage of non-primitive resources which have differing sizes between an debug and optimized build of the target application.
+# The more common case is then the need to intercept multiple data trace value packets from which the resources must be reconstructed.
+# The need to emit more packets increases the possibility of DWT buffer overflows events, during which the packet is dropped and an overflow packet is generated instead.
+# Of note is that the overflow packet does not contain any information on what caused the overflow.
+# Assuming that all packets can be send and intercepted without buffer overflows, the issue of reconstucting the most-likely non-primitive data structures remain.
+# This requires DWARF information and is a project on its own.
+
+All the packets generated by the DWT unit are known as "hardware event packets" and are sent to the ITM unit and then forwarded to the TPIU.
+
+Refer to [[textcite:&arm-rm C1.8]] for more information on the DWT unit.
+**** [[Acrfull:ITM]]
+# Summarize ITM functionality
+The ITM unit is of an auxilliary nature; it has three functions:
+- the multiplexing of hardware event packets from the DWT unit with its own instrumentation packets which are then forwarded to the TPIU;
+- control and generation of timestamp packets; and
+- a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers, unused by RTIC Scope.
+
+# Summarize timestamp packets
+Timestamp packets are appended to a set of non-timestamp packets that occur at a common timestamp and come in two forms: global and local.
+# TODO when exactly is the time counting started?
+Global timestamps are absolute and starts counting at the boot of the target device.
+Local timestamps are relative to the last local timestamp and resets its count when a new one is generated.
+An up-to-date absolute timestamp can be calculated by applying all local timestamp values upon the last global timestamp.
+For example, if a global timestamp with the value $10$ is emitted after which two local timestamps with the respective values of $3$ and $4$ are emitted, an up-to-date absolute timestamp is calculated via $10 + 3 + 4 = 17$.
+Local timestamps also contain information on the relationship between the local timestamp generation and the corresponding trace packets. The timestamp can be
+- synchronous to the generated packets: the timestamp is the counter value when the non-timestamp packets were generated;
+- delayed relative to the packets: the timestamp is the counter value when the timestamp packet was generated (the local timestamp value corresponding to the non-timestamp packet generation event is thus unknown, but must be between the previous and current local timestamp value);
+- delayed relative to the associated event: synchronous to the generated packets, but the packets themselves were delayed because of other trace output packets; or
+- delayed relative to the packets and associated event: a combination of the last two conditions.
+
+# TODO explain what clock drives the global timestamp clock (P710)
+# TODO document sync packets (P712)
+# TODO document arbitration between packets from different sources (P713)
+
+# TODO Instrumentation packets and RTIC resource tracing
+# 32b per stim register, each has a FIFOREADY bit, each instrumentation packet contains at max 4B = 32b
+# port number, 0-31
+
+# XXX ITM stims has its own output buffer not related to the DWT output buffer, the status of the ITM output buffer can be queried via FIFOREADY in ITM_STIMx
+
+# TODO add an example figure how a collection of back-to-back trace packets may look like. Timestamp is last in the chain
+
+For more information on the ITM unit, refer to [[parencite:&arm-rm C1.7]]. For more information on global and local timestamps, refer to  [[parencite:&arm-rm C1-710]].
+**** [[Acrfull:TPIU]]
+# Summarize TPIU functionality
+The TPIU provides external visibility of the trace packet stream by serializing...
+
+by serializing these over a set of exposed hardware pins or via the MCU programmer unit (depending on target platform).
+Depending on the platform, these can be GPIO pins which can be configured in parallel mode by use of multiple pins or a singular GPIO pin for an asynchronous port.
+
+# Embedded Trace Buffer (ETB), SWO, or parallel trace port
+
+For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
+
+# TODO recreate Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]] without ETM component.
+
+# XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
+**** [[Acrfull:ETB]]
+
+*** [[Acrfull:PAC]]
+# What is a PAC and what are they used for?
+A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
+Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
+
+# Differentiate {architecture,device}-specific PACs
+In the embedded Rust ecosystems, these are two kinds of PACs:
+- architecture-specific :: Architecture-specific PACs expose an API for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
+- device-specific :: Device-specific PACs expose an API for hardware peripherals available on a smaller family of embedded systems.
+  For example, ~stm32-rs~ [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
+
+# svd2rust
+A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
+*** [[Acrfull:RTIC]]
+:PROPERTIES:
+:CUSTOM_ID: rtic
+:END:
+
+# TODO Expand: briefly cover rtic::app, how an application is declared, hardware tasks (PAC usage) and task dispatchers.
+Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
+When this interrupt is made pending in hardware, the task function executes.
+An example hardware task is declared via
+#+name: rtic-hw-task-example
+#+begin_src rust
+  #[rtic::app]
+  mod app {
+      #[task(bound = EXTI0)]
+      fn foo(_ctx: foo::Context) {
+          // ...
+      }
+  }
+#+end_src
+With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
+After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
+
+
+Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
+For this reason, the used hardware interrupt is considered a "dispatcher".
+An example software task is declared via
+#+begin_src rust
+  #[rtic::app(dispatchers = [EXTI0])]
+  mod app {
+      #[task]
+      fn bar(_ctx: bar::Context) {
+          // ...
+      }
+  }
+#+end_src
+
+In difference to hardware tasks, software tasks can be scheduled by software.
 
 ** Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
