@@ -10,8 +10,8 @@
 #+EXPORT_EXCLUDE_TAGS: noexport
 
 #+LATEX_COMPILER: xelatex
-#+LATEX_CLASS: book-noparts
-#+LATEX_CLASS_OPTIONS: [10pt]
+#+LATEX_CLASS: thesis
+#+LATEX_CLASS_OPTIONS: [a4paper,10pt]
 #+latex_header: \usepackage{kpfonts}[maths]
 #+latex_header: \usepackage{libertine}
 #+latex_header: \usepackage{inconsolata}
@@ -85,8 +85,8 @@
 
     ;; use the book class, but without any \parts
     (add-to-list 'org-latex-classes
-                 '("book-noparts"
-                   "\\documentclass{book}"
+                 '("thesis"
+                   "\\documentclass{memoir}"
                    ("\\chapter{%s}" . "\\chapter*{%s}")
                    ("\\section{%s}" . "\\section*{%s}")
                    ("\\subsection{%s}" . "\\subsection*{%s}")
@@ -99,9 +99,9 @@
 * Frontmatter                                                        :ignore:
 #+LATEX: \frontmatter
 # Make this a single paragraph; use unambiguous terms; aim for 250 words; 3-5 keywords.
-# #+begin_abstract
-# Here be an abstract...
-# #+end_abstract
+#+begin_abstract
+Here be an abstract...
+#+end_abstract
 #+begin_export latex
 \newlist{inline-enum}{enumerate*}{1}
 \setlist[inline-enum]{label=(\roman*)}
