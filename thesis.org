@@ -314,7 +314,6 @@ Delimitations to the above requirements apply, see [[#delimitations]].
 :PROPERTIES:
 :CUSTOM_ID: delimitations
 :END:
-# TODO refer to that one RFC for how to interpret MUST, MUST NOT, etc.
 In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
 These /delimitations/[fn:: Uses the key words *MUST* and *SHOULD NOT* which are to be interpreted as described in [[textcite:&rfc2119]].], which are related to the requirements enumerated in [[#requirements]], are as follows:
 1. Requirement [[req:itm-gen]]: RTIC Scope *MUST* apply the device mutations that are common to all ARM Cortex-M targets in order to enable trace stream generation and exfiltration. RTIC Scope *SHOULD NOT* apply device-specific mutations.
