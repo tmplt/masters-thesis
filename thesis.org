@@ -344,7 +344,7 @@ The use of the key words *MUST* and *SHOULD NOT* used above as to be interpreted
 
 *** Contributions
 The development of RTIC Scope has yielded a number of [[gls:downstream]] contributions, namely a collection of crates:
-- ~cargo-rtic-scope~ :: A ~cargo~ subcommand acting as the RTIC Scope backend (or host-side /daemon/) which fulfill Requirements [[req:input]]--[[req:protocol]] and [[req:cargo]].
+- ~cargo-rtic-scope~ :: A ~cargo~ subcommand acting as the RTIC Scope backend (or host-side /daemon/) which fulfill Requirements [[req:input]]--[[req:protocol]] and [[req:record]]--[[req:cargo]].
   See [[#impl:cargo-rtic-scope]] and [[textcite:&rtic-scope:cargo-rtic-scope]].
 - ~rtic-scope-frontend-dummy~ :: A reference implementation of a RTIC Scope frontend, which fulfill Requirement [[req:dummy]].
   See [[#impl:rtic-scope-frontend-dummy]] and [[textcite:&rtic-scope:dummy]].
