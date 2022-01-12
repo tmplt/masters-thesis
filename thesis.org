@@ -27,7 +27,7 @@
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{hyperref}
 #+LATEX_HEADER: \usepackage[dvipsnames]{xcolor}
-#+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor=Maroon,citecolor=blue,breaklinks=true}
+#+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor={red!50!black},citecolor=blue,breaklinks=true}
 #+LATEX_HEADER: \usepackage{glossaries}
 #+latex_header: \usepackage{microtype}
 #+latex_header: \usepackage{tocbibind}
@@ -113,14 +113,24 @@ Here be an abstract...
   \listof{listing}{\listoflistingscaption}
 }
 
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
 \listoftodos
 \tableofcontents
+\newpage
 \listoftables
+\newpage
 \listoffigures
+\newpage
 \listoflistings
+\newpage
 
 % Start counting with arabic numbers
 \mainmatter
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
 
 % Fix todonotes behavior
 \setlength{\marginparwidth}{2cm}
@@ -851,6 +861,7 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 ** Appendices                                                       :ignore:
 #+begin_export latex
 \appendix
+\addappheadtotoc
 #+end_export
 *** TODO Application to a complex control system
 :PROPERTIES:
