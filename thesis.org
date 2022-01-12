@@ -544,20 +544,20 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 ** Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
 First of, the usage of the ~cortex-m-rtic-trace~ and the notable /preparatory recovery step/ of ~cargo-rtic-scope~ is covered after which the implementation is presented in a downstream manner: that is, how
-1. the trace stream exfiltrates via the TPIU;
+1. the trace stream exfiltrates via the [[ACRshort:TPIU]];
 2. ~cargo-rtic-scope~ reads the raw trace stream from the source;
 3. ~itm~ decodes this stream into manageable Rust structures;
 4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream;
 5. this resolved trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
 
-\missingfigure{Draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.}
+\missingfigure{Draw the data flow in RTIC Scope: DWT to ITM to TPIU to cargo-rtic-scope and the itm crate, to replay file and frontends.}
 
 *** ~cortex-m-rtic-trace~ and its application
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[acrfull:DCB]] [fn:: a component of the [[acrfull:SCB]] peripheral.], [[acrfull:TPIU]], [[acrfull:DWT]], [[acrfull:ITM]], -- for tracing.
+~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[acrfull:DCB]][fn:: A component of the [[acrfull:SCB]] peripheral.], [[ACRshort:TPIU]], [[ACRshort:DWT]], and [[ACRshort:ITM]] -- for tracing.
 The crate exposes two functions:
 - ~cortex_m_rtic_trace::configure~ :: a regular Rust function for configuration of the peripherals mentioned above; and
 - ~cortex_m_rtic_trace::trace~ :: a Rust macro with with to trace software tasks.
