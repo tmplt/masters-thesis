@@ -41,7 +41,6 @@
 | tokenstream | tokenstream     | cock        |
 | token       | token           | TODO        |
 | AST         | AST             | AST         |
-| DCB         | DCB             | DCB         |
 | static-anal | static analysis | TODO        |
 | sample-rate | sample rate     | TODO        |
 | downstream  | downstream      | TODO        |
@@ -57,6 +56,7 @@
 | RTIC | RTIC         | \textit{Real-Time Interrupt-driven Concurrency} |
 | RTOS | RTOS         | \textit{real-time operating system}             |
 | SRP  | SRP          | \textit{Stack Resource Policy}                  |
+| DCB  | DCB          | \textit{Device Control Block}                   |
 | ITM  | ITM          | \textit{Instrumentation Trace Macrocell}        |
 | TPIU | TPIU         | \textit{Trace Port Interface Unit}              |
 | DWT  | DWT          | \textit{Data Watchpoint and Trace}              |
@@ -528,44 +528,28 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 
 ** Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
-First of, the usage of the ~corte-m-rtic-trace~ and the preparatory recovery step of ~cargo-rtic-scope~ is covered after which the implementation is presented in a downstream manner: that is, how
-1. the trace stream exfiltrates via ETB/TPIU;
+First of, the usage of the ~cortex-m-rtic-trace~ and the notable /preparatory recovery step/ of ~cargo-rtic-scope~ is covered after which the implementation is presented in a downstream manner: that is, how
+1. the trace stream exfiltrates via the TPIU;
 2. ~cargo-rtic-scope~ reads the raw trace stream from the source;
 3. ~itm~ decodes this stream into manageable Rust structures;
-4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream; and
-5. this resolved trace stream is forwarded to sinks.
+4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream;
+5. this resolved trace stream is forwarded to frontends; and
+6. how a frontend handles a trace stream.
 
 # TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
 
-*** ~cargo-rtic-scope~
-:PROPERTIES:
-:CUSTOM_ID: impl:cargo-rtic-scope
-:END:
-*** ~rtic-scope-frontend-dummy~
-:PROPERTIES:
-:CUSTOM_ID: impl:rtic-scope-frontend-dummy
-:END:
-*** ~rtic-scope-api~
-:PROPERTIES:
-:CUSTOM_ID: impl:api
-:END:
-
-*** ~cortex-m-rtic-trace~
+*** ~cortex-m-rtic-trace~ and its application
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-
-*** ~itm~
-:PROPERTIES:
-:CUSTOM_ID: impl:itm
-:END:
-
-*** ~cortex-m-rtic-trace~ and its application
-~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[gls:DCB][DCB]], [[gls:TPIU][TPIU]], [[gls:DWT][DWT]], [[gls:ITM][ITM]], -- for tracing.
+~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[acrfull:DCB]], [[acrfull:TPIU]], [[acrfull:DWT]], [[acrfull:ITM]], -- for tracing.
+The crate exposes two functions:
+- ~cortex_m_rtic_trace::configure~ :: a regular Rust function for configuration of the peripherals mentioned above; and
+- ~cortex_m_rtic_trace::trace~ :: a macro with with to trace software tasks.
 
 # TODO document how user-supplied configuration is sourced.
 
-*** The recovery step
+*** The ~cargo-rtic-scope~ recovery step
 # How hardware tasks are traced
 The ITM packet protocol allows us to trace both hardware and software tasks.
 Hardware tasks are traced via exception trace packets.
@@ -766,7 +750,20 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 # TODO tracing nested functions
 # TODO task dispatchers, the events of which are ignored
 
-*** Trace stream exfiltration from target
+*** Reading the raw trace stream from the source with ~cargo-rtic-scope~
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope
+:END:
+~cargo-rtic-scope~ is a host-side daemon that fulfills [[crefrange:req:input,req:protocol]] and [[crefrange:req:record,req:cargo]].
+It is run like a ~cargo~ subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where ~<verb>~ is either ~trace~ or ~replay~.
+As the verbs imply, ~trace~ is used to trace the execution of an RTIC application on the target and ~replay~ is used to replay a trace for post-mortem analysis.
+#+NAME: lst:cargo-rtic-scope:summary
+#+CAPTION: Summary of ~cargo-rtic-scope~ invokation.
+#+begin_src shell
+  $ cargo rtic-scope [options...] <verb> [options...]
+#+end_src
+
+This section covers the options of these verbs, the general implementation of ~cargo-rtic-scope~, and insight into some choice components of the code base.
 
 **** Embedded Trace Buffer
 # TODO look up coresight documentation and summarize its operation
@@ -774,12 +771,10 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 **** TPIU
 # TODO the different modes, multiple pins, baud rate and clock
 
-*** Reading the trace stream from the source
-# TODO serial and probe source
-# TODO probe-rs
-# TODO POSIX-compliance?
-
-*** Decoding the ITM packet stream
+*** Decoding the ITM packet stream via ~itm~
+:PROPERTIES:
+:CUSTOM_ID: impl:itm
+:END:
 # TODO the decoding part, draw/borrow some figures from standard
 # TODO iter.rs, specifically Timestamps, timestamp formula, GTS logic, etc.
 # TODO everything is unit tested.
@@ -787,8 +782,15 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 *** Associating trace packets with RTIC task events
 # TODO build_event_chunk
 
-*** Forwarding resolved trace stream to sinks
-# TODO
+*** Forwarding resolved trace stream to sinks via ~rtic-scope-api~
+:PROPERTIES:
+:CUSTOM_ID: impl:api
+:END:
+
+*** Echoing the trace stream with ~rtic-scope-frontend-dummy~
+:PROPERTIES:
+:CUSTOM_ID: impl:rtic-scope-frontend-dummy
+:END:
 
 ** Results
 *** Using RTIC Scope
