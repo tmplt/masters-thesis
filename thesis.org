@@ -46,26 +46,41 @@
 | downstream  | downstream      | TODO        |
 | frontend    | frontend        | TODO        |
 | upstream    | upstream        | TODO        |
+| elf:data    | \texttt{.data}  | TODO        |
 
 # XXX some of these should link to the glossary
 #+NAME: acronyms
-| key  | abbreviation | full form                                       |
-|------+--------------+-------------------------------------------------|
-| PC   | PC           | \textit{program counter}                        |
-| CPU  | CPU          | \textit{central processing unit}                |
-| RTIC | RTIC         | \textit{Real-Time Interrupt-driven Concurrency} |
-| RTOS | RTOS         | \textit{real-time operating system}             |
-| SRP  | SRP          | \textit{Stack Resource Policy}                  |
-| DCB  | DCB          | \textit{Device Control Block}                   |
-| ITM  | ITM          | \textit{Instrumentation Trace Macrocell}        |
-| TPIU | TPIU         | \textit{Trace Port Interface Unit}              |
-| DWT  | DWT          | \textit{Data Watchpoint and Trace}              |
-| ETB  | ETB          | \textit{Embedded Trace Buffer}                  |
-| WCET | WCET         | \textit{Worst Case Execution Time}              |
-| EDF  | EDF          | \textit{Earliest Deadline First}                |
-| PAC  | PAC          | \textit{Peripheral Access Crates}               |
-| API  | API          | \textit{Application Programming Interface}      |
-
+| key           | abbreviation                 | full form                                             |
+|---------------+------------------------------+-------------------------------------------------------|
+| PC            | PC                           | \textit{program counter}                              |
+| CPU           | CPU                          | \textit{central processing unit}                      |
+| RTIC          | RTIC                         | \textit{Real-Time Interrupt-driven Concurrency}       |
+| RTOS          | RTOS                         | \textit{real-time operating system}                   |
+| SRP           | SRP                          | \textit{Stack Resource Policy}                        |
+| DCB           | DCB                          | \textit{Debug Control Block}                          |
+| SCS           | SCS                          | \textit{System Control Space}                         |
+| SCB           | SCB                          | \textit{System Control Block}                         |
+| DCB_DEMCR     | DEMCR                        | \textit{Debug Exception and Monitor Control Register} |
+| ITM           | ITM                          | \textit{Instrumentation Trace Macrocell}              |
+| TPIU          | TPIU                         | \textit{Trace Port Interface Unit}                    |
+| DWT           | DWT                          | \textit{Data Watchpoint and Trace}                    |
+| ETB           | ETB                          | \textit{Embedded Trace Buffer}                        |
+| WCET          | WCET                         | \textit{Worst Case Execution Time}                    |
+| EDF           | EDF                          | \textit{Earliest Deadline First}                      |
+| PAC           | PAC                          | \textit{Peripheral Access Crates}                     |
+| API           | API                          | \textit{Application Programming Interface}            |
+| TPIU_ACPR     | TPIU\textunderscore ACPR     | Asynchronous Clock Prescaler Register                 |
+| ETM           | ETM                          | \textit{Embedded Trace Macrocell}                     |
+| DWT_CTRL      | DWT\textunderscore CTRL      | \textit{Control Register}                             |
+| TPIU_TYPE     | TPIU\textunderscore TYPE     | \textit{TPIU Type Register}                           |
+| ITM_TCR       | TPIU\textunderscore TCR      | \textit{Trace Control Register}                       |
+| RAZ-WI        | RAZ/WI                       | \textit{Read-As-Zero, Writes Ignored}                 |
+| RAZ           | RAZ                          | \textit{Read-As-Zero}                                 |
+| RAO           | RAO                          | \textit{Read-As-One}                                  |
+| DWT_FUNCTIONn | DWT\textunderscore FUNCTION$n$ | \textit{Comparator Function registers}                |
+| SBZ           | SBZ                          | \textit{Should-Be-Zero}                               |
+| DWT_COMPn     | DWT\textunderscore COMP$n$   | \textit{Comparator registers}                         |
+| DWT_MASKn     | DWT\textunderscore MASK$n$   | \textit{Comparator Mask registers}                    |
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -536,18 +551,105 @@ First of, the usage of the ~cortex-m-rtic-trace~ and the notable /preparatory re
 5. this resolved trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
 
-# TODO draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.
+\missingfigure{Draw a tikz image block diagram of the targets' peripherals, going through an itm intermediate, into carg-rtic-scope, and when into file and frontends.}
 
 *** ~cortex-m-rtic-trace~ and its application
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[acrfull:DCB]], [[acrfull:TPIU]], [[acrfull:DWT]], [[acrfull:ITM]], -- for tracing.
+~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[acrfull:DCB]] [fn:: a component of the [[acrfull:SCB]] peripheral.], [[acrfull:TPIU]], [[acrfull:DWT]], [[acrfull:ITM]], -- for tracing.
 The crate exposes two functions:
 - ~cortex_m_rtic_trace::configure~ :: a regular Rust function for configuration of the peripherals mentioned above; and
-- ~cortex_m_rtic_trace::trace~ :: a macro with with to trace software tasks.
+- ~cortex_m_rtic_trace::trace~ :: a Rust macro with with to trace software tasks.
+Henceforth, within this section, these two functions will be referred to as ~configure~ and ~trace~, respectively.
 
-# TODO document how user-supplied configuration is sourced.
+After applying device-specific configurations for trace generation, and querying the frequency of the [[ACRshort:TPIU]] reference clock, ~configure~ is applied as shown in [[cref:lst:rtic-trace:configure]].
+#+NAME: lst:rtic-trace:configure
+#+CAPTION: Example application of ~cortex_m_rtic_trace::configure~.
+#+begin_src rust
+  #[init]
+  fn init(mut ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics()) {
+      // device-specific configurations for trace stream generation...
+
+      let freq = {
+          // device-specific query for the TPIU reference clock
+          // frequency...
+      };
+
+      use cortex_m_rtic_trace::{
+          self, GlobalTimestampOptions, LocalTimestampOptions, TimestampClkSrc,
+          TraceConfiguration, TraceProtocol,
+      };
+
+      // configure device-common tracing
+      cortex_m_rtic_trace::configure(
+          &mut ctx.core.DCB,
+          &mut ctx.core.TPIU,
+          &mut ctx.core.DWT,
+          &mut ctx.core.ITM,
+          1, // task enter DWT comparator ID
+          2, // task exit DWT comparator ID
+          &TraceConfiguration {
+              delta_timestamps: LocalTimestampOptions::Enabled,
+              absolute_timestamps: GlobalTimestampOptions::Disabled,
+              timestamp_clk_src: TimestampClkSrc::AsyncTPIU,
+              tpiu_freq: freq, // Hz
+              tpiu_baud: 9600, // B/s
+              protocol: TraceProtocol::AsyncSWONRZ,
+          },
+      )
+      .unwrap();
+
+      // ...
+  }
+#+end_src
+
+~configure~ in [[cref:lst:rtic-trace:configure]] does a number of things in the following order:
+1. <<rtic-trace:conf-protocol>> ensures that the target's [[ACRshort:TPIU]] peripheral supports the requested ~protocol~ by reading the [[acrfull:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
+2. ensures that the user did not request an invalid [[ACRshort:TPIU]] configuration (i.e. ~tpiu_freq: 0~ or ~tpiu_baud: 0~);
+3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[ACRshort:DWT]] peripheral supports exception tracing by reading the /NOTRCPKT/ bit in [[acrfull:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
+4. <<rtic-trace:nofail-conf>> configures the [[ACRshort:DCB]], [[ACRshort:TPIU]], and [[ACRshort:DWT]] peripherals (partially):
+   1. sets the /TRCENA/ bit in the [[acrfull:DCB_DEMCR]], a "global enable for all [[ACRshort:DWT]] and [[ACRshort:ITM]] features";
+   2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[acrfull:TPIU_ACPR]] such that the [[ACRshort:TPIU]] communicates with a requested baud rate.
+      The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm C1.10.4]].[fn:: This configuration implementation is faulty. See [[cref:fut:swoscaler]].]
+      #+NAME: eq:prescaler
+      \begin{equation}
+      \frac{\texttt{tpiu\textunderscore freq}}{\texttt{tpiu\textunderscore baud}} - 1
+      \end{equation}
+   3. drops any [[acrfull:ETM]] packets that the [[ACRshort:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
+   4. sets the /EXCTRCENA/ bit in [[acrshort:DWT_CTRL]] which enables the generation of exception traces in the [[ACRshort:DWT]] [[parencite:&arm-rm C1.8.7]].
+5. <<rtic-trace:itm>> Applies [[ACRshort:ITM]]-related options given to ~configure~ by writing to the [[acrfull:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
+   1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[ACRshort:ITM]], forwards trace packets from the [[ACRshort:DWT]] to the [[ACRshort:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
+   2. writes 0 to the /TraceBusID/ field because RTIC Scope does not support multi-source tracing within the scope of this thesis[fn:: Writing 0 to this field is potentially invalid. See [[cref:fut:TraceBusID]].]
+   3. writes 0 to the /TSPrescale/ field, disabling prescaling for local timestamps; and
+   4. writes 0 to the /GTSFREQ/ field, disabling global timestamps.[fn:: Global timestamps are an optional feature, and is not supported by all Cortex-M targets.]
+6. <<rtic-trace:dwt>> Configures [[ACRshort:DWT]] comparators for software task tracing:
+   1. first, resolves the target addresses of two =u32= /watch variables/ which live in [[gls:elf:data]];
+   2. dereferences two [[ACRshort:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[ACRshort:API]] for specifying these comparators can be greatly improved. See [[cref:fut:dwtcomps]].]
+   3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
+      1. writes to seven fields in the [[acrfull:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $1$):
+         0b1101 to /FUNCTION/, configuring the comparator to match on address access;
+         0 to /EMITRANGE/, disabling trace address packet generation;[fn:: We are not interested in the address that contains the watch variable.]
+         0 to /DATAVMATCH/, to disable data value comparison;
+         0 to /CYCMATCH/, to disable cycle counter comparison;
+         and 0 to /DATAVSIZE/, /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[acrfull:SBZ]] [[parencite:&arm-rm Glossary-855]] in address comparison context.
+      2. writes the first watch variable address to [[acrfull:DWT_COMPn]][fn:dwt-n] (with $n = 1$), in order for the comparator to match on that address access; and
+      3. writes 0 to [[acrfull:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
+   4. Lastly, the second comparator is configured in the same manner as the first, but with the second watch variable address in mind and $n=2$.
+
+If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-trace]] fails ~configure~ prematurely returns an ~Err(_)~ that signals what went wrong, and no peripheral configuration will have been applied: the target will be in the same state as before ~configure~ was called.
+
+Several fields in [[ACRshort:ITM_TCR]] are potentially [[acrfull:RAZ-WI]], [[acrfull:RAZ]], or [[acrfull:RAO]] [[parencite:&arm-rm Glossary-854]] in order to signal hardware support.
+This requires the field to be read after a write to ensure that a configuration was applied.
+During the steps in [[cref:rtic-trace:itm]], if any read-back values does not match what was written, ~configure~ prematurely returns an ~Err(_)~ signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the end-user that a partial configuration has now been applied.
+It is up to the end-user to reset the target to the state before ~configure~ was called.
+For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:382]].
+
+The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} and cannot fail.
+
+Of certain note are the steps in [[cref:rtic-trace:dwt]]...
+
+# TODO write about the DWT comparators, watch variables
 
 *** The ~cargo-rtic-scope~ recovery step
 # How hardware tasks are traced
@@ -847,7 +949,7 @@ The target-side code of RTIC Scope itself has a negligible performance impact du
 
 The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dummy~ have not been measured.
 
-# TODO DWT unit consumption
+# TODO DWT unit consumption, 2x u32-aligned .data usage
 *** Future work
 # Link to all(?) issues
 
@@ -861,6 +963,21 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 # TODO Cargo-flash hints?
 
 # TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
+**** Local timestamp prescaler configuration
+:PROPERTIES:
+:CUSTOM_ID: fut:swoscaler
+:END:
+# TODO integer division
+**** Trace stream ID configuration
+:PROPERTIES:
+:CUSTOM_ID: fut:TraceBusID
+:END:
+# TODO 0 may not be a valid value
+**** [[ACRshort:DWT]] comparator configuration
+:PROPERTIES:
+:CUSTOM_ID: fut:dwtcomps
+:END:
+# TODO move positional arguments to the struct instead. ensure that the two comparators are not the same one.
 
 ** Conclusion
 ** Glossary & Bibliography                                          :ignore:
@@ -907,3 +1024,5 @@ The only way to generate a shared object file is by building a dylib or a cdylib
 [fn:itm-tools] See https://github.com/japaric/itm-tools.
 
 [fn:cli] Command-line interface.
+
+[fn:dwt-n] $n$ emphasized for reasons of readability and typesetting.
