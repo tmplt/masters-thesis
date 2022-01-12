@@ -32,6 +32,7 @@
 #+latex_header: \usepackage{microtype}
 #+latex_header: \usepackage{tocbibind}
 #+latex_header: \usepackage{todonotes}
+#+latex_header: \usepackage[capitalize]{cleveref}
 #+LATEX_HEADER: \makeglossaries
 
 #+NAME: glossary
@@ -93,6 +94,11 @@
                    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                    ("\\paragraph{%s}" . "\\paragraph*{%s}")
                    ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+    ;; use \cref instead of \ref, for cleveref
+    (setq org-ref-default-ref-type "cref")
+
+    (setq org-latex-prefer-user-labels t)
   #+end_src
 #+RESULTS:
 
