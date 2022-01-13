@@ -653,11 +653,11 @@ For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:3
 
 The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} and cannot fail.
 
-# TODO improve this par
 Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in ~.data~ to trace software tasks, and how the watch variables in this section are aligned in memory.
 The [[ACRshort:DWT]] comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
 However, due to performance reasons, the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
 Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]] and [[cref:fut:opt-dwt-units]].
+\todo{improve this paragraph.}
 
 **** Tracing software tasks with ~trace~
 :PROPERTIES:
@@ -873,7 +873,7 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 It is run like a ~cargo~ subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where ~<verb>~ is either ~trace~ or ~replay~.
 As the verbs imply, ~trace~ is used to trace the execution of an RTIC application on the target and ~replay~ is used to replay a trace for post-mortem analysis.
 #+NAME: lst:cargo-rtic-scope:summary
-#+CAPTION: Summary of ~cargo-rtic-scope~ invokation.
+#+CAPTION: Summary of ~cargo-rtic-scope~ invocation.
 #+begin_src shell
   $ cargo rtic-scope [options...] <verb> [options...]
 #+end_src
