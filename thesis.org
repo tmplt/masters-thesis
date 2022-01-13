@@ -666,6 +666,48 @@ Further, because of time constrains no experimentation has been done with a non-
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace:trace-macro
 :END:
+~trace~ is an optional macro that is only required if software task tracing is wanted.
+It's application is trivial, but requires that ~config~ executed successfully.
+To trace a software task, consider [[cref:lst:rtic-trace:trace]] which defines two tasks: =task1= and =task2=.
+Of the two tasks, =task2= is traced by simply decorating it with =#[trace]=, the invocation of the =trace= macro.
+#+NAME: lst:rtic-trace:trace
+#+CAPTION: Application example of the =trace= macro. =task2= is traced; =task1= is not.
+#+begin_src rust
+  // ...
+
+  use cortex_m_rtic_trace::{self, trace};
+
+  #[task]
+  fn task1(_: task1::Context) {}
+
+  #[task]
+  #[trace]
+  fn task2(_: task2::Context) {}
+
+  // ...
+#+end_src
+
+Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expanding the macros applied in [[cref:lst:rtic-trace:trace]] via ~cargo-expand~ [[parencite:&cargo-expand]].
+#+NAME: lst:rtic-trace:trace-expanded
+#+CAPTION: Application example of the =trace= macro after macro expansion via ~cargo-expand~. Unrelated expansions omitted.
+#+begin_src rust
+  // ...
+  use cortex_m_rtic_trace::{self, trace};
+  // ...
+  #[allow(non_snake_case)]
+  fn task1(_: task1::Context) {
+      use rtic::Mutex as _;
+      use rtic::mutex_prelude::*;
+  }
+  #[allow(non_snake_case)]
+  fn task2(_: task2::Context) {
+      ::cortex_m_rtic_trace::__write_enter_id(0);
+      use rtic::Mutex as _;
+      use rtic::mutex_prelude::*;
+      ::cortex_m_rtic_trace::__write_exit_id(0);
+  }
+  // ...
+#+end_src
 
 *** The ~cargo-rtic-scope~ recovery step
 # How hardware tasks are traced
