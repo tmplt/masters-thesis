@@ -563,6 +563,12 @@ The crate exposes two functions:
 - ~cortex_m_rtic_trace::trace~ :: a Rust macro with with to trace software tasks.
 Henceforth, within this section, these two functions will be referred to as ~configure~ and ~trace~, respectively.
 
+This section is divided into two parts: [[cref:impl:rtic-trace:peripheral-config]], which covers the application of ~configure~; and [[cref:impl:rtic-trace:trace-macro]], which covers the application of the ~trace~ macro.
+
+**** Peripheral configuration
+:PROPERTIES:
+:CUSTOM_ID: impl:rtic-trace:peripheral-config
+:END:
 After applying device-specific configurations for trace generation, and querying the frequency of the [[ACRshort:TPIU]] reference clock, ~configure~ is applied as shown in [[cref:lst:rtic-trace:configure]].
 #+NAME: lst:rtic-trace:configure
 #+CAPTION: Example application of ~cortex_m_rtic_trace::configure~.
@@ -647,9 +653,16 @@ For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:3
 
 The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} and cannot fail.
 
-Of certain note are the steps in [[cref:rtic-trace:dwt]]...
+# TODO improve this par
+Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in ~.data~ to trace software tasks, and how the watch variables in this section are aligned in memory.
+The [[ACRshort:DWT]] comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
+However, due to performance reasons, the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
+Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]] and [[cref:fut:opt-dwt-units]].
 
-# TODO write about the DWT comparators, watch variables
+**** Tracing software tasks with ~trace~
+:PROPERTIES:
+:CUSTOM_ID: impl:rtic-trace:trace-macro
+:END:
 
 *** The ~cargo-rtic-scope~ recovery step
 # How hardware tasks are traced
@@ -936,6 +949,9 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 :END:
 # TODO discuss on where the final itm actually belongs. Link to the RFC discussion.
 *** Tracing overhead with RTIC Scope
+:PROPERTIES:
+:CUSTOM_ID: disc:perf
+:END:
 [[parencite:&arm-cortex-learn 24]] states:
 #+begin_quote
 Except for the power that is consumed by the system trace components,
@@ -950,6 +966,7 @@ The target-side code of RTIC Scope itself has a negligible performance impact du
 The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dummy~ have not been measured.
 
 # TODO DWT unit consumption, 2x u32-aligned .data usage
+# TODO add a listing of the watch variable structs to detail alignment.
 *** Future work
 # Link to all(?) issues
 
@@ -972,12 +989,19 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 :PROPERTIES:
 :CUSTOM_ID: fut:TraceBusID
 :END:
-# TODO 0 may not be a valid value
+# TODO 0 may not be a valid value, and tracebusid should be set before ITMENA
 **** [[ACRshort:DWT]] comparator configuration
 :PROPERTIES:
 :CUSTOM_ID: fut:dwtcomps
 :END:
 # TODO move positional arguments to the struct instead. ensure that the two comparators are not the same one.
+**** Optimizing [[ACRshort:DWT]] comparator utilization
+:PROPERTIES:
+:CUSTOM_ID: fut:opt-dwt-units
+:END:
+It would then be logical to store both =u8= variables on the same 32-bit address base: the first at offset 0, the other at offset 1.
+
+# TODO elaborate
 
 ** Conclusion
 ** Glossary & Bibliography                                          :ignore:
