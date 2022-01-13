@@ -543,13 +543,18 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 
 ** Implementation
 This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
-First of, the usage of the ~cortex-m-rtic-trace~ and the notable /preparatory recovery step/ of ~cargo-rtic-scope~ is covered after which the implementation is presented in a downstream manner: that is, how
-1. the trace stream exfiltrates via the [[ACRshort:TPIU]];
-2. ~cargo-rtic-scope~ reads the raw trace stream from the source;
+The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied.
+That is, how
+1. ~cortex-m-rtic-trace~ is applied and what it does;
+2. ~cargo-rtic-scope~ recovers metadata from the RTIC application and how it reads the raw trace stream from the source;
 3. ~itm~ decodes this stream into manageable Rust structures;
 4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream;
 5. this resolved trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
+
+# TODO dedicated section for the replay verb
+
+# TODO list a whole RTIC application example here somewhere that we can keep referring to?
 
 \missingfigure{Draw the data flow in RTIC Scope: DWT to ITM to TPIU to cargo-rtic-scope and the itm crate, to replay file and frontends.}
 
@@ -709,7 +714,44 @@ Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expa
   // ...
 #+end_src
 
-*** The ~cargo-rtic-scope~ recovery step
+*** Tracing with ~cargo-rtic-scope~ and its recovery step
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope
+:END:
+~cargo-rtic-scope~ is a host-side daemon that fulfills [[crefrange:req:input,req:protocol]] and [[crefrange:req:record,req:cargo]].
+It is run like a ~cargo~ subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where ~<verb>~ is either ~trace~ or ~replay~.
+As the verbs imply, ~trace~ is used to trace the execution of an RTIC application on the target and ~replay~ is used to replay a trace for post-mortem analysis.
+#+NAME: lst:cargo-rtic-scope:summary
+#+CAPTION: Summary of ~cargo-rtic-scope~ invocation.
+#+begin_src shell
+  $ cargo rtic-scope [options...] <verb> [options...]
+#+end_src
+
+This section covers the options and implementation of the ~trace~ verb.
+
+**** ~cargo rtic-scope trace~ options
+This section covers the available options when tracing a target.
+
+# TODO ensure most options can be specified via Cargo.toml first? This wont be trivial with cargo-flash options.
+
+**** Running ~cargo rtic-scope trace~
+# XXX do we even have such a specific command here? this section should be very general
+#+begin_src fundamental
+  $ cargo rtic-scope trace --serial /path/to/dev --dont-touch-target --bin my-rtic-application
+#+end_src
+
+1. Building the RTIC application
+2. Reading options from the cargo maniest
+3. Creating a trace file
+4. Generating metadata maps
+5. Spawning frontends
+   # TODO dont forget to cover the possibility of spawning multiple frontends
+6. Reading the trace from the target
+7. Flashing the target
+8. Flushing trace metadata to file
+9. Resetting the target
+
+***** Generating metadata maps
 # How hardware tasks are traced
 The ITM packet protocol allows us to trace both hardware and software tasks.
 Hardware tasks are traced via exception trace packets.
@@ -727,8 +769,7 @@ These two packets cannot be associated to RTIC tasks on their own.
 The recovery step of RTIC Scope must thus generate host-side lookup maps that map IRQ numbers to hardware tasks and data trace values and DWT comparator numbers to software tasks.
 These translation maps are aptly named the =recovery::SoftwareMap= and =recovery::HardwareMap=.
 Together they constitute the information available in a =recovery::TraceLookupMaps=.
-
-**** Generating the =recovery::HardwareMap=
+****** Generating the =recovery::HardwareMap=
 # Overview: what to we need?
 In order to generate a =recovery::HardwareMap= the RTIC application declaration must be parsed.
 This is done when the RTIC app is built via =cargo build= when the =#[rtic::app(...)]= macro is expanded by help of ~rtic_syntax::parse{,2}~ functions which yelds yields (among other) a =rtic_syntax::App=.
@@ -900,7 +941,7 @@ interrupt_path = "stm32f4::stm32f401::Interrupt"
 # ...
 #+end_src
 
-**** Generating the =recovery::SoftwareMap=
+****** Generating the =recovery::SoftwareMap=
 The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap=.
 The intercepted data trace value packet contains a DWT comparator number, a payload, and whether the watch address was written to or read.
 ~cortex-m-rtic-trace~ ensures that the DWT only matches on writes, so packets that indicate a read are forwarded as an unknown event: only the comparator number and payload are of interest.
@@ -909,28 +950,6 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 # TODO parsing and how we associate an UID to each task
 # TODO tracing nested functions
 # TODO task dispatchers, the events of which are ignored
-
-*** Reading the raw trace stream from the source with ~cargo-rtic-scope~
-:PROPERTIES:
-:CUSTOM_ID: impl:cargo-rtic-scope
-:END:
-~cargo-rtic-scope~ is a host-side daemon that fulfills [[crefrange:req:input,req:protocol]] and [[crefrange:req:record,req:cargo]].
-It is run like a ~cargo~ subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where ~<verb>~ is either ~trace~ or ~replay~.
-As the verbs imply, ~trace~ is used to trace the execution of an RTIC application on the target and ~replay~ is used to replay a trace for post-mortem analysis.
-#+NAME: lst:cargo-rtic-scope:summary
-#+CAPTION: Summary of ~cargo-rtic-scope~ invocation.
-#+begin_src shell
-  $ cargo rtic-scope [options...] <verb> [options...]
-#+end_src
-
-This section covers the options of these verbs, the general implementation of ~cargo-rtic-scope~, and insight into some choice components of the code base.
-
-**** Embedded Trace Buffer
-# TODO look up coresight documentation and summarize its operation
-
-**** TPIU
-# TODO the different modes, multiple pins, baud rate and clock
-
 *** Decoding the ITM packet stream via ~itm~
 :PROPERTIES:
 :CUSTOM_ID: impl:itm
