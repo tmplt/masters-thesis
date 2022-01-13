@@ -565,6 +565,9 @@ Henceforth, within this section, these two functions will be referred to as ~con
 
 This section is divided into two parts: [[cref:impl:rtic-trace:peripheral-config]], which covers the application of ~configure~; and [[cref:impl:rtic-trace:trace-macro]], which covers the application of the ~trace~ macro.
 
+It is important to point out that ~cortex-m-rtic-trace~ is a crutch which incurs unecessary overhead for the end-user.
+On the RTIC Scope roadmap is thus the eventual deprecation of this crate. See [[cref:fut:rm-rtic-trace]] for more on this topic.
+
 **** Peripheral configuration
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace:peripheral-config
@@ -1002,6 +1005,13 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 It would then be logical to store both =u8= variables on the same 32-bit address base: the first at offset 0, the other at offset 1.
 
 # TODO elaborate
+**** Deprecating ~cortex-m-rtic-trace~
+:PROPERTIES:
+:CUSTOM_ID: fut:rm-rtic-trace
+:END:
+# TODO merging things upstream into probe-rs, RTIC, etc.
+# target-side conf can be done by RTIC
+**** Supporting other [[ACRshortpl:RTOS]] than [[ACRshort:RTIC]]
 
 ** Conclusion
 ** Glossary & Bibliography                                          :ignore:
