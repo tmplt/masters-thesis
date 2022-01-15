@@ -357,6 +357,8 @@ Following the above delimitations allows this thesis to be finished within an ac
 
 The use of the key words *MUST* and *SHOULD NOT* used above as to be interpreted as described in [[textcite:&rfc2119]].
 
+# TODO describe that this paper only covers v0.3.0, except for the content of future work
+
 *** Contributions
 The development of RTIC Scope has yielded a number of [[gls:downstream]] contributions, namely a collection of crates:
 - ~cargo-rtic-scope~ :: A ~cargo~ subcommand acting as the RTIC Scope backend (or host-side /daemon/) which fulfill Requirements [[req:input]]--[[req:protocol]] and [[req:record]]--[[req:cargo]].
@@ -542,7 +544,7 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 **** [[Acrfull:ETB]]
 
 ** Implementation
-This section covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
+This chapter covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
 The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied.
 That is, how
 1. ~cortex-m-rtic-trace~ is applied and what it does;
@@ -551,6 +553,8 @@ That is, how
 4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream;
 5. this resolved trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
+
+As mentioned in [[cref:delimitations]], this chapter covers the v0.3.0 of RTIC Scope.
 
 # TODO dedicated section for the replay verb
 
@@ -714,7 +718,7 @@ Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expa
   // ...
 #+end_src
 
-*** Tracing with ~cargo-rtic-scope~ and its recovery step
+*** Recording a trace
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope
 :END:
@@ -729,29 +733,39 @@ As the verbs imply, ~trace~ is used to trace the execution of an RTIC applicatio
 
 This section covers the options and implementation of the ~trace~ verb.
 
-**** ~cargo rtic-scope trace~ options
-This section covers the available options when tracing a target.
+**** Section overview
+The implementation responsible for recording and presenting a trace to the end-user is covered in 10 parts.
+These parts are enumerated below.
 
-# TODO ensure most options can be specified via Cargo.toml first? This wont be trivial with cargo-flash options.
+1. Building the RTIC application, [[cref:impl:cargo-rtic-scope:building-rtic-app]].
+2. Reading options from the cargo maniest, [[cref:impl:cargo-rtic-scope:read-manifest]].
+3. Creating a trace file, [[cref:impl:cargo-rtic-scope:create-trace-file]].
+4. Generating metadata maps, [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
+5. Spawning frontends, [[cref:impl:cargo-rtic-scope:spawning-frontends]].
+6. Reading the trace from the target, [[cref:impl:cargo-rtic-scope:reading-the-trace-stream]].
+7. Flashing the target, [[cref:impl:cargo-rtic-scope:flash-target]].
+8. Flushing trace metadata to file, [[cref:impl:cargo-rtic-scope:flush-metadata]].
+9. Resetting the target, [[cref:impl:cargo-rtic-scope:reset-target]].
+10. Tracing the target, [[cref:impl:cargo-rtic-scope:trace-target]].
 
-**** Running ~cargo rtic-scope trace~
-# XXX do we even have such a specific command here? this section should be very general
-#+begin_src fundamental
-  $ cargo rtic-scope trace --serial /path/to/dev --dont-touch-target --bin my-rtic-application
-#+end_src
+**** Building the RTIC application
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:building-rtic-app
+:END:
 
-1. Building the RTIC application
-2. Reading options from the cargo maniest
-3. Creating a trace file
-4. Generating metadata maps
-5. Spawning frontends
-   # TODO dont forget to cover the possibility of spawning multiple frontends
-6. Reading the trace from the target
-7. Flashing the target
-8. Flushing trace metadata to file
-9. Resetting the target
+**** Reading options from the ~cargo~ manifest
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:read-manifest
+:END:
 
-***** Generating metadata maps
+**** Creating a trace file
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:create-trace-file
+:END:
+**** Generating metadata maps
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:generating-metadata-maps
+:END:
 # How hardware tasks are traced
 The ITM packet protocol allows us to trace both hardware and software tasks.
 Hardware tasks are traced via exception trace packets.
@@ -769,7 +783,7 @@ These two packets cannot be associated to RTIC tasks on their own.
 The recovery step of RTIC Scope must thus generate host-side lookup maps that map IRQ numbers to hardware tasks and data trace values and DWT comparator numbers to software tasks.
 These translation maps are aptly named the =recovery::SoftwareMap= and =recovery::HardwareMap=.
 Together they constitute the information available in a =recovery::TraceLookupMaps=.
-****** Generating the =recovery::HardwareMap=
+***** Generating the =recovery::HardwareMap=
 # Overview: what to we need?
 In order to generate a =recovery::HardwareMap= the RTIC application declaration must be parsed.
 This is done when the RTIC app is built via =cargo build= when the =#[rtic::app(...)]= macro is expanded by help of ~rtic_syntax::parse{,2}~ functions which yelds yields (among other) a =rtic_syntax::App=.
@@ -941,7 +955,7 @@ interrupt_path = "stm32f4::stm32f401::Interrupt"
 # ...
 #+end_src
 
-****** Generating the =recovery::SoftwareMap=
+***** Generating the =recovery::SoftwareMap=
 The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap=.
 The intercepted data trace value packet contains a DWT comparator number, a payload, and whether the watch address was written to or read.
 ~cortex-m-rtic-trace~ ensures that the DWT only matches on writes, so packets that indicate a read are forwarded as an unknown event: only the comparator number and payload are of interest.
@@ -950,6 +964,33 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 # TODO parsing and how we associate an UID to each task
 # TODO tracing nested functions
 # TODO task dispatchers, the events of which are ignored
+**** Spawning frontends
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:spawning-frontends
+:END:
+# TODO dont forget to cover the possibility of spawning multiple frontends
+**** Reading the trace stream from the target
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:reading-the-trace-stream
+:END:
+# TODO cover all sources here.
+**** Flashing the target
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:flash-target
+:END:
+**** Flushing trace metadata to file
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:flush-metadata
+:END:
+**** Resetting the target
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:reset-target
+:END:
+**** Tracing the target
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:trace-target
+:END:
+
 *** Decoding the ITM packet stream via ~itm~
 :PROPERTIES:
 :CUSTOM_ID: impl:itm
@@ -970,6 +1011,8 @@ The intercepted data trace value packet contains a DWT comparator number, a payl
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-scope-frontend-dummy
 :END:
+
+*** Replaying a trace
 
 ** Results
 *** Using RTIC Scope
