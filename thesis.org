@@ -47,6 +47,7 @@
 | frontend    | frontend        | TODO        |
 | upstream    | upstream        | TODO        |
 | elf:data    | \texttt{.data}  | TODO        |
+| JSON        | JSON            | TODO        |
 
 # XXX some of these should link to the glossary
 #+NAME: acronyms
@@ -752,6 +753,62 @@ These parts are enumerated below.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:building-rtic-app
 :END:
+The first step is to build the RTIC application the end-user wants to trace.
+This is done as a preparatory stage for [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] and [[cref:impl:cargo-rtic-scope:flash-target]];
+and logically, if the application cannot be built, it cannot be traced.
+An additional side-effect of building the RTIC application is the possibility of executing ~cargo rtic-scope trace~ like one would execute ~cargo run~.
+
+The application is built via [[cref:lst:cargo-rtic-scope:build]], where ~OPTIONS~ are optional additional flags to forward to ~cargo~ from the invocation of ~cargo rtic-scope trace~.
+#+NAME: lst:cargo-rtic-scope:build
+#+CAPTION: The build process of RTIC Scope. ~OPTIONS~ is a set of additional flags potentially forwarded by ~cargo-rtic-scope~.
+#+begin_src shell
+  $ cargo build --message-format=json-diagnostic-rendered-ansi [OPTIONS...]
+#+end_src
+For example, if the current crate would yield multiple binaries on build, ~cargo rtic-scope trace~ must know the singlar binary which the end-user wants to trace.
+Specifying this flag is done in the same way as for ~cargo build~: via ~--bin~.
+[[cref:lst:cargo-rtic-scope:build-bin]] contains an example use of this option, which would yield the ~cargo build~ invocation in [[cref:lst:cargo-rtic-scope:build-bin-forwarded]].
+#+NAME: lst:cargo-rtic-scope:build-bin
+#+CAPTION: Invocation of ~cargo rtic-scope trace~ with the optional ~--bin~ option which is forwarded to the underlying ~cargo build~ invocation, where ~OPTIONS~ is a set of additional flags and/or options potentially set by the end-user; not all of which are necessarily forwarded.
+#+begin_src shell
+  $ cargo rtic-scope trace --bin my-rtic-application [OPTIONS...]
+#+end_src
+#+NAME: lst:cargo-rtic-scope:build-bin-forwarded
+#+CAPTION: The underlying ~cargo build~ invocation as a result of executing [[cref:lst:cargo-rtic-scope:build-bin]].
+#+begin_src shell
+  $ cargo build --message-format=json-diagnostic-rendered-ansi --bin my-rtic-application [OPTIONS...]
+#+end_src
+
+Below are a description of the flags and options the end-user can specify during the invocation of ~cargo rtic-scope trace~ (in the same manner as ~cargo build~) that are forwarded to the underlying ~cargo build~ invocation in [[cref:lst:cargo-rtic-scope:build]].
+- ~--bin <binary>~ :: Used to specify which singlar binary to build.
+- ~--example <example>~ :: Used to build a singular example binary instead of a non-example binary.
+- ~--package <package>~ :: Used to build a crate instead of a singlar binary inside of a crate.
+  This crate should yield a single binary.
+- ~--release~ :: Used to build the binary in release mode instead of debug mode. Optimizations are applied during build with this flag.
+- ~--target <target-triple>~ :: Used to specify the target platform for which the binary should be built for. This option can be used to override the default target triple, or the one specified via the ~/.cargo/config{,toml}~ files.
+- ~--manifest-path <path>~ :: Used to override the default path to the ~cargo~ manifes, ~Cargo.toml~.
+- ~--no-default-features~ :: Used to disable all default features of the crate that contains the singular binary.
+- ~--all-features~ :: Used to enable all features of the crate that contains the singular binary.
+- ~--features <feat1>[,feat2[,feat3[...]]]~ :: Used to specify the set of features to enable of the crate that contains the singular binary.
+
+The above flags and options were deemed as the most common flags an end-user would want to specify when building the RTIC application.
+If the user wants to specify an option or flag that is not among the above set the sentinel ~--~ can be used.
+For example, if the end-user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~cargo-rtic-scope~ invokes [[cref:lst:cargo-rtic-scope:sentinel-forwarded]].
+#+NAME: lst:cargo-rtic-scope:sentinel
+#+CAPTION: Example ~cargo rtic-scope trace~ incovation with an arbitrary ~cargo build~ argument.
+#+begin_src shell
+    $ cargo rtic-scope trace --bin my-rtic-application [OPTIONS...] -- --some-cargo-build-flag
+#+end_src
+#+NAME: lst:cargo-rtic-scope:sentinel-forwarded
+#+CAPTION: Resulting ~cargo build~ incovation on [[cref:lst:cargo-rtic-scope:sentinel]].
+#+begin_src shell
+  $ cargo build --message-format=json-diagnostic-rendered-ansi --bin my-rtic-application [OPTIONS...] --some-cargo-build-flag
+#+end_src
+This approach ensures that the end-user can always build the RTIC application with any set of valid ~cargo build~ flags and options.
+
+The effect of building the binary with ~--message-format=json-diagnostic-rendered-ansi~ is that the otherwise human-readable output of ~cargo build~ is instead in [[gls:JSON]], a machine-readable format.
+This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which ~cargo build~ tells us the path to the built binary we use to flash the target in [[cref:impl:cargo-rtic-scope:flash-target]], and the path to the source file of this binary, which is used in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
+
+The JSON is not parsed directly, but via ~cargo_metadata~ [[parencite:&cargo-metadata]].
 
 **** Reading options from the ~cargo~ manifest
 :PROPERTIES:
