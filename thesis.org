@@ -51,37 +51,37 @@
 
 # XXX some of these should link to the glossary
 #+NAME: acronyms
-| key           | abbreviation                 | full form                                             |
-|---------------+------------------------------+-------------------------------------------------------|
-| PC            | PC                           | \textit{program counter}                              |
-| CPU           | CPU                          | \textit{central processing unit}                      |
-| RTIC          | RTIC                         | \textit{Real-Time Interrupt-driven Concurrency}       |
-| RTOS          | RTOS                         | \textit{real-time operating system}                   |
-| SRP           | SRP                          | \textit{Stack Resource Policy}                        |
-| DCB           | DCB                          | \textit{Debug Control Block}                          |
-| SCS           | SCS                          | \textit{System Control Space}                         |
-| SCB           | SCB                          | \textit{System Control Block}                         |
-| DCB_DEMCR     | DEMCR                        | \textit{Debug Exception and Monitor Control Register} |
-| ITM           | ITM                          | \textit{Instrumentation Trace Macrocell}              |
-| TPIU          | TPIU                         | \textit{Trace Port Interface Unit}                    |
-| DWT           | DWT                          | \textit{Data Watchpoint and Trace}                    |
-| ETB           | ETB                          | \textit{Embedded Trace Buffer}                        |
-| WCET          | WCET                         | \textit{Worst Case Execution Time}                    |
-| EDF           | EDF                          | \textit{Earliest Deadline First}                      |
-| PAC           | PAC                          | \textit{Peripheral Access Crates}                     |
-| API           | API                          | \textit{Application Programming Interface}            |
-| TPIU_ACPR     | TPIU\textunderscore ACPR     | Asynchronous Clock Prescaler Register                 |
-| ETM           | ETM                          | \textit{Embedded Trace Macrocell}                     |
-| DWT_CTRL      | DWT\textunderscore CTRL      | \textit{Control Register}                             |
-| TPIU_TYPE     | TPIU\textunderscore TYPE     | \textit{TPIU Type Register}                           |
-| ITM_TCR       | TPIU\textunderscore TCR      | \textit{Trace Control Register}                       |
-| RAZ-WI        | RAZ/WI                       | \textit{Read-As-Zero, Writes Ignored}                 |
-| RAZ           | RAZ                          | \textit{Read-As-Zero}                                 |
-| RAO           | RAO                          | \textit{Read-As-One}                                  |
+| key           | abbreviation                   | full form                                             |
+|---------------+--------------------------------+-------------------------------------------------------|
+| PC            | PC                             | \textit{program counter}                              |
+| CPU           | CPU                            | \textit{central processing unit}                      |
+| RTIC          | RTIC                           | \textit{Real-Time Interrupt-driven Concurrency}       |
+| RTOS          | RTOS                           | \textit{real-time operating system}                   |
+| SRP           | SRP                            | \textit{Stack Resource Policy}                        |
+| DCB           | DCB                            | \textit{Debug Control Block}                          |
+| SCS           | SCS                            | \textit{System Control Space}                         |
+| SCB           | SCB                            | \textit{System Control Block}                         |
+| DCB_DEMCR     | DEMCR                          | \textit{Debug Exception and Monitor Control Register} |
+| ITM           | ITM                            | \textit{Instrumentation Trace Macrocell}              |
+| TPIU          | TPIU                           | \textit{Trace Port Interface Unit}                    |
+| DWT           | DWT                            | \textit{Data Watchpoint and Trace}                    |
+| ETB           | ETB                            | \textit{Embedded Trace Buffer}                        |
+| WCET          | WCET                           | \textit{Worst Case Execution Time}                    |
+| EDF           | EDF                            | \textit{Earliest Deadline First}                      |
+| PAC           | PAC                            | \textit{Peripheral Access Crates}                     |
+| API           | API                            | \textit{Application Programming Interface}            |
+| TPIU_ACPR     | TPIU\textunderscore ACPR       | \textit{Asynchronous Clock Prescaler Register}        |
+| ETM           | ETM                            | \textit{Embedded Trace Macrocell}                     |
+| DWT_CTRL      | DWT\textunderscore CTRL        | \textit{Control Register}                             |
+| TPIU_TYPE     | TPIU\textunderscore TYPE       | \textit{TPIU Type Register}                           |
+| ITM_TCR       | TPIU\textunderscore TCR        | \textit{Trace Control Register}                       |
+| RAZ-WI        | RAZ/WI                         | \textit{Read-As-Zero, Writes Ignored}                 |
+| RAZ           | RAZ                            | \textit{Read-As-Zero}                                 |
+| RAO           | RAO                            | \textit{Read-As-One}                                  |
 | DWT_FUNCTIONn | DWT\textunderscore FUNCTION$n$ | \textit{Comparator Function registers}                |
-| SBZ           | SBZ                          | \textit{Should-Be-Zero}                               |
-| DWT_COMPn     | DWT\textunderscore COMP$n$   | \textit{Comparator registers}                         |
-| DWT_MASKn     | DWT\textunderscore MASK$n$   | \textit{Comparator Mask registers}                    |
+| SBZ           | SBZ                            | \textit{Should-Be-Zero}                               |
+| DWT_COMPn     | DWT\textunderscore COMP$n$     | \textit{Comparator registers}                         |
+| DWT_MASKn     | DWT\textunderscore MASK$n$     | \textit{Comparator Mask registers}                    |
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
