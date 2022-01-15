@@ -754,7 +754,7 @@ These parts are enumerated below.
 :CUSTOM_ID: impl:cargo-rtic-scope:building-rtic-app
 :END:
 The first step is to build the RTIC application the end-user wants to trace.
-This is done as a preparatory stage for [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] and [[cref:impl:cargo-rtic-scope:flash-target]];
+This is done as a preparatory stage for [[cref:impl:cargo-rtic-scope:generating-metadata-maps]], [[cref:impl:cargo-rtic-scope:create-trace-file]] and [[cref:impl:cargo-rtic-scope:flash-target]];
 and logically, if the application cannot be built, it cannot be traced.
 An additional side-effect of building the RTIC application is the possibility of executing ~cargo rtic-scope trace~ like one would execute ~cargo run~.
 
@@ -806,7 +806,9 @@ For example, if the end-user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~ca
 This approach ensures that the end-user can always build the RTIC application with any set of valid ~cargo build~ flags and options.
 
 The effect of building the binary with ~--message-format=json-diagnostic-rendered-ansi~ is that the otherwise human-readable output of ~cargo build~ is instead in [[gls:JSON]], a machine-readable format.
-This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which ~cargo build~ tells us the path to the built binary we use to flash the target in [[cref:impl:cargo-rtic-scope:flash-target]], and the path to the source file of this binary, which is used in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
+This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which ~cargo build~ tells us the path to the built binary used to flash the target in [[cref:impl:cargo-rtic-scope:flash-target;]]
+the path to the root of the crate that this binary lives, used in [[cref:impl:cargo-rtic-scope:create-trace-file]];
+and the path to the source file of this binary, used in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
 
 The JSON is not parsed directly, but via ~cargo_metadata~ [[parencite:&cargo-metadata]].
 
@@ -819,6 +821,36 @@ The JSON is not parsed directly, but via ~cargo_metadata~ [[parencite:&cargo-met
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:create-trace-file
 :END:
+To enable port-mortem analysis of a traced RTIC application the recorded trace must be saved to disk.
+The build step (see [[cref:impl:cargo-rtic-scope:building-rtic-app]]) yields the crate root of the traced application.
+A natural directory in which to save trace files is then under ~/target/~ which contains all build artifacts of the crate.
+For purposes of separation trace files are saved under the ~rtic-traces~ sub-directory; the full path to this directory is then ~/target/rtic-traces/~.
+While this directory is meant for ephemeral artifacts (of which recorded traces may not belong) it was the simplest approach to associate traces to a particular crate (including its state; see below) while also not writing files to a wholly unexpected directory (e.g. the crate root directory).
+
+Of note is that ~/target/~ is removed if ~cargo clean~ is executed.
+It is thus up to the RTIC Scope end-user to ensure that traces of interests are saved to a persistent location.
+For this purpose the optional ~--trace-dir <dir>~ option overrides the output directory of the trace files.
+
+The trace filename contains three sections of information:
+- the name of the RTIC application :: to help with the seperation of a crate that potentially contains more than one binary;
+- the git revision of the local repository :: to associate the trace with the source code of the traced RTIC application; and
+- a second-accurate timestamp :: to associate the trace with MCU-external events (e.g. conditions of the environment in which the application is traced).
+
+After some tracing and development during January 13th and 14th, 2022, the trace directory could for example contain the files in [[cref:lst:cargo-rtic-scope:trace-example-files]].
+#+NAME: lst:cargo-rtic-scope:trace-example-files
+#+CAPTION: Example of trace filenames after two traces. ~blinky~ is the name of the RTIC application binary; ~g124b3c5~ the git revision; and the remainder (sans ~.trace~) is the timestamp of the trace. The second trace file was recoded from an RTIC application with uncommitted changes, hence the ~-dirty~ suffix to the git revision.
+#+begin_src text
+  $ ls -ogh target/rtic-traces
+  total 8.0K
+  -rw-r--r-- 1 1.5K Jan 13 16:54 blinky-g124b3c5-2022-01-13T16:54:00.trace
+  -rw-r--r-- 1 1.3K Jan 14 18:38 blinky-g124b3c5-dirty-2022-01-14T18:37:57.trace
+#+end_src
+
+In case two ~cargo rtic-scope trace~ instances are executed within the span of one second without any changes to the git repository the same trace filename will be generated twice; this will be caught by the second instance which will exit with an error: ~cargo-rtic-scope~ cannot overwrite trace files.
+Trace files can however be explicitly deleted:
+if the user wants to record a trace and remove all previously recoded traces in the trace directory ~--clear-traces~ can be specified.
+This flag only deletes files with the ~.trace~ file extension.
+
 **** Generating metadata maps
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:generating-metadata-maps
