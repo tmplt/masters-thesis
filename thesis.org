@@ -5,7 +5,7 @@
 #+AUTHOR: Viktor Vilhelm Sonesten
 #+EMAIL: vikson-6@student.ltu.se
 #+LANGUAGE: en
-#+OPTIONS: ':t toc:nil title:nil todo:nil
+#+OPTIONS: ':t toc:nil title:nil todo:nil H:6
 
 #+EXPORT_EXCLUDE_TAGS: noexport
 
@@ -40,7 +40,6 @@
 |-------------+-----------------+-------------|
 | tokenstream | tokenstream     | cock        |
 | token       | token           | TODO        |
-| AST         | AST             | AST         |
 | static-anal | static analysis | TODO        |
 | sample-rate | sample rate     | TODO        |
 | downstream  | downstream      | TODO        |
@@ -48,6 +47,9 @@
 | upstream    | upstream        | TODO        |
 | elf:data    | \texttt{.data}  | TODO        |
 | JSON        | JSON            | TODO        |
+| cdylib      | cdylib          | TODO        |
+
+# TODO cdylib above: A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo. This is not the case with dylibs that instead target the unstable Rust ABI. The only way to generate a shared object file is by building a dylib or a cdylib.
 
 # XXX some of these should link to the glossary
 #+NAME: acronyms
@@ -82,6 +84,7 @@
 | SBZ           | SBZ                            | \textit{Should-Be-Zero}                               |
 | DWT_COMPn     | DWT\textunderscore COMP$n$     | \textit{Comparator registers}                         |
 | DWT_MASKn     | DWT\textunderscore MASK$n$     | \textit{Comparator Mask registers}                    |
+| AST           | AST                            | \textit{Abstract Syntax Tree}                         |
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -89,6 +92,8 @@
 # TODO cite any mentioned crates.
 # TODO call an RTIC app just that, or firmware, throughout.
 # TODO fix cites to sections (remove the "p."?)
+# TODO verify software versions with Cargo.lock from v0.3.0 tag.
+# TODO fix hbox overflows (texttt breaklining)
 
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
@@ -241,6 +246,9 @@ Refer to [[textcite:&rust-lang]].
 For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
 
 **** [[Acrfull:PAC]]
+:PROPERTIES:
+:CUSTOM_ID: background:PAC
+:END:
 # What is a PAC and what are they used for?
 A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
 Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
@@ -253,6 +261,30 @@ In the embedded Rust ecosystems, these are two kinds of PACs:
 
 # svd2rust
 A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
+
+# TODO reformat
+An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
+#+NAME: lst:pac-interrupt-example
+#+CAPTION: Example declaration of a =PAC::Interrupt= enum. Left-hand side of =Interrupt= is the IRQ label; right-hand is $N$ in [[tbl:irqns]].
+#+begin_src rust
+  pub mod PAC {
+      #[derive(Debug)]
+      #[repr(u16)]
+      pub enum Interrupt {
+          PVD = 1,
+          EXTI0 = 6,
+          EXTI1 = 7,
+          // ...
+      }
+
+      unsafe impl cortex_m::interrupt::InterruptNumber for Interrupt {
+          #[inline(always)]
+          fn number(self) -> u16 {
+              self as u16
+          }
+      }
+  }
+#+end_src
 
 **** [[Acrfull:RTIC]]
 :PROPERTIES:
@@ -543,6 +575,33 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
 **** [[Acrfull:ETB]]
+*** The [[ACRshort:ITM]] packet protocol
+:PROPERTIES:
+:CUSTOM_ID: theory:itm-proto
+:END:
+# TODO summarize the packet protocol and cover the packet types which we utilize
+
+#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Copied from [[parencite:&arm-rm Table B1-4]].
+#+NAME: tbl:irqns
+| Exception number | Exception name/label   |
+|------------------+------------------------|
+|                1 | Reset                  |
+|                2 | NMI                    |
+|                3 | HardFault              |
+|                4 | MemManage              |
+|                5 | BusFault               |
+|             7-10 | Reserved               |
+|               11 | SVCall                 |
+|               12 | DebugMonitor           |
+|               13 | Reserved               |
+|               14 | PendSV                 |
+|               15 | SysTick                |
+|               16 | External interrupt 0   |
+|                . | .                      |
+|                . | .                      |
+|                . | .                      |
+|         16 + $N$ | External interrupt $N$ |
+|------------------+------------------------|
 
 ** Implementation
 This chapter covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
@@ -855,6 +914,33 @@ For a description of each field, see the respective sections.
 
 The fields of information in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]] are read from ~Cargo.toml~ by help of ~cargo_metadata~ [[parencite:&cargo-metadata]] and ~serde_json~ [[parencite:&serde-json]].
 
+# TODO reformat the below
+The last piece of the puzzle is from where to source user-supplied information.
+Four fields of information is required to complete the second step above: the PAC name, version, features (if any), and the path to the =PAC::Interrupt= enum.
+There are two methods the user can supply this information: via commandline options, see [[lst:recovery-user-info-cmdopt]];
+or by entering the fields into the ~rtic-scope~ metadata block of the application's ~Cargo.toml~, see [[lst:recovery-user-info-toml]].
+PAC information in ~Cargo.toml~ is persisent, and simplifies an iterative workflow.
+
+#+NAME: lst:recovery-user-info-cmdopt
+#+CAPTION: Supplying information to RTIC Scope for recovery purposes via command line options.
+#+begin_src shell
+  $ cargo rtic-scope trace --pac-name stm32f4 --pac-version 0.13 --pac-features stm32f401 --pac-features some-other-feature --interrupt-path "stm32f4::stm32f401::Interrupt"
+#+end_src
+
+#+NAME: lst:recovery-user-info-toml
+#+CAPTION: Supplying information to RTIC Scope for recovery purposes via ~Cargo.toml~ metadata.
+#+begin_src toml
+# ...
+
+[package.metadata.rtic-scope]
+pac_name = "stm32f4"
+pac_features = ["stm32f401", "some-other-feature"]
+pac_version = "0.13"
+interrupt_path = "stm32f4::stm32f401::Interrupt"
+
+# ...
+#+end_src
+
 **** Creating a trace file
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:create-trace-file
@@ -893,36 +979,41 @@ This flag only deletes files with the ~.trace~ file extension.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:generating-metadata-maps
 :END:
-# How hardware tasks are traced
-The ITM packet protocol allows us to trace both hardware and software tasks.
-Hardware tasks are traced via exception trace packets.
-These are emitted when an interrupt handler is entered, exited, or returned to from another interrupt handler that preempted it with a higher priority.
-This packet contains two fields of information: the IRQ number of the associated interrupt handler, and whether the handler was entered, exited, or returned to.
+# Introduction: we must translate raw ITM data to RTIC run-time information.
+As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol is used to trace hardware and software tasks.
+This protocol is not designed with RTIC in mind:
+instead of information that can be directly associated to an RTIC tasks the protocol tells us the number of the [[ACRshort:DWT]] comparator that signaled a write to a watch address along with the data written, used to signal a software task enter or exit;
+and the IRQ number of the interrupt handler that entered, exited or was returned to, used to signal a hardware task enter or exit.
+These pieces of information must be associated back to the RTIC tasks responsible for their emission in a preparatory /recovery step/.
+This section covers this step which is divided into two parts:
+1. the generation of the =recovery::HardwareMap=, [[cref:impl:hardware-map]]; and
+2. the generation of the =recovery::SoftwareMap=, [[cref:impl:software-map]].
+Together these two lookup maps constitute the full =recovery::TraceLookupMaps= which is used by =recovery::TraceMetadata= in order to fulfill Requirement [[req:rtic]].
 
-# How software tasks are traced
-Software tasks are traced via data trace value packets.
-These are emitted when a watch address is written to, given that a DWT comparator is properly configured.
-A watch address can be any address that the user code have access to.
-This packet contains three fields of information: the DWT comparator number that registered the match, whether the watch address was written to or read, and the value written to or read from the watch address.
-
-# We need to recover information to associate packets to RTIC task events
-These two packets cannot be associated to RTIC tasks on their own.
-The recovery step of RTIC Scope must thus generate host-side lookup maps that map IRQ numbers to hardware tasks and data trace values and DWT comparator numbers to software tasks.
-These translation maps are aptly named the =recovery::SoftwareMap= and =recovery::HardwareMap=.
-Together they constitute the information available in a =recovery::TraceLookupMaps=.
 ***** Generating the =recovery::HardwareMap=
+:PROPERTIES:
+:CUSTOM_ID: impl:hardware-map
+:END:
 # Overview: what to we need?
 In order to generate a =recovery::HardwareMap= the RTIC application declaration must be parsed.
-This is done when the RTIC app is built via =cargo build= when the =#[rtic::app(...)]= macro is expanded by help of ~rtic_syntax::parse{,2}~ functions which yelds yields (among other) a =rtic_syntax::App=.
-This structure is not communicated to RTIC Scope which means that the RTIC app must be parsed one additional time.
+This is already done when the RTIC application is built in [[cref:impl:cargo-rtic-scope:building-rtic-app]] when the =rtic::app= macro is expanded via =rtic_syntax::parse{,2}= [[parencite:&rtic]].
+This expansion operation yields an =rtic_syntax::App= [[parencite:&rtic-syntax]] used internally to verify the application declaration and yield the expanded code.
+This structure contains all the information ~cargo rtic-scope trace~ requires (see below) but is not emitted during the building step.
+This requires the application declaration to be parsed an additional time which requires knowledge about the location of the source code file.
+Fortunately, this knowledge is acquired in the build step.
 
 # We must the source for the ASTs
 In order to generate a =rtic_syntax::App= for recovery purposes =rtic_syntax::parse2= must be called directly with the arguments of =#[rtic::app(..)]= and with the input to the macro.
-For example, in [[lst:recovery-example]], =device = stm32f4::stm32f401= is the macro arguments, and =mod app { ... }= is the macro input.
+For example, in [[cref:lst:recovery-example]], =device = stm32f4::stm32f401= is the macro arguments, and =mod app { ... }= is the macro input.
+Note the preamble on lines 1--3.
+These must be skipped in order to parse correctly.
 #+CAPTION: Example RTIC application declaration for execution on the STMicroelectronics STM32 NUCLEO-F401RE.
 #+NAME: lst:recovery-example
 #+begin_src rust
-  #[rtic::app(device = stm32f4::stm32f401)]
+  #![no_main]
+  #![no_std]
+
+  #[rtic::app(device = stm32f4::stm32f401)] // tokens are skipped until this line is found
   mod app {
       #[shared]
       struct Shared {}
@@ -945,152 +1036,188 @@ For example, in [[lst:recovery-example]], =device = stm32f4::stm32f401= is the m
       fn task2(_: task2::Context) {
           // ...
       }
+  } // this must be the last line of the file
+#+end_src
+# TODO document limitations of the parsing approach: no external tasks, no content after the macro
+
+In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:lst:recovery-example]] the ~std::String~ that represents the content of the source file must be converted to an [[acrfull:AST]];
+or more specifically, a =proc_macro2::TokenStream2= [[parencite:&proc-macro2]].
+This is done by help of the ~syn~ crate [[parencite:&syn]].
+
+With a =TokenStream2= structure in hand [[glspl:token][tokens]] are skipped until the =proc_macro2::TokenTree::Group(_)= that contains =#[rtic::app(...)]= is found ([[cref:lst:recovery-example]], line 4).
+The remainder of the source file is then assumed to be the =mod app { ... }= input to the =rtic::app= macro.
+
+This places a few restrictions[fn:: The keywords *MUST* and *MUST NOT* shall be interpreted as described in [[textcite:&rfc2119]].] on how the RTIC application can be declared to be properly parsed:
+1. tasks *MUST NOT* be externally declared;
+2. the =rtic::app= macro *MUST* be called via =#[rtic::app]= (e.g. [[cref:lst:invalid-recovery-example]] will fail to parse); and
+3. the =mod app { ... }= [[gls:token]] group terminator *MUST* be the last line of the source file ([[cref:lst:recovery-example]], line 27).
+More restrictions that have yet to be discovered may apply.
+#+NAME: lst:invalid-recovery-example
+#+CAPTION: Valid RTIC application declaration that cannot be parsed by ~cargo rtic-scope trace~.
+#+begin_src rust
+  // ...
+  use rtic::app;
+
+  #[app(device = stm32f4::stm32f401)] // will not parse: #[rtic::app] must be used
+  mod app {
+      // ...
   }
 #+end_src
-However, these [[gls:AST][AST]] are not readily available without further preparatory work; they must first be extracted from the source file containing [[lst:recovery-example]].
-
-# But wait: where is the source file?
-To find the source file, the RTIC app must first be built. This is done via =build::CargoWrapper::new= [fn:recovery-build] which intercepts the output of =cargo build --message-format=json-diagnostic-rendered-ansi= by help of the =cargo_metadata= crate.
-This output contains the absolute path to the source file that contains [[lst:recovery-example]].
-
-# Skipping tokens
-With the source file readily available it is parsed as a [[gls:tokenstream][tokenstream]] by skipping [[gls:token][token]] until =#[rtic::app]= is found, after which the =rtic_syntax= parsing explained above is done.
 
 # known and unknown maps
-At this point we have the necessary =rtic_syntax::App= structure to continue: =rtic_syntax::App::hardware_tasks= is a collection of =rtic_syntax::HardwareTask= that lists what interrupt handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]=.
-After parsing [[lst:recovery-example]], =hardware_tasks= contains [fn:: abstracted for brevity.]
+# TODO pluralize HardwareTask
+At this point we have the necessary =rtic_syntax::App= structure to continue: =App::hardware_tasks= is a collection of =rtic_syntax::HardwareTask= that lists what interrupt handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]=.
+After parsing [[cref:lst:recovery-example]], =hardware_tasks= contains [fn:: Abstracted for brevity.]
 #+begin_export latex
 $$
-\langle \text{\texttt{app::task1} binds to \texttt{SysTick}} \rangle, \langle \text{\texttt{app::task2} binds to \texttt{EXTI1}} \rangle
+\langle \text{\texttt{app::task1} binds to \texttt{SysTick}} \rangle,\quad\langle \text{\texttt{app::task2} binds to \texttt{EXTI1}} \rangle\text{.}
 $$
 #+end_export
-Of these, the =app::task1= bind is considered known, and the =app::task2= bind is considered unknown.
+Of these, the =app::task1= bind is considered /known/, and the =app::task2= bind is considered /unknown/.
 A known bind is one that no more recovery work must be applied on.
-This follows from the specification of the exception trace packet: [[tbl:irqns]] enumerates all numbers that can be in the packet's IRQ field.
-All $\text{IRQn} < 16$ are common to all ARMv7-M targets, the name of which can be directly mapped to the RTIC task that binds the IRQ name.
-All $\text{IRQn} \geq 16$ on the other hand, are not common to all ARMv7-M, and are thus treated as platform-specific because the labels (specified via =#[task(binds = ...)]=) are unknown.
+This follows from [[cref:tbl:irqns]] in [[cref:theory:itm-proto]] which enumerates all numbers that can be in the packet's IRQ field:
+All
+#+begin_export latex
+$$
+\text{IRQn} < 16
+$$
+#+end_export
+are common to all ARMv7-M targets, the name of which can be directly mapped to the RTIC task that binds the IRQ name.
+All
+#+begin_export latex
+$$
+\text{IRQn} \geq 16
+$$
+#+end_export
+on the other hand, are not common to all ARMv7-M, and are thus platform-specific because the labels (specified via =#[task(binds = ...)]=) are unknown.
 Additional recovery must be done to find these labels.
 
-#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Copied from [[parencite:&arm-rm Table B1-4]].
-#+NAME: tbl:irqns
-#+ATTR_HTML: :rules all
-| Exception number | Exception name/label   |
-|------------------+------------------------|
-|                1 | Reset                  |
-|                2 | NMI                    |
-|                3 | HardFault              |
-|                4 | MemManage              |
-|                5 | BusFault               |
-|             7-10 | Reserved               |
-|               11 | SVCall                 |
-|               12 | DebugMonitor           |
-|               13 | Reserved               |
-|               14 | PendSV                 |
-|               15 | SysTick                |
-|               16 | External interrupt 0   |
-|                . | .                      |
-|                . | .                      |
-|                . | .                      |
-|         16 + $N$ | External interrupt $N$ |
-|------------------+------------------------|
-
 # PAC::Interrupt and known/unknown partitioning; Rust reflection woes
-For any RTIC application, the labels are available in the =PAC::Interrupt= enum. For [[lst:recovery-example]], =PAC= is =stm32::stm32f401=.
-An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
-#+NAME: lst:pac-interrupt-example
-#+CAPTION: Example declaration of a =PAC::Interrupt= enum. Left-hand side of =Interrupt= is the IRQ label; right-hand is $N$ in [[tbl:irqns]].
-#+begin_src rust
-  pub mod PAC {
-      #[derive(Debug)]
-      #[repr(u16)]
-      pub enum Interrupt {
-          PVD = 1,
-          EXTI0 = 6,
-          EXTI1 = 7,
-          // ...
-      }
-
-      unsafe impl cortex_m::interrupt::InterruptNumber for Interrupt {
-          #[inline(always)]
-          fn number(self) -> u16 {
-              self as u16
-          }
-      }
-  }
-#+end_src
+For any RTIC application, the labels are available in the =PAC::Interrupt= enum. For [[cref:lst:recovery-example]], =PAC= is =stm32::stm32f401=.
+See [[cref:background:PAC]] for an example of such an enum.
 By finding the label used in =#[task(bind = ...)]= in =PAC::Interrupt= we find what enum constructor to use.
-With the enum in hand, we construct it and get the IRQ number offset $N$ via
+With the enum in hand, we construct it and get the IRQ number offset $N$ via [[cref:lst:pac:extirq]].
+#+NAME: lst:pac:extirq
+#+CAPTION: Finding $N$ in [[cref:tbl:irqns]] for an external interrupt via the [[ACRshort:PAC]].
 #+begin_src rust
   let label = PAC::Interrupt::EXTI1;
   assert_eq!(label.number(), 7);
 #+end_src
-To get the IRQ number of this unknown bind we simly sum it with $16$, as documented by [[tbl:irqns]]:
+To get the IRQ number of this unknown bind we simly sum it with $16$, as documented by [[cref:tbl:irqns]], via [[cref:lst:pac:irqsum]].
+#+NAME: lst:pac:irqsum
+#+CAPTION: Finding the IRQ number of an external interrupt by summing the offset documented by [[cref:tbl:irqns]].
 #+begin_src rust
   let irq_nr = label.number() + 16;
   assert_eq!(irq_nr, 23);
 #+end_src
-This process is unfortunately non-trivial: Rust does not have dynamic programming features and an ideal evaluation function of
+This must be done for all unknown binds.
+
+The above process is unfortunately non-trivial: Rust does not have dynamic programming features and an ideal evaluation function such as [[cref:lst:pac:ideal-pseudo]] is not realizeable.
+#+NAME: lst:pac:ideal-pseudo
+#+CAPTION: Non-realizeable pseudo code to dynamically resolve the IRQ number of an unknown bind via the [[ACRshort:PAC]]. =quote= is from [[textcite:&quote]].
 #+begin_src rust
+  use quote::quote;
   fn resolve_irq_nr(label: &str) -> u16 {
       quote!(PAC::Interrupt::$label).eval().number() + 16;
   }
 #+end_src
-is not realizable.
 
 # libadhoc
 Enter =recovery::resolve_int_nrs=: given a list of labels, the function
-1. extracts an embedded file tree constituting a crate to the RTIC application's ~target/cargo-rtic-trace-libadhoc~;
-2. adds a user-specified crate dependency for the PAC in ~Cargo.toml~;
-3. for each label: adds a non-mangled function with the same name as the label that returns the associated IRQ number offset, $N$ (for [[lst:recovery-example]] the generated code can be seen in [[lst:resolve_int_nrs-example]]);
+1. extracts an embedded file tree constituting a skeleton crate to the RTIC application's ~target/cargo-rtic-trace-libadhoc~, by help of [[textcite:&includedir]];
+2. writes the user-specified [[acrfull:PAC]] dependency into this crate's ~Cargo.toml~[fn:: By use of the ~pac_name~, ~pac_version~, ~pac_features~, and ~interrupt_path~ acquired from [[cref:impl:cargo-rtic-scope:read-manifest]].];
+3. for each label: writes a non-mangled function with the same name as the label that returns the associated IRQ number offset, $N$ (for [[cref:lst:recovery-example]] the generated recovery code can be seen in [[cref:lst:resolve_int_nrs-example]]), to ~lib.rs~;
    #+NAME: lst:resolve_int_nrs-example
+   #+CAPTION: Generated IRQ number recovery functions for [[cref:lst:recovery-example]] with ~interrupt_path = "st32::stm32f401::Interrupt"~ from the [[ACRshort:RTIC]] application's ~Cargo.toml~.
    #+begin_src rust
+     use stm32::st32f401::Interrupt;
+
      #[no_mangle]
      pub extern fn EXTI1() -> u16 {
          Interrupt::EXTI0.number()
      }
    #+end_src
-4. builds the crate as a cdylib[fn:cdylib];
+4. builds the crate as a [[gls:cdylib]];
 5. loads the library into memory;
 6. for each label: calls the associated function in the library to get the offset $N$ and sums it with 16; and
 7. collects the results.
 This collection then merges with the collection of known maps.
 
-# user-supplied information
-The last piece of the puzzle is from where to source user-supplied information.
-Four fields of information is required to complete the second step above: the PAC name, version, features (if any), and the path to the =PAC::Interrupt= enum.
-There are two methods the user can supply this information: via commandline options, see [[lst:recovery-user-info-cmdopt]];
-or by entering the fields into the ~rtic-scope~ metadata block of the application's ~Cargo.toml~, see [[lst:recovery-user-info-toml]].
-PAC information in ~Cargo.toml~ is persisent, and simplifies an iterative workflow.
-
-#+NAME: lst:recovery-user-info-cmdopt
-#+CAPTION: Supplying information to RTIC Scope for recovery purposes via command line options.
-#+begin_src shell
-  $ cargo rtic-scope trace --pac-name stm32f4 --pac-version 0.13 --pac-features stm32f401 --pac-features some-other-feature --interrupt-path "stm32f4::stm32f401::Interrupt"
-#+end_src
-
-#+NAME: lst:recovery-user-info-toml
-#+CAPTION: Supplying information to RTIC Scope for recovery purposes via ~Cargo.toml~ metadata.
-#+begin_src toml
-# ...
-
-[package.metadata.rtic-scope]
-pac_name = "stm32f4"
-pac_features = ["stm32f401", "some-other-feature"]
-pac_version = "0.13"
-interrupt_path = "stm32f4::stm32f401::Interrupt"
-
-# ...
-#+end_src
-
 ***** Generating the =recovery::SoftwareMap=
-The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap=.
-The intercepted data trace value packet contains a DWT comparator number, a payload, and whether the watch address was written to or read.
-~cortex-m-rtic-trace~ ensures that the DWT only matches on writes, so packets that indicate a read are forwarded as an unknown event: only the comparator number and payload are of interest.
+:PROPERTIES:
+:CUSTOM_ID: impl:software-map
+:END:
+The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap= in the sense that the RTIC application declaration must be parsed again (for a third, but last time).
+This parsing pass is done via =SoftWareMap::parse_ast= instead of =rtic_syntax::parse2=.
+As the function name implies the [[ACRshort:AST]] is parsed by skipping [[glspl:token][tokens]] until the =TokenTree::Group(_)= describing =#[trace]= is found.
+When this [[gls:token]] is found the software task the macro is used on is associated with the current value of an internal counter for software task IDs.
+This counter is modified in the same manner as the internal counter when =cortex_m_rtic_trace::trace= expands.
 
-# TODO two dwt channels are used: one for exits and one for enters. Each write is u8.
-# TODO parsing and how we associate an UID to each task
-# TODO tracing nested functions
-# TODO task dispatchers, the events of which are ignored
+To complete the =SoftwareMap= the IDs of the [[ACRshort:DWT]] comparators and the interrupts which handle the dispatch of the application's software tasks must be recorded.
+The former are acquired from  [[cref:impl:cargo-rtic-scope:read-manifest]] via the ~dwt_enter_id~ and ~dwt_exit_id~ fields.
+The latter are acquired via =rtic_syntax::ast::AppArgs::extern_interrupts=.
+
+For the example in [[cref:lst:rtic-scope:trace-software-task]], =SoftwareMap= would contain[fn:: Abstracted for brevity.] the information denoting =EXTI2= as the software task dispatcher and
+#+begin_export latex
+$$
+\langle 0 \equiv \text{\texttt{app::task1}}\rangle,\quad\langle 1 \equiv \text{\texttt{app::task2}} \rangle\text{.}
+$$
+#+end_export
+#+NAME: lst:rtic-scope:trace-software-task
+#+CAPTION: RTIC application declaration with two traced software tasks: =app::task1= and =app::task2=. =EXTI2= is declared as the software task dispatcher.
+#+begin_src rust
+  #[rtic::app(device = stm32f4::stm32f401, dispatchers = [EXTI2])]
+  mod app {
+      #[shared]
+      struct Shared {}
+
+      #[local]
+      struct Local {}
+
+      #[init]
+      fn init(mut ctx: init::Context) -> (Shared, Local, init::Monotonics) {
+          // ...
+          (Shared {}, Local {}, init::Monotonics())
+      }
+
+      #[trace] // task ID = 0
+      #[task]
+      fn task1(_: task1::Context) {
+          // ...
+      }
+
+      #[trace] // task ID = 1
+      #[task]
+      fn task2(_: task2::Context) {
+          // ...
+      }
+  }
+#+end_src
+
+The restrictions enumerated in [[cref:impl:hardware-map]] also apply when recovering information for traced software tasks.
+
+The =trace= macro can also be applied on regular functions, effectively allowing the end-user to trace sections of both software and hardware tasks; see [[cref:impl:nested-tracing]] for an example.
+Severe limitations apply when tracing functions inside tasks and are thus not useful in practise.
+See [[cref:disc:nested-tracing-restrictions]] for more on this topic.
+#+NAME: impl:nested-tracing
+#+CAPTION: Tracing a function inside of a traced software example.
+#+begin_src rust
+  #[rtic::app(device = stm32f4::stm32f401, dispatchers = [EXIT2])]
+  mod app {
+      // ...
+
+      #[trace]
+      #[task]
+      fn task1(_: task1::Context) {
+          // ...
+
+          #[trace]
+          fn nested() {
+              // ...
+          }
+      }
+  }
+#+end_src
 **** Spawning frontends
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:spawning-frontends
@@ -1201,6 +1328,10 @@ The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dum
 
 # TODO DWT unit consumption, 2x u32-aligned .data usage
 # TODO add a listing of the watch variable structs to detail alignment.
+*** Restrictions of tracing functions inside tasks
+:PROPERTIES:
+:CUSTOM_ID: disc:nested-tracing-restrictions
+:END:
 *** Future work
 # Link to all(?) issues
 
@@ -1266,15 +1397,6 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 
 [fn:2] Additional tasks aside from regulation could for example include handling firmware updates over the air and switching mode of operation on a button press.
 [fn:1] The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the "main loop".
-
-[fn:cargo-cdylibs] See
-https://docs.rs/cargo/0.52.0/cargo/core/compiler/struct.Compilation.html#structfield.cdylibs.
-
-[fn:cdylib] A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=.
-Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated.
-Additionally, it is trivial to find the file location of cdylibs with cargo[fn:cargo-cdylibs].
-This is not the case with dylibs that instead target the unstable Rust ABI.
-The only way to generate a shared object file is by building a dylib or a cdylib.
 
 [fn:dwt-running-bit] Alternatively, one bit in the =DataTraceValue= payload can denote whether a task was entered or exited.
 
