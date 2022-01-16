@@ -939,7 +939,7 @@ For example, if the end-user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~ca
 This approach ensures that the end-user can always build the RTIC application with any set of valid ~cargo build~ flags and options.
 
 The effect of building the binary with =--message-format=json-diagnostic-rendered-ansi= is that the otherwise human-readable output of ~cargo build~ is instead in [[gls:JSON]], a machine-readable format.
-This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which ~cargo build~ tells us the path to the built binary used to flash the target in [[cref:impl:cargo-rtic-scope:flash-target;]]
+This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which ~cargo build~ tells us the path to the built binary used to flash the target in [[cref:impl:cargo-rtic-scope:flash-target]];
 the path to the root of the crate that this binary lives, used in [[cref:impl:cargo-rtic-scope:create-trace-file]];
 and the path to the source file of this binary, used in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
 
