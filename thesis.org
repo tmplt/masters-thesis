@@ -35,6 +35,23 @@
 #+latex_header: \usepackage[capitalize]{cleveref}
 #+LATEX_HEADER: \makeglossaries
 
+# NOTE auto linebreaks / : - and _ inside \textttBreak. Adapted from <https://tex.stackexchange.com/a/219497>.
+#+latex_header: \catcode`_=12 %
+#+latex_header: \newcommand{\textttBreak}[1]{%
+#+latex_header:   \begingroup
+#+latex_header:   \ttfamily
+#+latex_header:   \begingroup\lccode`~=`/\lowercase{\endgroup\def~}{/\discretionary{}{}{}}%
+#+latex_header:   \begingroup\lccode`~=`-\lowercase{\endgroup\def~}{-\discretionary{}{}{}}%
+#+latex_header:   \begingroup\lccode`~=`_\lowercase{\endgroup\def~}{_\discretionary{}{}{}}%
+#+latex_header:   \begingroup\lccode`~=`:\lowercase{\endgroup\def~}{:\discretionary{}{}{}}%
+#+latex_header:   \catcode`/=\active\catcode`-=\active\catcode`_=\active\catcode`:=\active
+#+latex_header:   \scantokens{#1\noexpand}%
+#+latex_header:   \endgroup
+#+latex_header: }
+#+latex_header: \catcode`_=8 %
+
+#+latex_header: \usepackage[htt]{hyphenat}
+
 #+NAME: glossary
 | label       | name            | description |
 |-------------+-----------------+-------------|
@@ -53,38 +70,38 @@
 
 # XXX some of these should link to the glossary
 #+NAME: acronyms
-| key           | abbreviation                   | full form                                             |
-|---------------+--------------------------------+-------------------------------------------------------|
-| PC            | PC                             | \textit{program counter}                              |
-| CPU           | CPU                            | \textit{central processing unit}                      |
-| RTIC          | RTIC                           | \textit{Real-Time Interrupt-driven Concurrency}       |
-| RTOS          | RTOS                           | \textit{real-time operating system}                   |
-| SRP           | SRP                            | \textit{Stack Resource Policy}                        |
-| DCB           | DCB                            | \textit{Debug Control Block}                          |
-| SCS           | SCS                            | \textit{System Control Space}                         |
-| SCB           | SCB                            | \textit{System Control Block}                         |
-| DCB_DEMCR     | DEMCR                          | \textit{Debug Exception and Monitor Control Register} |
-| ITM           | ITM                            | \textit{Instrumentation Trace Macrocell}              |
-| TPIU          | TPIU                           | \textit{Trace Port Interface Unit}                    |
-| DWT           | DWT                            | \textit{Data Watchpoint and Trace}                    |
-| ETB           | ETB                            | \textit{Embedded Trace Buffer}                        |
-| WCET          | WCET                           | \textit{Worst Case Execution Time}                    |
-| EDF           | EDF                            | \textit{Earliest Deadline First}                      |
-| PAC           | PAC                            | \textit{Peripheral Access Crates}                     |
-| API           | API                            | \textit{Application Programming Interface}            |
-| TPIU_ACPR     | TPIU\textunderscore ACPR       | \textit{Asynchronous Clock Prescaler Register}        |
-| ETM           | ETM                            | \textit{Embedded Trace Macrocell}                     |
-| DWT_CTRL      | DWT\textunderscore CTRL        | \textit{Control Register}                             |
-| TPIU_TYPE     | TPIU\textunderscore TYPE       | \textit{TPIU Type Register}                           |
-| ITM_TCR       | TPIU\textunderscore TCR        | \textit{Trace Control Register}                       |
-| RAZ-WI        | RAZ/WI                         | \textit{Read-As-Zero, Writes Ignored}                 |
-| RAZ           | RAZ                            | \textit{Read-As-Zero}                                 |
-| RAO           | RAO                            | \textit{Read-As-One}                                  |
-| DWT_FUNCTIONn | DWT\textunderscore FUNCTION$n$ | \textit{Comparator Function registers}                |
-| SBZ           | SBZ                            | \textit{Should-Be-Zero}                               |
-| DWT_COMPn     | DWT\textunderscore COMP$n$     | \textit{Comparator registers}                         |
-| DWT_MASKn     | DWT\textunderscore MASK$n$     | \textit{Comparator Mask registers}                    |
-| AST           | AST                            | \textit{Abstract Syntax Tree}                         |
+| key           | abbreviation     | full form                                             |
+|---------------+------------------+-------------------------------------------------------|
+| PC            | PC               | \textit{program counter}                              |
+| CPU           | CPU              | \textit{central processing unit}                      |
+| RTIC          | RTIC             | \textit{Real-Time Interrupt-driven Concurrency}       |
+| RTOS          | RTOS             | \textit{real-time operating system}                   |
+| SRP           | SRP              | \textit{Stack Resource Policy}                        |
+| DCB           | DCB              | \textit{Debug Control Block}                          |
+| SCS           | SCS              | \textit{System Control Space}                         |
+| SCB           | SCB              | \textit{System Control Block}                         |
+| DCB_DEMCR     | DEMCR            | \textit{Debug Exception and Monitor Control Register} |
+| ITM           | ITM              | \textit{Instrumentation Trace Macrocell}              |
+| TPIU          | TPIU             | \textit{Trace Port Interface Unit}                    |
+| DWT           | DWT              | \textit{Data Watchpoint and Trace}                    |
+| ETB           | ETB              | \textit{Embedded Trace Buffer}                        |
+| WCET          | WCET             | \textit{Worst Case Execution Time}                    |
+| EDF           | EDF              | \textit{Earliest Deadline First}                      |
+| PAC           | PAC              | \textit{Peripheral Access Crates}                     |
+| API           | API              | \textit{Application Programming Interface}            |
+| TPIU_ACPR     | TPIU\_ACPR       | \textit{Asynchronous Clock Prescaler Register}        |
+| ETM           | ETM              | \textit{Embedded Trace Macrocell}                     |
+| DWT_CTRL      | DWT\_CTRL        | \textit{Control Register}                             |
+| TPIU_TYPE     | TPIU\_TYPE       | \textit{TPIU Type Register}                           |
+| ITM_TCR       | TPIU\_TCR        | \textit{Trace Control Register}                       |
+| RAZ-WI        | RAZ/WI           | \textit{Read-As-Zero, Writes Ignored}                 |
+| RAZ           | RAZ              | \textit{Read-As-Zero}                                 |
+| RAO           | RAO              | \textit{Read-As-One}                                  |
+| DWT_FUNCTIONn | DWT\_FUNCTION$n$ | \textit{Comparator Function registers}                |
+| SBZ           | SBZ              | \textit{Should-Be-Zero}                               |
+| DWT_COMPn     | DWT\_COMP$n$     | \textit{Comparator registers}                         |
+| DWT_MASKn     | DWT\_MASK$n$     | \textit{Comparator Mask registers}                    |
+| AST           | AST              | \textit{Abstract Syntax Tree}                         |
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -93,7 +110,8 @@
 # TODO call an RTIC app just that, or firmware, throughout.
 # TODO fix cites to sections (remove the "p."?)
 # TODO verify software versions with Cargo.lock from v0.3.0 tag.
-# TODO fix hbox overflows (texttt breaklining)
+# TODO fix hbox overflows on texttt in list of listings, bibliography, glossary
+# TODO tweak geometry for last overfull hboxes
 
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
@@ -118,8 +136,63 @@
 
     ;; use \cref instead of \ref, for cleveref
     (setq org-ref-default-ref-type "cref")
-
     (setq org-latex-prefer-user-labels t)
+
+    ;; make so that =some text= yield \textttBreak{some text} instead of
+    ;; \texttt{some text}.
+    ;;
+    ;; NOTE do not use =some text= in section headings or captions.
+    (defun org-latex--protect-texttt (text)
+      "Protect special chars, then wrap TEXT in \"\\texttt{}\"."
+      (format "\\texttt{%s}"
+              (replace-regexp-in-string
+               "--\\|[\\{}$%&_#~^]"
+               (lambda (m)
+                 (cond ((equal m "--") "-{}-")
+                       ((equal m "\\") "\\textbackslash{}")
+                       ((equal m "~") "\\textasciitilde{}")
+                       ((equal m "^") "\\textasciicircum{}")
+                       (t (org-latex--protect-text m))))
+               text nil t)))
+    (defun org-latex--protect-textttbreak (text)
+      "Protect special chars, then wrap TEXT in \"\\texttt{}\"."
+      (format "\\textttBreak{%s}"
+              (replace-regexp-in-string
+               "--\\|[\\{}$%&#~^]"
+               (lambda (m)
+                 (cond ((equal m "--") "-{}-")
+                       ((equal m "\\") "\\textbackslash{}")
+                       ((equal m "~") "\\textasciitilde{}")
+                       ((equal m "^") "\\textasciicircum{}")
+                       (t (org-latex--protect-text m))))
+               text nil t)))
+    (defun org-latex--text-markup (text markup info)
+      "Format TEXT depending on MARKUP text markup.
+    INFO is a plist used as a communication channel.  See
+    `org-latex-text-markup-alist' for details."
+      (let ((fmt (cdr (assq markup (plist-get info :latex-text-markup-alist)))))
+        (cl-case fmt
+          ;; No format string: Return raw text.
+          ((nil) text)
+          ;; Handle the `verb' special case: Find an appropriate separator
+          ;; and use "\\verb" command.
+          (verb
+           (let ((separator (org-latex--find-verb-separator text)))
+             (concat "\\verb"
+                     separator
+                     (replace-regexp-in-string "\n" " " text)
+                     separator)))
+          (protectedtexttt (org-latex--protect-texttt text))
+          (protectedtextttbreak (org-latex--protect-textttbreak text))
+          ;; Else use format string.
+          (t (format fmt text)))))
+    (setq org-latex-text-markup-alist
+          '((bold . "\\textbf{%s}")
+            (code . protectedtexttt)
+            (italic . "\\emph{%s}")
+            (strike-through . "\\sout{%s}")
+            (underline . "\\uline{%s}")
+            (verbatim . protectedtextttbreak)))
   #+end_src
 #+RESULTS:
 
@@ -265,7 +338,7 @@ A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
 # TODO reformat
 An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
 #+NAME: lst:pac-interrupt-example
-#+CAPTION: Example declaration of a =PAC::Interrupt= enum. Left-hand side of =Interrupt= is the IRQ label; right-hand is $N$ in [[tbl:irqns]].
+#+CAPTION: Example declaration of a ~PAC::Interrupt~ enum. Left-hand side of ~Interrupt~ is the IRQ label; right-hand is $N$ in [[tbl:irqns]].
 #+begin_src rust
   pub mod PAC {
       #[derive(Debug)]
@@ -684,7 +757,7 @@ After applying device-specific configurations for trace generation, and querying
 
 ~configure~ in [[cref:lst:rtic-trace:configure]] does a number of things in the following order:
 1. <<rtic-trace:conf-protocol>> ensures that the target's [[ACRshort:TPIU]] peripheral supports the requested ~protocol~ by reading the [[acrfull:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
-2. ensures that the user did not request an invalid [[ACRshort:TPIU]] configuration (i.e. ~tpiu_freq: 0~ or ~tpiu_baud: 0~);
+2. ensures that the user did not request an invalid [[ACRshort:TPIU]] configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
 3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[ACRshort:DWT]] peripheral supports exception tracing by reading the /NOTRCPKT/ bit in [[acrfull:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
 4. <<rtic-trace:nofail-conf>> configures the [[ACRshort:DCB]], [[ACRshort:TPIU]], and [[ACRshort:DWT]] peripherals (partially):
    1. sets the /TRCENA/ bit in the [[acrfull:DCB_DEMCR]], a "global enable for all [[ACRshort:DWT]] and [[ACRshort:ITM]] features";
@@ -740,7 +813,7 @@ It's application is trivial, but requires that ~config~ executed successfully.
 To trace a software task, consider [[cref:lst:rtic-trace:trace]] which defines two tasks: =task1= and =task2=.
 Of the two tasks, =task2= is traced by simply decorating it with =#[trace]=, the invocation of the =trace= macro.
 #+NAME: lst:rtic-trace:trace
-#+CAPTION: Application example of the =trace= macro. =task2= is traced; =task1= is not.
+#+CAPTION: Application example of the ~trace~ macro. ~task2~ is traced; ~task1~ is not.
 #+begin_src rust
   // ...
 
@@ -758,7 +831,7 @@ Of the two tasks, =task2= is traced by simply decorating it with =#[trace]=, the
 
 Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expanding the macros applied in [[cref:lst:rtic-trace:trace]] via ~cargo-expand~ [[parencite:&cargo-expand]].
 #+NAME: lst:rtic-trace:trace-expanded
-#+CAPTION: Application example of the =trace= macro after macro expansion via ~cargo-expand~. Unrelated expansions omitted.
+#+CAPTION: Application example of the ~trace~ macro after macro expansion via ~cargo-expand~. Unrelated expansions omitted.
 #+begin_src rust
   // ...
   use cortex_m_rtic_trace::{self, trace};
@@ -864,7 +937,7 @@ For example, if the end-user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~ca
 #+end_src
 This approach ensures that the end-user can always build the RTIC application with any set of valid ~cargo build~ flags and options.
 
-The effect of building the binary with ~--message-format=json-diagnostic-rendered-ansi~ is that the otherwise human-readable output of ~cargo build~ is instead in [[gls:JSON]], a machine-readable format.
+The effect of building the binary with =--message-format=json-diagnostic-rendered-ansi= is that the otherwise human-readable output of ~cargo build~ is instead in [[gls:JSON]], a machine-readable format.
 This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which ~cargo build~ tells us the path to the built binary used to flash the target in [[cref:impl:cargo-rtic-scope:flash-target;]]
 the path to the root of the crate that this binary lives, used in [[cref:impl:cargo-rtic-scope:create-trace-file]];
 and the path to the source file of this binary, used in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
@@ -990,7 +1063,7 @@ This section covers this step which is divided into two parts:
 2. the generation of the =recovery::SoftwareMap=, [[cref:impl:software-map]].
 Together these two lookup maps constitute the full =recovery::TraceLookupMaps= which is used by =recovery::TraceMetadata= in order to fulfill Requirement [[req:rtic]].
 
-***** Generating the =recovery::HardwareMap=
+***** Generating the ~recovery::HardwareMap~
 :PROPERTIES:
 :CUSTOM_ID: impl:hardware-map
 :END:
@@ -1114,7 +1187,7 @@ This must be done for all unknown binds.
 
 The above process is unfortunately non-trivial: Rust does not have dynamic programming features and an ideal evaluation function such as [[cref:lst:pac:ideal-pseudo]] is not realizeable.
 #+NAME: lst:pac:ideal-pseudo
-#+CAPTION: Non-realizeable pseudo code to dynamically resolve the IRQ number of an unknown bind via the [[ACRshort:PAC]]. =quote= is from [[textcite:&quote]].
+#+CAPTION: Non-realizeable pseudo code to dynamically resolve the IRQ number of an unknown bind via the [[ACRshort:PAC]]. ~quote~ is from [[textcite:&quote]].
 #+begin_src rust
   use quote::quote;
   fn resolve_irq_nr(label: &str) -> u16 {
@@ -1143,7 +1216,7 @@ Enter =recovery::resolve_int_nrs=: given a list of labels, the function
 7. collects the results.
 This collection then merges with the collection of known maps.
 
-***** Generating the =recovery::SoftwareMap=
+***** Generating the ~recovery::SoftwareMap~
 :PROPERTIES:
 :CUSTOM_ID: impl:software-map
 :END:
@@ -1164,7 +1237,7 @@ $$
 $$
 #+end_export
 #+NAME: lst:rtic-scope:trace-software-task
-#+CAPTION: RTIC application declaration with two traced software tasks: =app::task1= and =app::task2=. =EXTI2= is declared as the software task dispatcher.
+#+CAPTION: RTIC application declaration with two traced software tasks: ~app::task1~ and ~app::task2~. ~EXTI2~ is declared as the software task dispatcher.
 #+begin_src rust
   #[rtic::app(device = stm32f4::stm32f401, dispatchers = [EXTI2])]
   mod app {
@@ -1324,7 +1397,7 @@ The target-side code of RTIC Scope itself has a negligible performance impact du
 - the ITM/DWT/TPIU units need only be configured once in =#[init]= or during some other preparatory stage; and
 - when software tasks are traced, a =u8= variable write must be done when entering and exiting the task.
 
-The performance of the host-side ~cargo-rtic-scope~ and ~rtic-scope-frontend-dummy~ have not been measured.
+The performance of the host-side =cargo-rtic-scope= and =rtic-scope-frontend-dummy= have not been measured.
 
 # TODO DWT unit consumption, 2x u32-aligned .data usage
 # TODO add a listing of the watch variable structs to detail alignment.
