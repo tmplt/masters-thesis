@@ -1296,7 +1296,37 @@ See [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:spawning-frontends
 :END:
-# TODO dont forget to cover the possibility of spawning multiple frontends
+The host-side of RTIC Scope is diveded into two parts: the backend, ~cargo-rtic-scope~;
+and the frontends, of which ~rtic-scope-frontend-dummy~ is provided within the scope of this thesis, fulfilling Requirement [[req:dummy]] and also acting as the frontend reference implementation (see [[cref:impl:rtic-scope-frontend-dummy]]).
+Frontends are separate processes that receive JSON messages from the backend over a local socket connection (see [[cref:impl:api]]).
+This section covers how frontends are specified, found in the environment, and executed.
+
+The set of frontends to spawn is specified with the ~--frontend~ option before the ~<verb>~ in [[cref:lst:spawn-frontend]].
+#+NAME: lst:spawn-frontend
+#+CAPTION: Starting the RTIC Scope backend with an explicit frontend.
+#+begin_src shell
+  $ cargo rtic-scope --frontend=rtic-scope-frontend-dummy <verb> [OPTIONS...]
+#+end_src
+Multiple frontends (or multiple instances of a single frontend) can be spawned by specifying the ~--frontend~ option multiple times.
+By default (by not specifying the option) a single instance of ~rtic-scope-frontend-dummy~ is spawned.
+
+~cargo-rtic-scope~ searches for frontends in three locations in the environment.
+With ~--frontend=rtic-scope-frontend-dummy~ the search pattern in decreasing order of priority is
+1. in the ~PATH~ environmental variable;
+2. the relative path: ~./rtic-scope-frontend-dummy~; and
+3. the absolute path: ~/rtic-scope-frontend-dummy~.
+If a higher priority location is valid, the search ends.
+[[cref:lst:spawn-frontends]] contains an example of spawning three frontends in each of the supported location types.
+#+NAME: lst:spawn-frontends
+#+CAPTION: Starting the RTIC Scope backend with three explicit frontends: one in ~PATH~, one relative, and one absolute.
+#+begin_src shell
+  $ cargo rtic-scope --frontend=frontend-in-PATH \
+                     --frontend=./path/to/relative/frontend \
+                     --frontend=/path/to/absolute/frontend \
+                     <verb> [OPTIONS...]
+#+end_src
+
+As of RTIC Scope v0.3.0, a frontend takes zero arguments and *MUST* return a path to a Unix socket on =stdout= which the backend can use to communicate with the frontend.
 **** Reading the trace stream from the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reading-the-trace-stream
@@ -1318,6 +1348,7 @@ See [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:trace-target
 :END:
+# run_loop
 
 *** Decoding the ITM packet stream via ~itm~
 :PROPERTIES:
