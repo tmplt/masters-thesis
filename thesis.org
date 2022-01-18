@@ -1418,6 +1418,13 @@ This structure is later read back for trace replay in [[cref:impl:cargo-rtic-sco
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reset-target
 :END:
+The last step before tracing the target is optionally resetting it.
+This is the default behavior but can be disabled by specifying the =--dont-touch-target=.
+Resetting the target causes it to begin executing the flashed application from the beginning.
+If =--dont-touch-target= was not specified the executing application will be the specified RTIC application.
+
+From this point on the target will generate and emit ITM packets.
+
 **** Tracing the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:trace-target
