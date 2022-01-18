@@ -1429,7 +1429,37 @@ From this point on the target will generate and emit ITM packets.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:trace-target
 :END:
-# run_loop
+With all the preparatory steps concluded and the target being (optionally) reset its up to =cargo-rtic-scope= to record these packets host-side.
+This is done in a number of steps in the imaginatively named =run_loop= function:
+1. A SIGINT handler is installed, which allows the end-user to terminate =cargo-rtic-scope=.
+   If this signal is not eventually sent ~cargo-rtic-scope~ will never termiate.
+2. A second thread is spawned with the mission of polling trace data from the source.
+   In order to avoid the generation of overflow packets the should poll data as fast as possible.
+   The easiest implementation to accomplish this is via a separate thread.
+3. In a loop:
+   1. Asynchronously polls any buffered trace data from the separate thread and the eventual SIGINT signal for a duration of 100ms.
+      If trace data has been read, forward this to the aply named =handle_packet= function (see below).
+      If SIGINT is received the loop breaks and =cargo-rtic-trace= terminates.
+      If after 100ms nothing happens:
+   2. a message from the spawned frontends is read (if any) and echoed as an error;
+   3. a message of the tracing status is echoed.
+      This status message describes:
+      - the application under trace;
+      - how many ITM packets that have been recorded;
+      - how many of these packets that are malformed or unmappable;
+      - for how long the application has been traced;
+      - how many ITM packets per second that are being recorded; and
+      - how many sinks that are operational (not marked as broken; see below).
+
+=handle_packet= does just that: handles a single =TimestampedTracePacket= (henceforth referred to as a /chunk/).
+This is done several steps:
+1. first, the trace packet is converted to an =api::EventChunk= (see [[cref:impl:api]]) via =TraceMetadata::build_event_chunk=:
+   1. ...
+2. Any unmappable, unknown, or invalid packets ITM packets in the chunk are echoed as warnings to the end-user with an apt message.
+3. Chunks are /drained/ to all /sinks/ (the replay file and all spawned frontends).
+   If a drain fails for any sink, it is marked as broken and an error is echoed to the end-user.
+   As long as at least one sink is not marked as broken, tracing continues.[fn:: TODO tracing should stop if we cannot drain to file.]
+   If all sinks are marked as broken =cargo-rtic-scope= terminates with an error.
 
 *** Decoding the ITM packet stream via ~itm~
 :PROPERTIES:
