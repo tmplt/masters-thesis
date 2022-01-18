@@ -114,6 +114,7 @@
 # TODO fix second list of listings page saying "list of figures"
 # TODO tweak geometry for last overfull hboxes
 # TODO replace ~~ with == in regular text
+# TODO fix memoir page header to use H:3
 
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
@@ -1360,6 +1361,19 @@ If a probe source is used =probe-rs= sends the appropriate commands to the used 
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:flash-target
 :END:
+If the target under trace is supported by =probe-rs= it can optionally be flashed before tracing begins.
+This is the default behavior in order to simplify an iterative development process but can be disabled by specifying the =--dont-touch-target= flag to the =trace= verb.
+If a chip is supported =cargo-rtic-trace= must know its memory layout for flashing.
+This is done via the =--chip= option.
+See the example in [[cref:lst:chip-opt-example]].
+#+NAME: lst:chip-opt-example
+#+CAPTION: Flashing and tracing an STMicroelectronics STM32 NUCLEO-F401RE.
+#+begin_src shell
+  $ cargo rtic-scope trace --chip stm32f401ret [OPTIONS...]
+#+end_src
+
+The list of chips that =probe-rs= supports can be queried by specifying the =--list-chips= to the =trace= verb.
+
 **** Flushing trace metadata to file
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:flush-metadata
@@ -1428,6 +1442,8 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 #+end_src
 
 # TODO document cortex-m-rtic-trace usage
+**** Tracing the ~atsame51n~
+**** Tracing the ~stm32f401retx~
 
 ** Discussion
 :PROPERTIES:
