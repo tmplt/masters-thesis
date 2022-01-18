@@ -113,6 +113,7 @@
 # TODO fix hbox overflows on texttt in list of listings, bibliography, glossary
 # TODO fix second list of listings page saying "list of figures"
 # TODO tweak geometry for last overfull hboxes
+# TODO replace ~~ with == in regular text
 
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
@@ -1327,11 +1328,34 @@ If a higher priority location is valid, the search ends.
 #+end_src
 
 As of RTIC Scope v0.3.0, a frontend takes zero arguments and *MUST* return a path to a Unix socket on =stdout= which the backend can use to communicate with the frontend.
-**** Reading the trace stream from the target
+**** Sourcing the trace stream from the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reading-the-trace-stream
 :END:
-# TODO cover all sources here.
+# Introduce the two main sources
+At this point a line of communication with the target must be established.
+Internally, this line of communication is known as a /source/ of which only one is established before =cargo-rtic-scope= traces the target.
+As of v0.3.0 two sources are implemented:
+- a TTY/serial source :: which configures and reads the trace data from a serial device; and
+- a probe source :: wherein =probe-rs= is used to read trace data from supported targets.
+
+A serial source is used if =--serial= is specified to the =trace= verb.
+When a serial source is used =cargo-rtic-scope= must know what baud rate to configure the device for.
+This is specified via the =tpiu_baud= field in the crate manifest (see [[cref:lst:cargo-rtic-scope:manifest-metadata-example]]) but can also be overridden via the =--tpiu-baud= option.
+See [[cref:lst:tty-source]] for an example of these options.
+#+NAME: lst:tty-source
+#+CAPTION: Tracing a target by reading the trace stream from a serial device at ~/dev/ttyUSB3~ at 115200 bauds.
+#+begin_src shell
+  $ cargo rtic-scope trace --serial /dev/ttyUSB3 --tpiu-baud 115200 [OPTIONS...]
+#+end_src
+
+A probe source is used if =--serial= is not specified.
+=cargo-rtic-scope= will then use the first probe it can find on the system.
+If multiple probes are attached =--probe VID:PID[:Serial]= can be used to specify one.
+A list of connected and supported probes can be queried by specifying the =--list-probes= flag.
+
+When the target is traced in [[cref:impl:cargo-rtic-scope:trace-target]] the trace stream is simply read from the serial device if one is used.
+If a probe source is used =probe-rs= sends the appropriate commands to the used probe polling for available trace data.
 **** Flashing the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:flash-target
