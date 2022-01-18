@@ -1378,6 +1378,42 @@ The list of chips that =probe-rs= supports can be queried by specifying the =--l
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:flush-metadata
 :END:
+The penultimate step before tracing begins is flushing all metadata related to the trace to the replay file created in [[cref:impl:cargo-rtic-scope:create-trace-file]].
+The metadata is contained in a =recovery::TraceMetadata= structure, listed and described in [[cref:lst:TraceMetaData]].
+Of these fields
+- =maps: TraceLookupMaps= :: is described in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]];
+- =reset_timestamp= :: is an approximate reset timestamp (the target is actually reset after this structure has been flushed to file, in [[cref:impl:cargo-rtic-scope:reset-target]]); and
+- =comment= :: is an optional comment describing the trace which is supplied via the =--comment= option to the =trace= verb.
+The data that is flushed to file is a JSON-representation of the structure, serialized by help of =serde_json= as implied by the derivation of the =Serialize= and =Deserialize= traits [[parencite:&serde-json]].
+#+NAME: lst:TraceMetaData
+#+CAPTION: ~recovery~ structure containing all metadata related to a trace.
+#+begin_src rust
+  /// Contains all metadata for a single trace.
+  #[derive(Clone, Serialize, Deserialize)]
+  pub struct TraceMetadata {
+      /// Name of the RTIC application that was/is traced.
+      pub program_name: String,
+
+      /// Lookup maps for data received over ITM to RTIC application idents.
+      maps: TraceLookupMaps,
+
+      /// Timestamp of target reset, after which tracing begins.
+      ///
+      /// Note: this timestamp is sampled host-side and is approximate.
+      reset_timestamp: chrono::DateTime<Local>,
+
+      /// Frequency of the target TPIU clock. Used to generate absolute
+      /// timestamps. Set via `tpiu_freq` in
+      /// `[{package,workspace}.metadata.rtic-scope]` from `Cargo.toml` or
+      /// overridden via the `--tpiu-freq` trace option.
+      tpiu_freq: u32,
+
+      /// Optional comment of this particular trace.
+      pub comment: Option<String>,
+  }
+#+end_src
+
+This structure is later read back for trace replay in [[cref:impl:cargo-rtic-scope:replay]].
 **** Resetting the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reset-target
@@ -1410,6 +1446,9 @@ The list of chips that =probe-rs= supports can be queried by specifying the =--l
 :END:
 
 *** Replaying a trace
+:PROPERTIES:
+:CUSTOM_ID: impl:cargo-rtic-scope:replay
+:END:
 
 ** Results
 *** Using RTIC Scope
