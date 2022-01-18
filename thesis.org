@@ -102,6 +102,7 @@
 | DWT_COMPn     | DWT\_COMP$n$     | \textit{Comparator registers}                         |
 | DWT_MASKn     | DWT\_MASK$n$     | \textit{Comparator Mask registers}                    |
 | AST           | AST              | \textit{Abstract Syntax Tree}                         |
+| TLV           | TLV              | \textit{type-length-value}                            |
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -1486,7 +1487,41 @@ Last of all are the /malformed packets/: these are simply wrapped in an =api::Ev
 # TODO the decoding part, draw/borrow some figures from standard
 # TODO iter.rs, specifically Timestamps, timestamp formula, GTS logic, etc.
 # TODO everything is unit tested.
+The =itm= library crate, [[textcite:&itm]], is
+#+ATTR_LATEX: :environment quotation
+#+begin_quote
+\noindent
+A decoder for the [[ACRshort:ITM]] and [[ACRshort:DWT]] packet protocol[fn:: [[ACRshort:DWT]] packets (hardware event packets) are included in the [[ACRshort:ITM]] packet protocol standard.] as specifed in [[[textcite:&arm-rm Appendix D4]]].
 
+Aside from covering the entirety of the protocol, this crate offers two iterators which reads data from the given [\textttBreak{std::io::Read}] instance:
+- [\texttt{iter::Singles}] :: which decodes each packet in the stream in sequence, yielding [\textttBreak{TracePacket} structures].
+- [\texttt{iter::Timestamps}] :: which continuously decodes packets from the stream until a local timestamp is encountered,
+  yielding \linebreak[4] [\texttt{TimestampedTracePackets} structures],
+  which contains a \linebreak[4] [nanosecond-accurate] timestamp relative to target reset of when the packets where generated target-side.[fn:: TODO not necessarily true, right?]
+#+end_quote
+
+While the implementation of =itm= has been influenced by the development of RTIC Scope it is logically disjoint from the the RTIC Scope feature set.
+=itm= can thus be considered a wholly separate project but its inception was a precursor to RTIC Scope in order to fulfill Requirement [[req:decode]], and it is thus within the scope of this thesis.
+RTIC Scope is then considered a /downstream/ crate of =itm=, because it depends on it.
+
+The crate is a /green-field implementation/ of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.7 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
+Another downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
+Both =itm-decode= and =itm-tools= are convenient UNIX-like tools for decoding the ITM packet protocol.
+
+=itm= is a packet decoder with state that handles its own data input.
+After constructing a new decoder via =itm::Decoder::new= with an implementation of =std::io::Read= ---
+e.g. a =std::fs::File= pointing to a preconfigured serial device, or a =probe_rs::architecture::arm::swo::SwoReader= ---
+decoded packets are trivially acquired via the exposed iterators summarized above.
+RTIC Scope utilizes the =iter::Timestamps= iterator, and is thus the only iterator covered in this text.
+
+As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol define packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet /payload/.
+Effectively, the protocol follows a [[acrfull:TLV]] encoding sheme.
+Decoding such a protocol is rather trivial, especially in Rust:
+the individual bytes of the header are pattern-matched in order to decode the packet type after which the remaining bytes are dispatched to another pattern-matcher in order to decode its payload.
+On success an =itm::TracePacket= is emitted.
+On failure --- if a header or payload contains data that is not covered by [[textcite:&arm-rm Appendix D4]] --- an =itm::MalformedPacket= is emitted, describing why the decode failed.
+
+# TODO describe the iterator
 *** Associating trace packets with RTIC task events
 # TODO build_event_chunk
 
@@ -1572,6 +1607,7 @@ The performance of the host-side =cargo-rtic-scope= and =rtic-scope-frontend-dum
 :CUSTOM_ID: disc:nested-tracing-restrictions
 :END:
 *** Should ~cargo-rtic-scope~ terminate on malformed packets?
+# TODO also related: MalformedPacket in itm
 *** Lessons learned
 Why the thesis took to long, etc.
 *** Future work
@@ -1616,6 +1652,11 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 # TODO merging things upstream into probe-rs, RTIC, etc.
 # target-side conf can be done by RTIC
 **** Supporting other [[ACRshortpl:RTOS]] than [[ACRshort:RTIC]]
+**** Publishing all crates to the crate registery
+**** Replacing ~itm-tools~
+:PROPERTIES:
+:CUSTOM_ID: fut:itm-tools
+:END:
 
 ** Conclusion
 ** Glossary & Bibliography                                          :ignore:
