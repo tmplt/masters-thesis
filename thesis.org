@@ -1573,10 +1573,52 @@ For a discussion on how to increase the quality of timestamps (and thus the gene
 :CUSTOM_ID: impl:api
 :END:
 
-*** Echoing the trace stream with ~rtic-scope-frontend-dummy~
+*** Handling the resolved trace stream in the frontend
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-scope-frontend-dummy
 :END:
+# TODO we need some sentence before we start talking about the dummy.
+The purpose of the of =rtic-scope-frontend-dummy= frontend is to act as a reference implementation upon which more useful frontends can be built.
+These is no limit to what a frontend could do.
+It could present a real-time graphical representation of the system alike a ..., it could store the resolved trace in a database, or it could simply echo the messages to =stderr=.
+
+The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains its entirety with exhaustively descriptive comments.
+#+NAME: lst:dummy-src
+#+CAPTION: The full source code of the dummy frontend.
+#+begin_src rust
+  #![allow(rustdoc::bare_urls)]
+  //! Reference frontend implementation for RTIC Scope.
+  #![doc = include_str!("../../docs/profile/README.md")]
+
+  use anyhow::{Context, Result};
+  use rtic_scope_api as api;
+  use serde_json::Deserializer;
+
+  fn main() -> Result<()> {
+      // Create frontend socket in a temporary directory, print it for the parent backend.
+      let socket_dir = tempfile::TempDir::new()
+          .context("Failed to create temporary directory for frontend socket")?;
+      let socket_path = socket_dir.path().join("rtic-scope-frontend.socket");
+      let listener = std::os::unix::net::UnixListener::bind(&socket_path)
+          .context("Failed to bind frontend socket")?;
+      println!("{}", socket_path.display());
+
+      // Deserialize api::EventChunks from socket and print events to
+      // stderr along with nanoseconds timestamp.
+      let (socket, _addr) = listener.accept().context("Failed to accept()")?;
+      let stream = Deserializer::from_reader(socket).into_iter::<api::EventChunk>();
+      let mut prev_nanos = 0;
+      for chunk in stream {
+          let chunk = chunk.context("Failed to deserialize chunk")?;
+          let nanos = chunk.timestamp.offset.as_nanos();
+          let diff = nanos - prev_nanos;
+          eprintln!("@{} µs (+{} ns): {:?}", nanos, diff, chunk.events);
+          prev_nanos = nanos;
+      }
+
+      Ok(())
+  }
+#+end_src
 
 *** Replaying a trace
 :PROPERTIES:
