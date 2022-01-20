@@ -1580,7 +1580,7 @@ For a discussion on how to increase the quality of timestamps (and thus the gene
 # TODO we need some sentence before we start talking about the dummy.
 The purpose of the of =rtic-scope-frontend-dummy= frontend is to act as a reference implementation upon which more useful frontends can be built.
 These is no limit to what a frontend could do.
-It could present a real-time graphical representation of the system alike a ..., it could store the resolved trace in a database, or it could simply echo the messages to =stderr=.
+It could present a real-time graphical representation of the system alike a logic analyzer, it could store the resolved trace in a database, or it could simply echo the messages to =stderr=.
 
 The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains its entirety with exhaustively descriptive comments.
 #+NAME: lst:dummy-src
@@ -1624,6 +1624,14 @@ The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:replay
 :END:
+Replaying a trace is done via the =replay= verb.
+
+Replaying a trace is similar to that of recording one but instead of sourcing the trace stream from the target it is sourced from a replay file.
+
+# TODO do we touch on --clear-traces?
+
+- =--list= :: which lists all recorded traces;
+- =--trace-dir= :: which overrides the default directory in which to look for replay files. This option it the companion piece to =trace --trace-dir=;
 
 ** Results
 *** Using RTIC Scope
