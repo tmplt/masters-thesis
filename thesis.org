@@ -116,6 +116,8 @@
 # TODO tweak geometry for last overfull hboxes
 # TODO replace ~~ with == in regular text
 # TODO fix memoir page header to use H:3
+# TODO ask ARM about permission to copy figures/tables?
+# TODO copy more relevant images from ARM spec.
 
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
@@ -658,7 +660,49 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 :END:
 # TODO summarize the packet protocol and cover the packet types which we utilize
 
-#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Copied from [[parencite:&arm-rm Table B1-4]].
+The ITM packet protocol is a TLV schema. Packets are a multiple of bytes.
+First byte is header, which denotes the type and how long...
+# TODO just copy the desc. from further down the document
+
+RTIC Scope v0.3.1 concerns itself with six packets:
+- /Local timestamp packet format 1/ (LTS1) ::
+- /Local timsetamp packet format 2/ (LTS2) ::
+- /Global timestamp packet format 1/ (GTS1) ::
+- /Global timestamp packet format 2/ (GTS2) :: (48 and 64)
+- Exception trace packet ::
+- Data trace data value packet format ::
+
+For other packets, refer to [[textcite:&arm-rm Appendix D4]].
+
+#+NAME: fig:lts1
+#+CAPTION: LTS1 packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-4]].
+[[file:svgs/lts1.pdf]]
+
+#+NAME: fig:lts2
+#+CAPTION: LTS2 packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-6]].
+[[file:svgs/lts2.pdf]]
+
+#+NAME: fig:gts1
+#+CAPTION: GTS1 packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-7]].
+[[file:svgs/gts1.pdf]]
+
+#+NAME: fig:gts2-48
+#+CAPTION: GTS2 48-bit packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-8]].
+[[file:svgs/gts2-48.pdf]]
+
+#+NAME: fig:gts2-64
+#+CAPTION: GTS2 64-bit packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-9]].
+[[file:svgs/gts2-64.pdf]]
+
+#+NAME: fig:exception-packet
+#+CAPTION: Exception trace packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-16]].
+[[file:svgs/exception-trace.pdf]]
+
+#+NAME: fig:data-trace-packet
+#+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
+[[file:svgs/data-trace.pdf]]
+
+#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Redrawn from [[parencite:&arm-rm Table B1-4]].
 #+NAME: tbl:irqns
 | Exception number | Exception name/label   |
 |------------------+------------------------|
