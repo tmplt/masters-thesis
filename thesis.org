@@ -1505,7 +1505,7 @@ While the implementation of =itm= has been influenced by the development of RTIC
 RTIC Scope is then considered a /downstream/ crate of =itm=, because it depends on it.
 
 The crate is a /green-field implementation/ of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.7 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
-Another downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
+Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
 Both =itm-decode= and =itm-tools= are convenient UNIX-like tools for decoding the ITM packet protocol.
 
 =itm= is a packet decoder with state that handles its own data input.
@@ -1514,14 +1514,57 @@ e.g. a =std::fs::File= pointing to a preconfigured serial device, or a =probe_rs
 decoded packets are trivially acquired via the exposed iterators summarized above.
 RTIC Scope utilizes the =iter::Timestamps= iterator, and is thus the only iterator covered in this text.
 
-As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol define packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet /payload/.
+As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol define packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
 Effectively, the protocol follows a [[acrfull:TLV]] encoding sheme.
 Decoding such a protocol is rather trivial, especially in Rust:
 the individual bytes of the header are pattern-matched in order to decode the packet type after which the remaining bytes are dispatched to another pattern-matcher in order to decode its payload.
 On success an =itm::TracePacket= is emitted.
 On failure --- if a header or payload contains data that is not covered by [[textcite:&arm-rm Appendix D4]] --- an =itm::MalformedPacket= is emitted, describing why the decode failed.
 
-# TODO describe the iterator
+=iter::Timestamps= intercepts all global and local timestamps in order to maintain a monotonically increasing duration from target boot.
+Logically, this duration is initially zero, before any timestamp packets have been decoded.
+When a local timestamp is intercepted, its value is added to the current duration and its quality recorded.
+When a global timestamp is intercepted, the duration is reset to this value, discarding information from previously received timestamps.
+
+Any non-timestamp packets will be buffered until a local timestamp is intercepted after which they will be associated to this latest timestamp in an emitted =TimestampedTracePackets=.
+This structure also contains a field describing how many [[ACRshort:ITM]] packets were consumed to generate it.
+This information is used in =cargo-rtic-scope= in order to report the number of trace packets received per second.
+
+# XXX qualitative/quantitive? Am I formulating correctly here?
+The maintained and emitted durations are structures with a qualitative unit that which the timestamp packets themselves does not contain; timestamp packets contain a unit-less counter, which is quantitative.
+In order to calculate a duration two pieces of information must be known:
+- the frequency of the [[ACRshort:TPIU]] reference clock; and
+- the prescaler of this clock.
+This information is the same that is configured in [[cref:impl:rtic-trace]].
+When a full timestamp has been received the offset to add to the current duration is calculated via =iter::calc_offset= seen in [[cref:lst:calc-offset]].
+
+#+NAME: lst:calc-offset
+#+CAPTION: Calculation of the offset to add to the current timestamp.
+#+begin_src rust
+  fn calc_offset(ts: u64, prescaler: Option<LocalTimestampOptions>, freq: u32) -> Duration {
+    let prescale = match prescaler {
+        None | Some(LocalTimestampOptions::Enabled) => 1,
+        Some(LocalTimestampOptions::EnabledDiv4) => 4,
+        Some(LocalTimestampOptions::EnabledDiv16) => 16,
+        Some(LocalTimestampOptions::EnabledDiv64) => 64,
+        Some(LocalTimestampOptions::Disabled) => unreachable!(), // checked in `Timestamps::new`
+    };
+    let ticks = ts * prescale;
+    let seconds = ticks as f64 / freq as f64;
+
+    // NOTE(ceil) we rount up so as to not report an event before it
+    // occurs on hardware.
+    Duration::from_nanos((seconds * 1e9).ceil() as u64)
+}
+#+end_src
+
+The generation of local timestamps is critical in order to ensure a qualitative trace.
+If trace packets are generated faster than they can be emitted from the target, a queued packet is dropped in favor of an overflow packet.
+One of these packets may be a local timestamp.
+For a discussion on how to avoid overflows, see [[cref:disc:overflows]].
+
+For a discussion on how to increase the quality of timestamps (and thus the general quality of the trace), see [[cref:disc:ts-quality]].
+
 *** Associating trace packets with RTIC task events
 # TODO build_event_chunk
 
@@ -1608,6 +1651,25 @@ The performance of the host-side =cargo-rtic-scope= and =rtic-scope-frontend-dum
 :END:
 *** Should ~cargo-rtic-scope~ terminate on malformed packets?
 # TODO also related: MalformedPacket in itm
+*** FIFO queues
+# TODO go over all the FIFO queues in the system. How many do we have? which are limited in space?
+*** Avoiding overflows
+:PROPERTIES:
+:CUSTOM_ID: disc:overflows
+:END:
+# XXX merge fifo queues into this section?
+Summarized: the target must not generate packets faster than it can emit.
+To avoid timestamps, in order of recommentation:
+- increase the baud rate (host-side limits (Linux vs. BSD, may apply));
+- increase the TPIU clock frequency; and
+- lower system clock.
+
+# refer to ETB here, with which we get another set of issues: host-side poll-rate, etc.
+*** Increasing timestamp quality
+:PROPERTIES:
+:CUSTOM_ID: disc:ts-quality
+:END:
+# TODO find what I had to do in order to increase more local timestamps inbetween DWT packets. Show itm-decode output examples.
 *** Lessons learned
 Why the thesis took to long, etc.
 *** Future work
