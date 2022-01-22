@@ -543,28 +543,18 @@ An exhaustive summary of these contributions are described below (listed in no p
  - Appendices :: TODO
 
 ** Previous and Related Work
-*** Related work
-# TODO convert to references
-Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
-- orbuculum :: https://github.com/orbcode/orbuculum, an ARM Cortex-M trace stream demuxer and post-processor;
-- Percepio Tracealyzer :: https://percepio.com/tracealyzer/, proprietary visual trace diagnostic tool that supports a multitude of platforms and RTOSs.
-
-Neither of the tools support RTIC, nor have any inspiration been taken from them during the development of RTIC Scope.
-
+This chapter briefly covers previous work upon which RTIC Scope is based and related work.
 *** Previous work
 The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
-Of certain note are
-- ~cortex-m~ :: that enable low-level access to Cortex-M processors;
-- ~probe-rs~ :: an extensible embedded debugging toolkit;
-- ~rtic-syntax~ :: RTIC meta language parser library; and
-- ~itm~ (version 0.3) and ~itm-tools~ :: library and tools for analyzing ITM traces.
+Notable libraries are referred to inline throughout this text.
+When citing software, the three authors with the most contributions (in decreasing order) at the time of writing are cited as the authors of that software.
+This is done for brevity.
 
-For a full list of dependant crates used by RTIC Scope, execute
-#+begin_src shell
-  $ cargo install cargo-tree
-  $ git clone https://github.com/rtic-scope/cargo-rtic-scope.git && cd cargo-rtic-scope
-  $ cargo tree
-#+end_src
+*** Related work
+Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
+- orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
+- Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[acrshortpl:RTOS]] [[parencite:&tracealyzer]].
+Neither of the above tools support [[ACRshort:RTIC]] at the time of writing.
 
 ** Theory
 This chapter covers the theory, tools, and the ARMv7-M hardware features utilized in order to develop RTIC Scope.
@@ -1669,13 +1659,22 @@ The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains
 :CUSTOM_ID: impl:cargo-rtic-scope:replay
 :END:
 Replaying a trace is done via the =replay= verb.
+The implementation behind replaying a trace is the same as recording one, only that the source is a replay file instead of a serial device or a probe.
+A replay file can be specified in two ways: by use of an index of which the =--list= flag lists the indices; or by specifying the path to the trace file.
+[[cref:lst:replay-examples]] exemplifies these two methods.
+When using an index to replay a file the default directory within which to search for replay files can be overridden via =--trace-dir=.
 
-Replaying a trace is similar to that of recording one but instead of sourcing the trace stream from the target it is sourced from a replay file.
-
-# TODO do we touch on --clear-traces?
-
-- =--list= :: which lists all recorded traces;
-- =--trace-dir= :: which overrides the default directory in which to look for replay files. This option it the companion piece to =trace --trace-dir=;
+#+NAME: lst:replay-examples
+#+CAPTION: Example commands of listing and replaying recoded traces.
+#+begin_src shell
+  # listing available replay files
+  $ cargo rtic-scope replay --list
+  0       target/rtic-traces/atsamd-demo-g472bc3d-dirty-2022-01-19T17:05:21.trace
+  # replaying the trace with index 0
+  $ cargo rtic-scope replay 0
+  # specifying the path to the replay file
+  $ cargo rtic-scope replay --trace-file target/rtic-traces/atsamd-demo-g472bc3d-dirty-2022-01-19T17:05:21.trace
+#+end_src
 
 ** Results
 *** Using RTIC Scope
