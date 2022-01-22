@@ -541,28 +541,18 @@ An exhaustive summary of these contributions are described below (listed in no p
  - Appendices :: TODO
 
 ** Previous and Related Work
-*** Related work
-# TODO convert to references
-Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
-- orbuculum :: https://github.com/orbcode/orbuculum, an ARM Cortex-M trace stream demuxer and post-processor;
-- Percepio Tracealyzer :: https://percepio.com/tracealyzer/, proprietary visual trace diagnostic tool that supports a multitude of platforms and RTOSs.
-
-Neither of the tools support RTIC, nor have any inspiration been taken from them during the development of RTIC Scope.
-
+This chapter briefly covers previous work upon which RTIC Scope is based and related work.
 *** Previous work
 The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
-Of certain note are
-- ~cortex-m~ :: that enable low-level access to Cortex-M processors;
-- ~probe-rs~ :: an extensible embedded debugging toolkit;
-- ~rtic-syntax~ :: RTIC meta language parser library; and
-- ~itm~ (version 0.3) and ~itm-tools~ :: library and tools for analyzing ITM traces.
+Notable libraries are referred to inline throughout this text.
+When citing software, the three authors with the most contributions (in decreasing order) at the time of writing are cited as the authors of that software.
+This is done for brevity.
 
-For a full list of dependant crates used by RTIC Scope, execute
-#+begin_src shell
-  $ cargo install cargo-tree
-  $ git clone https://github.com/rtic-scope/cargo-rtic-scope.git && cd cargo-rtic-scope
-  $ cargo tree
-#+end_src
+*** Related work
+Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
+- orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
+- Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[acrshortpl:RTOS]] [[parencite:&tracealyzer]].
+Neither of the above tools support [[ACRshort:RTIC]] at the time of writing.
 
 ** Theory
 This chapter covers the theory, tools, and the ARMv7-M hardware features utilized in order to develop RTIC Scope.
