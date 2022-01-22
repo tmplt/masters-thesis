@@ -657,9 +657,9 @@ The [[ACRshort:ITM]] packet protocol is used by RTIC Scope to garner insight abo
 This protocol defines packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
 Some headers also contain payload.
 The protocol effectively implements a [[acrfull:TLV]] encoding sheme.
-This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[cref:fig:lts1]]--[[cref:fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
+This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[crefrange:fig:lts1,fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
 Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet;
-if C is set, the next byte in the stream is a header for the next packet.
+if C is not set, the next byte in the stream is a header for the next packet.
 
 For other packets, and a full description of the protocol, see [[textcite:&arm-rm Appendix D4]].
 
@@ -706,14 +706,14 @@ Global timestamps can be generated periodically; or after each packet, if space 
 The two local timestamps, [[ACRshort:LTS1]] and [[ACRshort:LTS2]], are not complementary:
 instead they supply a different maximum relative timestamp.
 [[ACRshort:LTS1]] provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included).
-[[ACRshort:LTS2]] is a single-byte packet where a relative timestamp that can be represented with 3 bits is provided in the header.
+[[ACRshort:LTS2]] is a single-byte packet with a relative timestamp that can be represented with 3 bits is provided in the header.
 More specifially, an [[ACRshort:LTS2]] can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
-[[ACRshort:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet.
+[[ACRshort:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
 This flag have four possible values:
 - TC $=$ 0b00 :: /Synchronous/: the timestamp value denotes the time when the non-timestamp packet was generated.
 - TC $=$ 0b01 :: /Delayed relative/: the timestamp value denotes the time when the timestamp packet itself was generated.
-  The synchronous timestamp is here unknown, "but must be between the previous and current timestamp values".
+  The synchron ous timestamp is here unknown, "but must be between the previous and current timestamp values".
 - TC $=$ 0b10 :: Synchronous, but the corresponding non-timestamp packet generation was "delayed relative to the associated event".
 - TC $=$ 0b11 :: ...
 [[ACRshort:LTS2]] packets are always synchronous.
@@ -728,7 +728,7 @@ For example, if the sequence reads
 3. data packet 2;
 4. data packet 3; and
 5. [[ACRshort:LTS2]],
-then then [[ACRshort:LTS1]] corresponds to data packet 1;
+then the [[ACRshort:LTS1]] corresponds to data packet 1;
 and [[ACRshort:LTS2]] corresponds to data packet 2 and 3, which occured within the same tick of the [[ACRshort:TPIU]] reference clock.
 # TODO confirm this? [fn:: unconfirmed]? [fn:: author's interpretation]? can we ask ARM?
 
