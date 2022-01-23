@@ -723,8 +723,7 @@ This flag have four possible values:
 - TC $=$ 0b11 :: ...
 [[ACRshort:LTS2]] packets are always synchronous.
 
-# TODO in impl: current implementation (dummy) assumes local timestamps are all sync. time restriction.
-# TODO file bug about ignoring TC. Timestamp should be wrapped in a enum saying what quality the timestamp is.
+# TODO? in impl: current implementation (dummy) assumes local timestamps are all sync. time restriction.
 
 Local timestamps are emitted after the corresponging non-timestamp packets.
 For example, if the sequence reads
