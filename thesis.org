@@ -148,6 +148,11 @@
     (setq org-ref-default-ref-type "cref")
     (setq org-latex-prefer-user-labels t)
 
+    ;; setup org-ref
+    (setq bibtex-completion-bibliography '("./ref.bib")
+          org-export-before-parsing-hook '(org-ref-glossary-before-parsing
+                                           org-ref-acronyms-before-parsing))
+
     ;; make so that =some text= yield \textttBreak{some text} instead of
     ;; \texttt{some text}.
     ;;
@@ -178,8 +183,8 @@
                text nil t)))
     (defun org-latex--text-markup (text markup info)
       "Format TEXT depending on MARKUP text markup.
-    INFO is a plist used as a communication channel.  See
-    `org-latex-text-markup-alist' for details."
+      INFO is a plist used as a communication channel.  See
+      `org-latex-text-markup-alist' for details."
       (let ((fmt (cdr (assq markup (plist-get info :latex-text-markup-alist)))))
         (cl-case fmt
           ;; No format string: Return raw text.
