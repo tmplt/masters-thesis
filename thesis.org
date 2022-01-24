@@ -653,7 +653,6 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 # TODO recreate Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]] without ETM component.
 
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
-**** [[Acrfull:ETB]]
 *** The [[ACRshort:ITM]] packet protocol
 :PROPERTIES:
 :CUSTOM_ID: theory:itm-proto
