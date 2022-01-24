@@ -794,12 +794,6 @@ The payload contains three fields of information:
 #+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
 [[file:svgs/data-trace.pdf]]
 
-*** Thread-mode and handler-mode
-:PROPERTIES:
-:CUSTOM_ID: theory:threadmode
-:END:
-[[ACRshort:RTIC]] never executes code in thread-mode; thus, the packet contains no trace information applicable to the [[ACRshort:RTIC]] application...
-
 ** Implementation
 This chapter covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
 The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied.
