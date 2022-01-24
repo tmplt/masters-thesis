@@ -107,6 +107,7 @@
 | GTS2          | GTS2             | \textit{Global timestamp packet format 2}             |
 | LTS1          | LTS1             | \textit{Local timestamp packet format 1}              |
 | LTS2          | LTS2             | \textit{Local timestamp packet format 2}              |
+| IPSR          | IPSR             | \textit{Interrupt Program Status Register}            |
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -743,7 +744,17 @@ and [[ACRshort:LTS2]] corresponds to data packet 2 and 3, which occured within t
 #+CAPTION: [[ACRshort:LTS2]] packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-6]].
 [[file:svgs/lts2.pdf]]
 
-Exception packet...
+The exception trace packet ([[cref:fig:exception-packet]]) describes the state of the system's interrupt handlers and are emitted upon a state change.
+Its payload contains two fields:
+- /ExceptionNumber/ :: A 7-bit field describing which interrupt handler changed state.
+  This field it decoded via [[cref:tbl:irqns]].[fn:exception-number-0]
+- /FN/ :: A 2-bit field describing the action taken by the processor regarding the interrupt handler.
+  This field can have three possible values:
+  - FN $=$ 0b01 :: the exception was entered;
+  - FN $=$ 0b10 :: the exception was exited; and
+  - FN $=$ 0b11 :: the exception was returned to.
+    This action indicates that exception was previously preempted by an exception of higher priority which has now exited.
+  *FN $=$ 0b00* is a reserved value.
 
 #+NAME: fig:exception-packet
 #+CAPTION: Exception trace packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-16]].
@@ -770,7 +781,14 @@ Exception packet...
 |         16 + $N$ | External interrupt $N$ |
 |------------------+------------------------|
 
-Data trace...
+The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the "data trace packet", are emitted when the processor accesses data in memory as a consequence of appropriate [[ACRshort:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
+The payload contains three fields of information:
+- /CMPN/ :: A 2-bit identifier of the [[ACRshort:DWT]] comparator which matched the configured address access.
+  This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
+- /WnR/ :: A flag describieng whether the access was a read (not set) or write (set).
+- /VALUE/ :: The value that was written to the address.
+  The length of VALUE is the same number of bytes accessed by the target hardware.
+  If only a single byte is read/written by the target, then VALUE is also one byte long.
 
 #+NAME: fig:data-trace-packet
 #+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
@@ -1568,7 +1586,7 @@ This is done by matching all =itm::TracePacket= structures in the chunk: If a pa
 - a synchronization packet (=TracePacket::Sync=), it is ignored because it does not contain any trace information;
 - an exception trace packet (=TracePacket::ExceptionTrace=), the lookup maps generated in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] are consulted for the task matching the packet's IRQ number.
   If the exception trace corresponds to a hardware task, an =api::EventType::Task= is constructed.
-  If the trace corresponds to a software task dispatcher or a thread-mode event (see [[cref:theory:threadmode]]) it is ignored because it contains redundant trace information[fn:: TODO elaborate on this].
+  If the trace corresponds to a software task dispatcher or a Thread mode enter/exit it is ignored because it contains redundant trace information.[fn:exception-number-0]
   If none of these predicates are true the trace is logged as an /unmappable event/ by the construction of an =api::EventType::Unmappable=.
 - If the chunk packet is a data trace value (=TracePacket::DataTraceValue=), the lookup maps are again consulted:
   if the comparator ID in the packet matches either =dwt_enter_id= or =dwt_exit_id= then the trace is a software task event.
@@ -1891,6 +1909,10 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 
 
 * Footnotes
+
+[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[ACRshort:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] the comments that a value of [[Acrfull:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[ACRshort:RTIC]] tasks entered and exited.
+
+
 [fn:recovery-build] A positive side-effect of this step is that the RTIC Scope user does not have to manually call =cargo build= before =cargo rtic-scope trace=.
 
 [fn:2] Additional tasks aside from regulation could for example include handling firmware updates over the air and switching mode of operation on a button press.
