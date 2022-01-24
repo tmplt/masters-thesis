@@ -26,7 +26,7 @@
 #+LATEX_HEADER: \usepackage[inline]{enumitem}
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{hyperref}
-#+LATEX_HEADER: \usepackage[dvipsnames]{xcolor}
+#+LATEX_HEADER: \usepackage{xcolor}
 #+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor={red!50!black},citecolor=blue,breaklinks=true}
 #+LATEX_HEADER: \usepackage{glossaries}
 #+latex_header: \usepackage{microtype}
@@ -51,6 +51,14 @@
 #+latex_header: \catcode`_=8 %
 
 #+latex_header: \usepackage[htt]{hyphenat}
+
+#+latex_header: \usepackage{tikz}
+#+latex_header: \usetikzlibrary{automata, positioning, arrows, shapes, calc}
+#+latex_header: \tikzset{
+#+latex_header:   block/.style = {draw, rectangle, minimum height=1cm, minimum width=2cm},
+#+latex_header:   ->, % make edges directed
+#+latex_header:   every text node part/.style={align=center}, % allow multiline node descriptions
+#+latex_header: }
 
 #+NAME: glossary
 | label       | name            | description |
@@ -184,8 +192,8 @@
                text nil t)))
     (defun org-latex--text-markup (text markup info)
       "Format TEXT depending on MARKUP text markup.
-      INFO is a plist used as a communication channel.  See
-      `org-latex-text-markup-alist' for details."
+       INFO is a plist used as a communication channel.  See
+       `org-latex-text-markup-alist' for details."
       (let ((fmt (cdr (assq markup (plist-get info :latex-text-markup-alist)))))
         (cl-case fmt
           ;; No format string: Return raw text.
@@ -572,23 +580,52 @@ This chapter covers the theory, tools, and the ARMv7-M hardware features utilize
 :PROPERTIES:
 :CUSTOM_ID: debug-periphs
 :END:
-This section summarizes the [[Acrfull:ITM]] packet protocol and the hardware peripherals responsible for its generation and device exfiltration.
-For sake of brevity this section is not exhaustible and only covers the subset of ITM packets that RTIC Scope utilizes as of version v0.3.0 [[parencite:&rtic-scope]].
-For more information on each peripheral, refer to the respective sections in [[textcite:&arm-rm]].
+This section summarizes the hardware peripherals responsible for the generation and exfiltration of the [[ACRshort:ITM]] packet protocol.
+The relationship of these perhipherals is also presented.
+This section is not exhaustive for the sake of brevity;
+for full information on each peripheral, refer to the respective sections in [[textcite:&arm-rm]].
+See [[cref:theory:itm-proto]] for a description of the [[ACRshort:ITM]] packet protocol.
 
 # DWT -> ITM -> TPIU -> ETB.
-RTIC Scope utilizes the [[Acrfull:DWT]], ITM, [[Acrfull:TPIU]], and [[Acrfull:ETB]] peripherals for on-target trace generation and trace extraction.
-The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU and ETB for device exfiltration via serial communication.
-\missingfigure{Draw the DWT -> ITM -> TPIU -> ETB relationship.}
+RTIC Scope utilizes the [[Acrfull:DWT]], [[Acrfull:ITM]], and [[Acrfull:TPIU]] peripherals for on-target trace generation and exfiltration.
+The [[ACRshort:DWT]] and [[ACRshort:ITM]] peripherals are sources of [[ACRshort:ITM]] protocol packets which are forwarded to the [[ACRshort:TPIU]] for device exfiltration via serial communication.
+The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
-These peripherals are summarized below.
+# TODO properly do the below
+
+#+BEGIN_src latex
+  \begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[node distance = 3cm, auto]
+
+    \node[block] (dwt) {DWT};
+    \node[block, right of=dwt] (itm) {ITM};
+    \node[block, right of=itm] (tpiu) {TPIU};
+
+    \path[->]
+    (dwt) edge (itm)
+    (itm) edge (tpiu);
+  \end{tikzpicture}
+  \label{fig:debug-relations}
+  \caption{Relationship between ARMv7-M debug peripherals used in RTIC Scope.}
+  \end{figure}
+#+END_src
+
+# #+NAME: fig:debug-relations
+# #+CAPTION: Relationship between ARMv7-M debug peripherals. Copied from [[textcite:&arm-rm Figure C1-1]]. Utilization of the [[ACRshort:ETM]] peripheral is outside of the scope of this thesis; it's functions are disabled in the context of RTIC Scope v0.3.1.
 
 **** [[Acrfull:DWT]]
 # Summarize DWT functionality exploited in RTIC Scope
-# TODO "responsible for hardware events"
-The DWT peripheral provides the core of the utilized hardware tracing functionality by generating packets when
-- a configured range of data is read or written by help of hardware comparators (known as "data tracing"); and
-- whenever the processor enters an exception handler and returns from it (known as "exception tracing").
+The [[ACRshort:DWT]] peripheral provides the core of the utilized hardware tracing functionalities by generating packets when
+- a configured range of memory is read or written (known as /data tracing/); and
+- whenever the processor enters, exits, and returns to  an exception handler (known as /exception tracing/).
+In [[textcite:&arm-rm]], the packets the [[ACRshort:DWT]] generate are termed /hardware event packets/.
+
+Because hardware tasks are implemented as exception handlers it is only then natural that exception tracing is utilized to trace the state of these tasks.
+Software tasks, however,  are implemented on top of exception handlers.
+Because multiple software tasks may be assigned to a single task dispatcher we cannot utilize exception tracing for these tasks.
+Instead, a unique identifier is assigned to each software task and written to a data traced memory range when the task enters and exits.
+
 Thus, tracing of hardware-bound RTIC tasks can be achieved by intercepting exception trace packets, and software tasks can be traced by writing a unique task identifier to a monitored address and intercepting the data trace packets.
 
 # DWT comparators /can/ trace RTIC resources, but its complex
@@ -602,8 +639,6 @@ Thus, tracing of hardware-bound RTIC tasks can be achieved by intercepting excep
 # Of note is that the overflow packet does not contain any information on what caused the overflow.
 # Assuming that all packets can be send and intercepted without buffer overflows, the issue of reconstucting the most-likely non-primitive data structures remain.
 # This requires DWARF information and is a project on its own.
-
-All the packets generated by the DWT unit are known as "hardware event packets" and are sent to the ITM unit and then forwarded to the TPIU.
 
 Refer to [[textcite:&arm-rm C1.8]] for more information on the DWT unit.
 **** [[Acrfull:ITM]]
