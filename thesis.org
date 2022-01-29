@@ -615,30 +615,12 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 # #+CAPTION: Relationship between ARMv7-M debug peripherals. Copied from [[textcite:&arm-rm Figure C1-1]]. Utilization of the [[ACRshort:ETM]] peripheral is outside of the scope of this thesis; it's functions are disabled in the context of RTIC Scope v0.3.1.
 
 **** [[Acrfull:DWT]]
-# Summarize DWT functionality exploited in RTIC Scope
-The [[ACRshort:DWT]] peripheral provides the core of the utilized hardware tracing functionalities by generating packets when
-- a configured range of memory is read or written (known as /data tracing/); and
-- whenever the processor enters, exits, and returns to  an exception handler (known as /exception tracing/).
-In [[textcite:&arm-rm]], the packets the [[ACRshort:DWT]] generate are termed /hardware event packets/.
-
-Because hardware tasks are implemented as exception handlers it is only then natural that exception tracing is utilized to trace the state of these tasks.
-Software tasks, however,  are implemented on top of exception handlers.
-Because multiple software tasks may be assigned to a single task dispatcher we cannot utilize exception tracing for these tasks.
-Instead, a unique identifier is assigned to each software task and written to a data traced memory range when the task enters and exits.
-
-Thus, tracing of hardware-bound RTIC tasks can be achieved by intercepting exception trace packets, and software tasks can be traced by writing a unique task identifier to a monitored address and intercepting the data trace packets.
-
-# DWT comparators /can/ trace RTIC resources, but its complex
-# TODO move to future work
-# RTIC resources can theoretically also be traced by help of DWT comparators, but such as approach would be relatively complex.
-# A data trace value packet contains up to one word (32 bits) of information.
-# If the RTIC resources fits within a word only a single packet must be intercepted.
-# However, a more common praxis is the usage of non-primitive resources which have differing sizes between an debug and optimized build of the target application.
-# The more common case is then the need to intercept multiple data trace value packets from which the resources must be reconstructed.
-# The need to emit more packets increases the possibility of DWT buffer overflows events, during which the packet is dropped and an overflow packet is generated instead.
-# Of note is that the overflow packet does not contain any information on what caused the overflow.
-# Assuming that all packets can be send and intercepted without buffer overflows, the issue of reconstucting the most-likely non-primitive data structures remain.
-# This requires DWARF information and is a project on its own.
+# What does the DWT do and how do we use it?
+The DWT peripheral concerns itself with hardware events and respond to these accordingly depending on the applied configuration.
+For the purpose of RTIC Scope the DWT is configured to emit /hardware event packets/ on two types of events: when
+- a configured range of memory is accessed (known as /data tracing/); and
+- whenever the processor enters, exits, and returns to an exception handler (known as /exception tracing/).
+Within this text the range of memory sed for data tracing is referred to as a /watch address/.
 
 Refer to [[textcite:&arm-rm C1.8]] for more information on the DWT unit.
 **** [[Acrfull:ITM]]
@@ -827,6 +809,13 @@ The payload contains three fields of information:
 #+NAME: fig:data-trace-packet
 #+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
 [[file:svgs/data-trace.pdf]]
+*** Tracing [[ACRshort:RTIC]] tasks
+# How tasks are traced, summarized
+Because RTIC implements tasks by use of exception handlers it is only natural to exploit exception tracing in order to trace the tasks abstracted above them.
+This approach is however only directly applicable to hardware tasks which dedicate a handler for each task.
+Software tasks are implemented with an additional layer of abstraction above handlers by use of task dispatchers, as covered in [[cref:rtic]].
+If exception tracing is employed to trace software tasks such a trace packet would only describe that one of the potentially multiple software tasks handled by one dispatcher changed state.
+Instead, a unique identifier is assigned to each software task and written to a data traced memory range when the task enters and exits.
 
 ** Implementation
 This chapter covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
