@@ -589,6 +589,7 @@ See [[cref:theory:itm-proto]] for a description of the [[ACRshort:ITM]] packet p
 # DWT -> ITM -> TPIU -> ETB.
 RTIC Scope utilizes the [[Acrfull:DWT]], [[Acrfull:ITM]], and [[Acrfull:TPIU]] peripherals for on-target trace generation and exfiltration.
 The [[ACRshort:DWT]] and [[ACRshort:ITM]] peripherals are sources of [[ACRshort:ITM]] protocol packets which are forwarded to the [[ACRshort:TPIU]] for device exfiltration via serial communication.
+The [[ACRshort:ITM]] muxes packets emitted by the [[ACRshort:DWT]] and generates timestamp packets in order to establish a timeline of events that occured on the traced target.
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
 # TODO properly do the below
@@ -620,15 +621,23 @@ The DWT peripheral concerns itself with hardware events and respond to these acc
 For the purpose of RTIC Scope the DWT is configured to emit /hardware event packets/ on two types of events: when
 - a configured range of memory is accessed (known as /data tracing/); and
 - whenever the processor enters, exits, and returns to an exception handler (known as /exception tracing/).
-Within this text the range of memory sed for data tracing is referred to as a /watch address/.
+Within this text the range of memory used for data tracing is referred to as a /watch address/.
 
 Refer to [[textcite:&arm-rm C1.8]] for more information on the DWT unit.
 **** [[Acrfull:ITM]]
+:PROPERTIES:
+:CUSTOM_ID: theory:itm-periph
+:END:
 # Summarize ITM functionality
-The ITM unit is of an auxilliary nature; it has three functions:
-- the multiplexing of hardware event packets from the DWT unit with its own instrumentation packets which are then forwarded to the TPIU;
+The [[ACRshort:ITM]] unit is of an auxilliary nature; it has three functions:
+- the multiplexing of hardware event packets from the [[ACRshort:DWT]] unit with its own packets which are then forwarded to the TPIU;
 - control and generation of timestamp packets; and
 - a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers, unused by RTIC Scope.
+
+# Summarize the timestamp sources
+Timestamp packets are sourced from a reference clock.
+The reference clock is either the system clock, an asynchronous [[ACRshort:TPIU]] reference clock, or a /global timestamp clock/.
+The frequencies and behavior of these reference clocks and how the target clock hierarchy is configured in general is wholly specific to each target and will thus not be covered in further detail.
 
 # Summarize timestamp packets
 Timestamp packets are appended to a set of non-timestamp packets that occur at a common timestamp and come in two forms: global and local.
@@ -694,7 +703,7 @@ RTIC Scope v0.3.1 concerns itself with six packets:
 - Data trace data value packet format :: A hardware-event packet describing the value read or written to a watch address monitored by a [[ACRshort:DWT]] comparator.
 
 Timestamp packets come in two types: /absolute/ and /relative/.
-Both types derive their timestamps from the [[ACRshort:TPIU]] reference clock:
+Both types derive their timestamps from a reference clock (see [[cref:theory:itm-periph]]):
 /absolute/ timestamps denote how many ticks this clock have tocked ever since it began; and
 /relative/ timestamps denote how many ticks this clock have tocked ever since the last relative timestamp.
 When a relative timestamp is generated, the relative timestamp is then reset.
