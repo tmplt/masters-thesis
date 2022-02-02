@@ -275,18 +275,19 @@ A key design parameter of digital controllers is the [[gls:sample-rate][sample r
 the rocket may thus fly off course, or the nuclear reactor reach a meltdown.
 This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constrain.
-This task grows exponentially in difficulty with as the number of system states, inputs, and outputs increase.
-A similar phenomena is observed for embedded systems with an increasing number of tasks.[fn:2]
+This task grows exponentially in difficulty as the number of system states, inputs, and outputs increase.
+A similar phenomena is observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
 
 # The observer effect; data exfiltration.
 Unfortunately are embedded systems subject to the observer effect: to observe the internal state of a embedded system (i.e., system variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
 This observeration is often realized by exfiltrating data via serial communication which in the best case can induce bus contention and full output queues,
-but it is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation if the payload is large.
+but it is not uncommon that a program blocks until the data has been serialized, severely affecting the purpose of the program --- regulation --- if the payload is large.
 In a perfect implementation, the user application[fn:1] would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, removing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
-ARM is an ubiquitous vendor for embedded systems with a number of sub-vendors (e.g. STMicroelectrics, NXP Semiconductors, Nordic Semiconductors).
+ARM Ltd. is a company that licenses out designs of ARM [[acrfullpl:CPU]] for embedded systems.
+ARM [[ACRshortpl:CPU]] are available via a number of vendors, e.g. STMicroelectrics, NXP Semiconductors, and Nordic Semiconductors.
 The ARMv7-M platform standard offers debugging facilities that enables the developer to trace the system.
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
@@ -295,10 +296,10 @@ These trace facilities allows for an event-based monitoring of
 - Read and write access to in-memory address spaces; and
 - [[acrfull:PC]] samples, among other features.
 The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the /trace stream/.
-These facilities are not disjoint (if they were, no insight into the traced system could be offered) but because the generation of the trace stream does not influence the wider system (as per [[citeauthor:&arm-cortex-learn]]) the trace stream (with system-external collection) is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
+These facilities are not disjoint (if they were, no insight into the traced system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
-Further, with non-invasive trace generation, less code must be executed by the [[acrfull:CPU]], allowing a shorter duty-cycle of the user application.
+Further, with non-invasive trace generation, less code must be executed by the [[ACRshort:CPU]], allowing a shorter duty-cycle of the user application.
 With a decreased duty-cycle, the system can be put to sleep longer, and thus conserve energy.
 
 # On real-time implementation restictions, embedded implementation difficulties in general. Enter RTIC.
@@ -306,7 +307,7 @@ The development of embedded system in general is a difficult one.
 In comparison to general-purpose computers, where one often need not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
 # No rich OS; no two embedded platforms are the same.
 An embedded developer seldom have access to a rich operating systems --- a Linux-based distibution, for example --- which offers general-purpose facilities based on dynamic allocations and a common environment to simplify implementation.
-Embedded platforms usually differ significantly, and porting an implementation to another platform is no small task.
+Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M), and porting an implementation to another platform is no small task.
 This compares to general-purpose computers where a program written on one computer can be executed on another one, as long as the operating environment remains the same.
 # Side effects and priority inversions.
 Embedded platforms are much more subject to side-effects where peripherals are operated by writing data to memory-mapped registers.
@@ -719,19 +720,19 @@ The [[ACRshort:GTS1]] packet also contains two flags aside from the lesser signi
 - /ClkCh/ :: Set if the system which the [[ACRshort:ITM]] is tracing has changed clock input to the processor since the last global timestamp packet.
   A full global timestamp follows in the stream if this flag is set.
 - /Wrap/ :: Set if the more significant bits above the 25th have changed since the last [[ACRshort:GTS2]] packets.
-  This flag indicates that the [[ACRshort:GTS1]] should be recorded until the next [[ACRshort:GTS2]] is received so that the full timestamp can be decoded.
+If either of the flags are set the [[ACRshort:GTS1]] should be recorded until the next [[ACRshort:GTS2]] is received so that the full timestamp can be decoded.
 [[cref:fig:gts1]], [[cref:fig:gts2-48]], and [[cref:fig:gts2-64]] visually describes the [[ACRshort:GTS1]], [[ACRshort:GTS2]] (48-bit) and [[ACRshort:GTS2]] (64-bit) packets, respectively.
 
 Global timestamps can be generated periodically; or after each packet, if space is available in the queue.
 
 #+NAME: fig:gts1
-#+CAPTION: [[ACRshort:GTS1]] packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-7]].
+#+CAPTION: [[ACRshort:GTS1]] packet format, copied from [[textcite:&arm-rm Figure D4-7]].
 [[file:svgs/gts1.pdf]]
 #+NAME: fig:gts2-48
-#+CAPTION: [[ACRshort:GTS2]] 48-bit packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-8]].
+#+CAPTION: [[ACRshort:GTS2]] 48-bit packet format, copied from [[textcite:&arm-rm Figure D4-8]].
 [[file:svgs/gts2-48.pdf]]
 #+NAME: fig:gts2-64
-#+CAPTION: [[ACRshort:GTS2]] 64-bit packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-9]].
+#+CAPTION: [[ACRshort:GTS2]] 64-bit packet format, copied from [[textcite:&arm-rm Figure D4-9]].
 [[file:svgs/gts2-64.pdf]]
 
 The two local timestamps, [[ACRshort:LTS1]] and [[ACRshort:LTS2]], are not complementary:
@@ -1941,7 +1942,6 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 
 [fn:recovery-build] A positive side-effect of this step is that the RTIC Scope user does not have to manually call =cargo build= before =cargo rtic-scope trace=.
 
-[fn:2] Additional tasks aside from regulation could for example include handling firmware updates over the air and switching mode of operation on a button press.
 [fn:1] The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the "main loop".
 
 [fn:dwt-running-bit] Alternatively, one bit in the =DataTraceValue= payload can denote whether a task was entered or exited.
