@@ -271,8 +271,8 @@ A regulator observes (either directly or by approximation) the internal states o
 For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output while keeping the plant within safe operation boundaries.
 
 # On the real-time restrictions of control systems; exponential complexity phenomena.
-A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or unconsistent, the controlled system will end up unstable [[parencite:&franklin]].
-The rocket may thus fly off course, or the nuclear reactor reach a meltdown.
+A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or unconsistent, the controlled system will end up unstable [[parencite:&franklin]]:
+the rocket may thus fly off course, or the nuclear reactor reach a meltdown.
 This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constrain.
 This task grows exponentially in difficulty with as the number of system states, inputs, and outputs increase.
@@ -291,11 +291,11 @@ The ARMv7-M platform standard offers debugging facilities that enables the devel
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
 These trace facilities allows for an event-based monitoring of
-- interrupt handler enters and exits (tracing of hardware-bound tasks);
-- Read and write access to in-memory address spaces (system state variables, software tasks); and
+- interrupt handler enters and exits;
+- Read and write access to in-memory address spaces; and
 - [[acrfull:PC]] samples, among other features.
-The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the "trace stream".
-These facilities are not disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system (as per [[citeauthor:&arm-cortex-learn]]) the trace stream (with system-external collection) is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
+The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the /trace stream/.
+These facilities are not disjoint (if they were, no insight into the traced system could be offered) but because the generation of the trace stream does not influence the wider system (as per [[citeauthor:&arm-cortex-learn]]) the trace stream (with system-external collection) is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
 Further, with non-invasive trace generation, less code must be executed by the [[acrfull:CPU]], allowing a shorter duty-cycle of the user application.
