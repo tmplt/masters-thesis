@@ -1321,7 +1321,7 @@ on the other hand, are not common to all ARMv7-M, and are thus platform-specific
 Additional recovery must be done to find these labels.
 
 # PAC::Interrupt and known/unknown partitioning; Rust reflection woes
-For any RTIC application, the labels are available in the =PAC::Interrupt= enum. For [[cref:lst:recovery-example]], =PAC= is =stm32::stm32f401=.
+For any RTIC application, the labels of unknown binds are available in the =PAC::Interrupt= enum. For [[cref:lst:recovery-example]], =PAC= is =stm32::stm32f401=.
 See [[cref:background:PAC]] for an example of such an enum.
 By finding the label used in =#[task(bind = ...)]= in =PAC::Interrupt= we find what enum constructor to use.
 With the enum in hand, we construct it and get the IRQ number offset $N$ via [[cref:lst:pac:extirq]].
