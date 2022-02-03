@@ -1041,17 +1041,17 @@ These parts are enumerated below.
 :CUSTOM_ID: impl:cargo-rtic-scope:building-rtic-app
 :END:
 The first step is to build the RTIC application the end-user wants to trace.
-This is done as a preparatory stage for [[cref:impl:cargo-rtic-scope:generating-metadata-maps]], [[cref:impl:cargo-rtic-scope:create-trace-file]] and [[cref:impl:cargo-rtic-scope:flash-target]];
-and logically, if the application cannot be built, it cannot be traced.
+This is done as a preparatory stage for [[crefrange:impl:cargo-rtic-scope:generating-metadata-maps,impl:cargo-rtic-scope:create-trace-file]] and [[cref:impl:cargo-rtic-scope:flash-target]];
+and logically, if the application cannot be built, it cannot be traced so the process should prematurely end.
 An additional side-effect of building the RTIC application is the possibility of executing ~cargo rtic-scope trace~ like one would execute ~cargo run~.
 
-The application is built via [[cref:lst:cargo-rtic-scope:build]], where ~OPTIONS~ are optional additional flags to forward to ~cargo~ from the invocation of ~cargo rtic-scope trace~.
+The application is built via [[cref:lst:cargo-rtic-scope:build]] by the =trace= verb, where ~OPTIONS~ are optional additional flags to forward to ~cargo build~ from the invocation of ~cargo rtic-scope trace~.
 #+NAME: lst:cargo-rtic-scope:build
 #+CAPTION: The build process of RTIC Scope. ~OPTIONS~ is a set of additional flags potentially forwarded by ~cargo-rtic-scope~.
 #+begin_src shell
   $ cargo build --message-format=json-diagnostic-rendered-ansi [OPTIONS...]
 #+end_src
-For example, if the current crate would yield multiple binaries on build, ~cargo rtic-scope trace~ must know the singlar binary which the end-user wants to trace.
+For example, if the crate would yield multiple binaries on build, ~cargo rtic-scope trace~ must know the singlar binary which the end-user wants to trace.
 Specifying this flag is done in the same way as for ~cargo build~: via ~--bin~.
 [[cref:lst:cargo-rtic-scope:build-bin]] contains an example use of this option, which would yield the ~cargo build~ invocation in [[cref:lst:cargo-rtic-scope:build-bin-forwarded]].
 #+NAME: lst:cargo-rtic-scope:build-bin
