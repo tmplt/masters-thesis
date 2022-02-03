@@ -468,10 +468,10 @@ This thesis covers the development of an embedded systems analysis toolset, RTIC
 The set of /requirements/ RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] be able to
 1. <<req:itm-gen>> enable trace stream generation of hardware and software tasks (as defined by RTIC), and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
 2. <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
-3. <<req:decode>> decode the trace stream to Rust structures;
+3. <<req:decode>> decode the trace stream;
 4. <<req:rtic>> recover RTIC application metadata not contained within the trace stream;
 5. <<req:timestamps>> associate timestamps to RTIC task events;
-6. <<req:protocol>> report RTIC task events in real-time to the RTIC Scope end-user by use of a defined communication protocol.
+6. <<req:protocol>> report RTIC task events to the RTIC Scope end-user by use of a defined communication protocol.
 7. <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the the protocol described in Requirement [[req:protocol]].
 8. <<req:record>> record a trace to file which can be replayed offline by use of a host-side daemon; and
 9. <<req:cargo>> be invoked as a ~cargo~ subcommand.
