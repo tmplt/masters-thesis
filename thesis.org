@@ -835,14 +835,14 @@ Instead, a unique identifier is assigned to each software task and written to a 
 This chapter covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
 The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied.
 That is, how
-1. ~cortex-m-rtic-trace~ is applied and what it does;
+1. ~cortex-m-rtic-trace~ is applied on the target-side and what it does;
 2. ~cargo-rtic-scope~ recovers metadata from the RTIC application and how it reads the raw trace stream from the source;
 3. ~itm~ decodes this stream into manageable Rust structures;
 4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream;
 5. this resolved trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
 
-As mentioned in [[cref:delimitations]], this chapter covers the v0.3.0 of RTIC Scope.
+As mentioned in [[cref:delimitations]], this chapter covers v0.3.1 of RTIC Scope.
 
 # TODO dedicated section for the replay verb
 
@@ -854,7 +854,7 @@ As mentioned in [[cref:delimitations]], this chapter covers the v0.3.0 of RTIC S
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals --- namely the [[acrfull:DCB]][fn:: A component of the [[acrfull:SCB]] peripheral.], [[ACRshort:TPIU]], [[ACRshort:DWT]], and [[ACRshort:ITM]] -- for tracing.
+~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for tracing, namely the [[acrfull:DCB]][fn:: A component of the [[acrfull:SCB]] peripheral.], [[ACRshort:TPIU]], [[ACRshort:DWT]], and [[ACRshort:ITM]].
 The crate exposes two functions:
 - ~cortex_m_rtic_trace::configure~ :: a regular Rust function for configuration of the peripherals mentioned above; and
 - ~cortex_m_rtic_trace::trace~ :: a Rust macro with with to trace software tasks.
