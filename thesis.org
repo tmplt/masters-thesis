@@ -1228,14 +1228,14 @@ This is already done when the RTIC application is built in [[cref:impl:cargo-rti
 This expansion operation yields an =rtic_syntax::App= [[parencite:&rtic-syntax]] used internally to verify the application declaration and yield the expanded code.
 This structure contains all the information ~cargo rtic-scope trace~ requires (see below) but is not emitted during the building step.
 This requires the application declaration to be parsed an additional time which requires knowledge about the location of the source code file.
-Fortunately, this knowledge is acquired in the build step.
+This knowledge is acquired in [[cref:impl:cargo-rtic-scope:building-rtic-app]].
 
 # We must the source for the ASTs
 In order to generate a =rtic_syntax::App= for recovery purposes =rtic_syntax::parse2= must be called directly with the arguments of =#[rtic::app(..)]= and with the input to the macro.
 For example, in [[cref:lst:recovery-example]], =device = stm32f4::stm32f401= is the macro arguments, and =mod app { ... }= is the macro input.
 Note the preamble on lines 1--3.
 These must be skipped in order to parse correctly.
-#+CAPTION: Example RTIC application declaration for execution on the STMicroelectronics STM32 NUCLEO-F401RE.
+#+CAPTION: Example RTIC application declaration for execution on the STMicroelectronics STM32 NUCLEO-F401RE that can be parsed by ~cargo-rtic-scope~.
 #+NAME: lst:recovery-example
 #+begin_src rust
   #![no_main]
