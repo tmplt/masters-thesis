@@ -463,7 +463,7 @@ The regulation of a complex dynamic system is chosen because an RTIC application
 :PROPERTIES:
 :CUSTOM_ID: requirements
 :END:
-This thesis covers the development of an analysis toolset, RTIC Scope, that enables an RTIC application developer to gain non-invasive insight into the run-time of said application by exploiting the trace stream generated and exfiltrated by the debug facilities (see [[#debug-periphs]]) made available by the ARMv7-M standard, which RTIC supports by targeting Cortex-M platforms.
+This thesis covers the development of an embedded systems analysis toolset, RTIC Scope, that enables an RTIC application developer to gain non-invasive insight into the run-time of said application by exploiting the trace stream generated and exfiltrated by the debug facilities (see [[#debug-periphs]]) made available by the ARMv7-M standard, which RTIC supports by targeting Cortex-M platforms.
 
 The set of /requirements/ RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] be able to
 1. <<req:itm-gen>> enable trace stream generation of hardware and software tasks (as defined by RTIC), and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
@@ -473,7 +473,7 @@ The set of /requirements/ RTIC Scope must fulfill within the scope of this thesi
 5. <<req:timestamps>> associate timestamps to RTIC task events;
 6. <<req:protocol>> report RTIC task events in real-time to the RTIC Scope end-user by use of a defined communication protocol.
 7. <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the the protocol described in Requirement [[req:protocol]].
-8. <<req:record>> record a trace to file which can be replayed offline; and
+8. <<req:record>> record a trace to file which can be replayed offline by use of a host-side daemon; and
 9. <<req:cargo>> be invoked as a ~cargo~ subcommand.
 
 Delimitations to the above requirements apply, see [[#delimitations]].
@@ -486,7 +486,7 @@ These /delimitations/[fn:: Uses the key words *MUST* and *SHOULD NOT* which are 
 1. Requirement [[req:itm-gen]]: RTIC Scope *MUST* apply the device mutations that are common to all ARM Cortex-M targets in order to enable trace stream generation and exfiltration. RTIC Scope *SHOULD NOT* apply device-specific mutations.
 2. Requirement [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope *MUST* fail or warn the end-user if it is unable to correctly decode the read data stream.
 3. Requirement [[req:rtic]]: RTIC Scope *MUST* support RTIC version 1.0.0, see [[textcite:&rtic]].
-   RTIC Scope *MUST* must recover metadata necessary to report the timestamped status of hardware and software tasks, as defined by RTIC.
+   RTIC Scope *MUST* recover metadata necessary to report the timestamped state changes of hardware and software tasks, as defined by RTIC.
 4. Requirement [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the ~cargo~ subcommand /backend/ to the reference /frontend/. The protocol *SHOULD NOT* enable two-way communication.
 
 Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
