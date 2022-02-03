@@ -742,7 +742,7 @@ Global timestamps can be generated periodically; or after each packet, if space 
 The two local timestamps, [[ACRshort:LTS1]] and [[ACRshort:LTS2]], are not complementary:
 instead they supply a different maximum relative timestamp.
 [[ACRshort:LTS1]] provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included).
-[[ACRshort:LTS2]] is a single-byte packet with a relative timestamp that can be represented with 3 bits is provided in the header.
+[[ACRshort:LTS2]] is a single-byte packet with a relative timestamp that can be represented with 3 bits that are provided in the header.
 More specifially, an [[ACRshort:LTS2]] can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
 [[ACRshort:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
@@ -764,14 +764,14 @@ For example, if the sequence reads
 4. data packet 3; and
 5. [[ACRshort:LTS2]],
 then the [[ACRshort:LTS1]] corresponds to data packet 1;
-and [[ACRshort:LTS2]] corresponds to data packet 2 and 3, which occured within the same tick of the [[ACRshort:TPIU]] reference clock.
+and [[ACRshort:LTS2]] corresponds to data packet 2 and 3, presuming that the hardware events occured without idle time inbetween.
 # TODO confirm this? [fn:: unconfirmed]? [fn:: author's interpretation]? can we ask ARM?
 
 #+NAME: fig:lts1
-#+CAPTION: [[ACRshort:LTS1]] packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-4]].
+#+CAPTION: [[ACRshort:LTS1]] packet format, copied from [[textcite:&arm-rm Figure D4-4]].
 [[file:svgs/lts1.pdf]]
 #+NAME: fig:lts2
-#+CAPTION: [[ACRshort:LTS2]] packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-6]].
+#+CAPTION: [[ACRshort:LTS2]] packet format, copied from [[textcite:&arm-rm Figure D4-6]].
 [[file:svgs/lts2.pdf]]
 
 The exception trace packet ([[cref:fig:exception-packet]]) describes the state of the system's interrupt handlers and are emitted upon a state change.
@@ -787,7 +787,7 @@ Its payload contains two fields:
   *FN $=$ 0b00* is a reserved value.
 
 #+NAME: fig:exception-packet
-#+CAPTION: Exception trace packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-16]].
+#+CAPTION: Exception trace packet format, copied from [[textcite:&arm-rm Figure D4-16]].
 [[file:svgs/exception-trace.pdf]]
 #+CAPTION: ARMv7-M Exception/IRQ numbers and names. Redrawn from [[parencite:&arm-rm Table B1-4]], with additional emphasis on $N$.
 #+NAME: tbl:irqns
