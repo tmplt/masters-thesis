@@ -580,7 +580,7 @@ Some toolsets similar to RTIC Scope were already available before the start of t
 Neither of the above tools support [[ACRshort:RTIC]] at the time of writing.
 
 ** Theory
-This chapter covers the theory, tools, and the ARMv7-M hardware features utilized in order to develop RTIC Scope.
+This chapter covers the purpose and usage of the utilized ARMv7-M debug peripherals, relevant sections of the [[ACRshort:ITM]] packet protocol and how [[ACRshort:RTIC]] tasks are traced.
 *** ARMv7-M debug facilities
 :PROPERTIES:
 :CUSTOM_ID: debug-periphs
