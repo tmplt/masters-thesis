@@ -1530,7 +1530,7 @@ The list of chips that =probe-rs= supports can be queried by specifying the =--l
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:flush-metadata
 :END:
-The penultimate step before tracing begins is flushing all metadata related to the trace to the replay file created in [[cref:impl:cargo-rtic-scope:create-trace-file]].
+The next step is flushing all metadata related to the trace to the replay file created in [[cref:impl:cargo-rtic-scope:create-trace-file]].
 The metadata is contained in a =recovery::TraceMetadata= structure, listed and described in [[cref:lst:TraceMetaData]].
 Of these fields
 - =maps: TraceLookupMaps= :: is described in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]];
@@ -1571,11 +1571,11 @@ This structure is later read back for trace replay in [[cref:impl:cargo-rtic-sco
 :CUSTOM_ID: impl:cargo-rtic-scope:reset-target
 :END:
 The last step before tracing the target is optionally resetting it.
-This is the default behavior but can be disabled by specifying the =--dont-touch-target=.
+This is the default behavior but can be disabled by specifying the =--dont-touch-target= flag to the =trace= verb.
 Resetting the target causes it to begin executing the flashed application from the beginning.
-If =--dont-touch-target= was not specified the executing application will be the specified RTIC application.
+If =--dont-touch-target= was not specified the executing application will be the flashed RTIC application.
 
-From this point on the target will generate and emit ITM packets.
+From this point on the target will generate and emit [[ACRshort:ITM]] packets.
 
 **** Tracing the target
 :PROPERTIES:
