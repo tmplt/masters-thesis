@@ -328,8 +328,9 @@ RTIC thus removes some burden out-of-the-box while also
 RTIC is written in Rust which removes additional developer overhead (see [[#rust]]).
 
 # Project aim
-The aim of this thesis is thus to employ and extend upon RTIC with a toolset, aptly named RTIC Scope, to leverage [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites while requiring minimal overhead for the end-user developer to apply the toolset, greatly lightening the burden when implementing a digital control systems.
-The resulting toolset will be employed to implement a regulator for a non-trivial dynamic system (see [[#control-application]]), and the functionality and ergonomics of the toolset evaluated (see [[#discussion]]).
+The aim of this thesis is thus to employ and extend upon RTIC with a toolset, aptly named RTIC Scope, to trace /tasks/ by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
+RTIC Scope will aim for minimal end-user overhead in order to apply the toolset, and lighten the burden when verifying the implementation of an embedded system.
+The resulting toolset will be employed to verify the implementation of a regulator for a non-trivial dynamic system (see [[#control-application]]), and the functionality and end-user overhead of the toolset evaluated (see [[#discussion]]).
 
 *** Background
 This introductory section covers the software components that have realized RTIC Scope.
@@ -338,8 +339,11 @@ This introductory section covers the software components that have realized RTIC
 :PROPERTIES:
 :CUSTOM_ID: rust
 :END:
-Rust is a system programming language that guarantees the absence of mutable aliasing and defined run-time behavior as long as code is written in a /safe/ context.
-Refer to [[textcite:&rust-lang]].
+Rust is a system programming language that guarantees defined run-time behavior and the absence of mutable aliasing as long as code is written in a /safe/ context.
+Throughout this text the following Rust terminology is used:
+/crate/, /enum/, /structure/, /function/, /macro/, /manifest/, /feature/, and /trait/.
+It is henceforth presumed that the reader are aware of the definitions of these terms.
+For a description of this terminology, and the Rust programming language and eco-system in general, refer to [[textcite:&rust-lang]].
 
 For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
 
@@ -348,20 +352,21 @@ For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rti
 :CUSTOM_ID: background:PAC
 :END:
 # What is a PAC and what are they used for?
-A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
+A PAC is a Rust library crate which exposes an [[acrfull:API]] for hardware peripherals.
 Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
 
 # Differentiate {architecture,device}-specific PACs
 In the embedded Rust ecosystems, these are two kinds of PACs:
-- architecture-specific :: Architecture-specific PACs expose an API for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
-- device-specific :: Device-specific PACs expose an API for hardware peripherals available on a smaller family of embedded systems.
+- Architecture-specific :: [[ACRshortpl:PAC]] exposes an [[ACRshort:API]] for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a [[ACRshort:PAC]] that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
+- Device-specific :: [[ACRshortpl:PAC]] exposes an [[ACRshort:API]] for hardware peripherals available on a smaller family of embedded systems.
   For example, ~stm32-rs~ [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
 
 # svd2rust
 A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
 
-# TODO reformat
+An important component of device-specific [[ACRshortpl:PAC]] for RTIC Scope is the /interrupt enum/.
 An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
+Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enum is utilized.
 #+NAME: lst:pac-interrupt-example
 #+CAPTION: Example declaration of a ~PAC::Interrupt~ enum. Left-hand side of ~Interrupt~ is the IRQ label; right-hand is $N$ in [[tbl:irqns]].
 #+begin_src rust
@@ -1942,7 +1947,7 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 
 [fn:recovery-build] A positive side-effect of this step is that the RTIC Scope user does not have to manually call =cargo build= before =cargo rtic-scope trace=.
 
-[fn:1] The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the "main loop".
+[fn:1] The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the /main loop/.
 
 [fn:dwt-running-bit] Alternatively, one bit in the =DataTraceValue= payload can denote whether a task was entered or exited.
 
