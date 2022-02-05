@@ -61,20 +61,23 @@
 #+latex_header: }
 
 #+NAME: glossary
-| label       | name             | description |
-|-------------+------------------+-------------|
-| tokenstream | tokenstream      | cock        |
-| token       | token            | TODO        |
-| static-anal | static analysis  | TODO        |
-| sample-rate | sample rate      | TODO        |
-| downstream  | downstream       | TODO        |
-| frontend    | frontend         | TODO        |
-| upstream    | upstream         | TODO        |
-| elf:data    | \texttt{.data}   | TODO        |
-| JSON        | JSON             | TODO        |
-| cdylib      | cdylib           | TODO        |
-| JTAG        | JTAG             | TODO        |
-| manglfn     | mangled function | TODO        |
+| label       | name                   | description |
+|-------------+------------------------+-------------|
+| tokenstream | tokenstream            | cock        |
+| token       | token                  | TODO        |
+| static-anal | static analysis        | TODO        |
+| sample-rate | sample rate            | TODO        |
+| downstream  | downstream             | TODO        |
+| frontend    | frontend               | TODO        |
+| upstream    | upstream               | TODO        |
+| elf:data    | \texttt{.data}         | TODO        |
+| JSON        | JSON                   | TODO        |
+| cdylib      | cdylib                 | TODO        |
+| JTAG        | JTAG                   | TODO        |
+| manglfn     | mangled function       | TODO        |
+| envvar      | environmental variable | TODO        |
+| stdoud      | \textttBreak{stdout}   | TODO        |
+
 
 # TODO cdylib above: A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo. This is not the case with dylibs that instead target the unstable Rust ABI. The only way to generate a shared object file is by building a dylib or a cdylib.
 
@@ -1496,7 +1499,7 @@ By default (by not specifying the option) a single instance of ~rtic-scope-front
 
 ~cargo-rtic-scope~ searches for frontends in three locations in the environment.
 With ~--frontend=rtic-scope-frontend-dummy~ the search pattern in decreasing order of priority is
-1. in the ~PATH~ environmental variable;
+1. in the ~PATH~ [[gls:envvar][environmental variable]];
 2. the relative path: ~./rtic-scope-frontend-dummy~; and
 3. the absolute path: ~/rtic-scope-frontend-dummy~.
 If a higher priority location is valid, the search ends.
@@ -1510,7 +1513,7 @@ If a higher priority location is valid, the search ends.
                      <verb> [OPTIONS...]
 #+end_src
 
-As of RTIC Scope v0.3.0, a frontend takes zero arguments and *MUST* return a path to a Unix socket on =stdout= which the backend can use to communicate with the frontend.
+In RTIC Scope v0.3.1, a frontend takes zero arguments and *MUST* return a path to a Unix socket on [[gls:stdout]] which the backend can use to communicate with the frontend.
 **** Sourcing the trace stream from the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reading-the-trace-stream
@@ -1518,9 +1521,9 @@ As of RTIC Scope v0.3.0, a frontend takes zero arguments and *MUST* return a pat
 # Introduce the two main sources
 At this point a line of communication with the target must be established.
 Internally, this line of communication is known as a /source/ of which only one is established before =cargo-rtic-scope= traces the target.
-As of v0.3.0 two sources are implemented:
+As of v0.3.1 two sources are implemented:
 - a TTY/serial source :: which configures and reads the trace data from a serial device; and
-- a probe source :: wherein =probe-rs= is used to read trace data from supported targets.
+- a probe source :: wherein =probe-rs= [[textcite:&probe-rs]] is used to read trace data from supported targets.
 
 A serial source is used if =--serial= is specified to the =trace= verb.
 When a serial source is used =cargo-rtic-scope= must know what baud rate to configure the device for.
