@@ -990,8 +990,8 @@ Further, because of time constrains no experimentation has been done with a non-
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace:trace-macro
 :END:
-~trace~ is an optional macro that is only required if software task tracing is wanted.
-It's application is trivial, but requires that ~config~ executed successfully.
+=trace= is an optional macro that is only required if software task tracing is wanted.
+Its application is trivial, but requires that =configure= executed successfully.
 To trace a software task, consider [[cref:lst:rtic-trace:trace]] which defines two tasks: =task1= and =task2=.
 Of the two tasks, =task2= is traced by simply decorating it with =#[trace]=, the invocation of the =trace= macro.
 #+NAME: lst:rtic-trace:trace
@@ -1032,6 +1032,8 @@ Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expa
   }
   // ...
 #+end_src
+
+A traced software task then writes its unique ID to two watch addresses that signify that a task was entered or exited.
 
 *** Recording a trace
 :PROPERTIES:
