@@ -1454,7 +1454,7 @@ $$
 
 The restrictions enumerated in [[cref:impl:hardware-map]] also apply when recovering information for traced software tasks.
 
-The =trace= macro can also be applied on regular functions, effectively allowing the end-user to trace sections of both software and hardware tasks; see [[cref:impl:nested-tracing]] for an example.
+The =trace= macro can also be applied on regular functions, effectively allowing the end-user to trace subsections of both software and hardware tasks; see [[cref:impl:nested-tracing]] for an example.
 Severe limitations apply when tracing functions inside tasks and are thus not useful in practise.
 See [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 #+NAME: impl:nested-tracing
@@ -1480,7 +1480,7 @@ See [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:spawning-frontends
 :END:
-The host-side of RTIC Scope is diveded into two parts: the backend, ~cargo-rtic-scope~;
+The host-side of RTIC Scope is divided into two parts: the backend, ~cargo-rtic-scope~;
 and the frontends, of which ~rtic-scope-frontend-dummy~ is provided within the scope of this thesis, fulfilling Requirement [[req:dummy]] and also acting as the frontend reference implementation (see [[cref:impl:rtic-scope-frontend-dummy]]).
 Frontends are separate processes that receive JSON messages from the backend over a local socket connection (see [[cref:impl:api]]).
 This section covers how frontends are specified, found in the environment, and executed.
