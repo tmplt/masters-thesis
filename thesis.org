@@ -460,17 +460,16 @@ Two different such suites may offer different feature sets and hardware probe su
 # We must cross a hardware boundry when debugging embedded systems.
 Debugging the code being executed in an embedded system is an integral part of an embedded work-flow similar to how it is common to attach to and debug a process of a program being developed on a general-purpose computer.
 The latter process can be considered trivial because no hardware boundries must be crossed; the debugger and debugged program are (usually) contained within the same system.
-Debugging an embedded system is on the other hand non-trivial: the embedded system is its own contained system and a line of communication[fn:: Which requires a hardware debugger.] must be established with a host system to debug the embedded system.
+Debugging an embedded system is on the other hand non-trivial: the embedded system is its own contained system and a probe must be used to establish a line of communication with a host system to debug the embedded system.
 \missingfigure{Draw a comparison between conventional debugging and embedded debugging.}
 
 # We want to be able to debug in real-time (read: trace), but also record it.
-An important aspect of debugging is the act of debugging in real-time, often referred to as the act of "tracing".
+An important aspect of debugging is the act of debugging in real-time, often referred to as the act of /tracing/.
 By tracing an embedded system it is possible to verify its internal operations continuously as long as a debugger is attached.
 Another important aspect of debugging are post-mortem analyses: being able to analyse a system's run-time behavior before it ended up in an invalid or unexpected state after the fact.
 Port-mortem analyses are realized by recording a trace from the attached debugger.
-Such analyses are useful for systems deployed "in the field" which are seldom continuously controlled by human hands.
-An example of such a system is a charger for electrical vehicles: verifying the operation of the charger is much easier before it is permanently installed at a parking space and expected to operate continuously.
-If the charger breaks the responsible engineers will want to have a detailed log of events that occured before the device broke in order to improve it.
+Such analyses are useful for systems deployed in the field or any system which are seldom (or not at all) continuously controlled by human hands.
+If such a system fails and its operation has been traced it can be replayed to debug how it failed.
 
 # Tracing is zero-cost by help of hardware, but not trivial to configure.
 Tracing is supported by hardware debug facilities on the ARMv7-M platform, as is the exfiltration of the trace stream from the device (a line of communication which can be read by a host system).
@@ -478,12 +477,13 @@ Enabling and correctly configuring these facilites to generate a trace stream an
 
 # The emergence of RTIC, and its lack of debug tools.
 RTIC is a novel RTOS which offers improvements over conventional RTOSs [[parencite:&tjader2021rtic 23]].
-The motivation behind RTIC Scope is thus to offer a "batteries included"[fn:: where details regarding trace stream generation and decoding is abstracted, and where no additional work must be done to utilize the tool.] toolset that enables instant insight into an RTIC application.
+The motivation behind RTIC Scope is thus to offer a /batteries included/[fn:: where details regarding trace stream generation and decoding is abstracted, and where no additional work must be done to utilize the tool.] toolset that enables instant insight into an RTIC application.
 Such a toolset would make it easier to verify the implementation of an RTIC application.
 
 # Control application.
-RTIC Scope will then be used to verify the implementation of a regulator for a complex dynamic system (see [[#control-application]]).
-This is done in order to establish a base-line for the end-user experience of the toolset, in order to improve upon it; and provide an example where the toolset is applied to a realistic RTIC application, in the hopes of increasing the usage of RTIC and RTIC Scope. \todo{rephrase?}
+RTIC Scope will then be used to verify the implementation of a regulator for a complex dynamic system (see  [[cref:control-application]]).
+This is done in order to establish a base-line for the end-user experience of the toolset, so that is can be improved upon;
+and provide an example where the toolset is applied to a realistic RTIC application.
 The regulation of a complex dynamic system is chosen because an RTIC application for such a task is non-trivial, and it provides an ample opportunity to improve one's capabilities for control engineering.
 
 *** Problem definition
