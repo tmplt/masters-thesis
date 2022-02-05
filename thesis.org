@@ -1108,7 +1108,7 @@ Below are a description of the flags and options the end-user can specify during
 
 The above flags and options were deemed as the most common flags an end-user would want to specify when building the RTIC application.
 If the user wants to specify an option or flag that is not among the above set the sentinel ~--~ can be used.
-For example, if the end-user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~cargo-rtic-scope~ invokes [[cref:lst:cargo-rtic-scope:sentinel-forwarded]].
+For example, if the user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~cargo-rtic-scope~ invokes [[cref:lst:cargo-rtic-scope:sentinel-forwarded]].
 #+NAME: lst:cargo-rtic-scope:sentinel
 #+CAPTION: Example ~cargo rtic-scope trace~ incovation with an arbitrary ~cargo build~ argument.
 #+begin_src shell
