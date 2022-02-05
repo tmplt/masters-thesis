@@ -119,6 +119,7 @@
 | IPSR          | IPSR             | \textit{Interrupt Program Status Register}            |
 | USB           | USB              | \textit{Universal Serial Bus}                         |
 | SWD           | SWD              | \textit{Serial Wire Debug}                            |
+| IRQ           | IRQ              | \text{Interrupt ReQuest}                              |
 
 
 # TODO install and apply a grammar checker.
@@ -816,7 +817,7 @@ Its payload contains two fields:
 #+NAME: fig:exception-packet
 #+CAPTION: Exception trace packet format, copied from [[textcite:&arm-rm Figure D4-16]].
 [[file:svgs/exception-trace.pdf]]
-#+CAPTION: ARMv7-M Exception/IRQ numbers and names. Redrawn from [[parencite:&arm-rm Table B1-4]], with additional emphasis on $N$.
+#+CAPTION: ARMv7-M Exception or [[Acrfull:IRQ]] numbers and names/labels. Redrawn from [[parencite:&arm-rm Table B1-4]], with additional emphasis on $N$.
 #+NAME: tbl:irqns
 | Exception number | Exception name/label   |
 |------------------+------------------------|
@@ -840,9 +841,9 @@ Its payload contains two fields:
 
 The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a watch address after appropriate [[ACRshort:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
 The payload contains three fields of information:
-- /CMPN/ :: A 2-bit identifier of the [[ACRshort:DWT]] comparator which matched the configured address access.
+- /CMPN/ :: A 2-bit identifier of the [[ACRshort:DWT]] comparator which matched the configured watch address access.
   This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
-- /WnR/ :: A flag describieng whether the access was a read (not set) or write (set).
+- /WnR/ :: A flag describing whether the access was a read (not set) or write (set).
 - /VALUE/ :: The value that was written to the address.
   The length of VALUE is the same number of bytes accessed by the target hardware.
   If only a single byte is read/written by the target, then VALUE is also one byte long.
