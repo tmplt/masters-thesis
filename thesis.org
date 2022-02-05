@@ -1713,7 +1713,7 @@ This information is used in =cargo-rtic-scope= in order to report the number of 
 # XXX qualitative/quantitive? Am I formulating correctly here?
 The maintained and emitted durations are structures with a qualitative unit that which the timestamp packets themselves does not contain; timestamp packets contain a unit-less counter, which is quantitative.
 In order to calculate a duration two pieces of information must be known:
-- the frequency of the [[ACRshort:TPIU]] reference clock; and
+- the frequency of the reference clock; and
 - the prescaler of this clock.
 This information is the same that is configured in [[cref:impl:rtic-trace]].
 When a full timestamp has been received the offset to add to the current duration is calculated via =iter::calc_offset= seen in [[cref:lst:calc-offset]].
@@ -1745,21 +1745,13 @@ For a discussion on how to avoid overflows, see [[cref:disc:overflows]].
 
 For a discussion on how to increase the quality of timestamps (and thus the general quality of the trace), see [[cref:disc:ts-quality]].
 
-*** Associating trace packets with RTIC task events
-# TODO build_event_chunk
-
-*** Forwarding resolved trace stream to sinks via ~rtic-scope-api~
-:PROPERTIES:
-:CUSTOM_ID: impl:api
-:END:
-
 *** Handling the resolved trace stream in the frontend
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-scope-frontend-dummy
 :END:
 # TODO we need some sentence before we start talking about the dummy.
 The purpose of the of =rtic-scope-frontend-dummy= frontend is to act as a reference implementation upon which more useful frontends can be built.
-These is no limit to what a frontend could do.
+There is no limit to what a frontend could do.
 It could present a real-time graphical representation of the system alike a logic analyzer, it could store the resolved trace in a database, or it could simply echo the messages to =stderr=.
 
 The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains its entirety with exhaustively descriptive comments.
