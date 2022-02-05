@@ -302,7 +302,7 @@ These facilities are not disjoint (if they were, no insight into the traced syst
 Further, with non-invasive trace generation, less code must be executed by the [[ACRshort:CPU]], allowing a shorter duty-cycle of the user application.
 With a decreased duty-cycle, the system can be put to sleep longer, and thus conserve energy.
 
-# On real-time implementation restictions, embedded implementation difficulties in general. Enter RTIC.
+# On real-time implementation restictions, embedded implementation difficulties in general.
 The development of embedded system in general is a difficult one.
 In comparison to general-purpose computers, where one often need not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
 # No rich OS; no two embedded platforms are the same.
@@ -314,18 +314,7 @@ Embedded platforms are much more subject to side-effects where peripherals are o
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
 In summary it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
-In order to lighten the implementation burden one may employ [[Acrfull:RTIC]] (see [[#rtic]]), [[textcite:&rtic]]: a [[Acrfull:RTOS]] developed at Luleå Technical University based on the extensively studied [[Acrfull:SRP]], which
-- prevents deadlocks;
-- mitigates priority inversions; and
-- is compatible with [[Acrfull:EDF]] sheduling [[parencite:&srp]].
-RTIC thus removes some burden out-of-the-box while also
-- implementing message passing between tasks;
-- incurring a minimal scheduling overhead;
-- being highly efficient on memory usage; and
-- being amenable to [[Acrfull:WCET]] analysis [[parencite:&rauk]].
-
-# Oh yeah, and Rust
-RTIC is written in Rust which removes additional developer overhead (see [[#rust]]).
+In order to lighten the implementation burden one may employ [[Acrfull:RTIC]], (see [[cref:rtic]]).
 
 # Project aim
 The aim of this thesis is thus to employ and extend upon RTIC with a toolset, aptly named RTIC Scope, to trace /tasks/ by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
@@ -393,12 +382,31 @@ Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enu
 :PROPERTIES:
 :CUSTOM_ID: rtic
 :END:
+[[ACRshort:RTIC]] [[parencite:&rtic]] is a novel [[ACRshort:RTOS]] targeting the ARM Cortex-M platform.
+It is developed at Luleå Technical University based on the extensively studied [[Acrfull:SRP]], which
+- prevents deadlocks;
+- mitigates priority inversions; and
+- is compatible with [[Acrfull:EDF]] sheduling [[parencite:&srp]].
+[[ACRshort:RTIC]] thus removes some burden out-of-the-box while also
+- implementing message passing between tasks;
+- incurring a minimal scheduling overhead;
+- being highly efficient on memory usage; and
+- being amenable to [[Acrfull:WCET]] analysis [[parencite:&rauk]].
 
-# TODO Expand: briefly cover rtic::app, how an application is declared, hardware tasks (PAC usage) and task dispatchers.
-Hardware tasks are regular Rust functions that are bound to a hardware interrupt.
-When this interrupt is made pending in hardware, the task function executes.
-An example hardware task is declared via
+# Oh yeah, and Rust
+[[ACRshort:RTIC]] is written in Rust which removes additional developer overhead (see [[cref:rust]]).
+
+An [[ACRshort:RTIC]] application is implemented by statically declaring a set of atomic /tasks/ which are executed and scheduled by help of Cortex-M hardware features.
+This section summarizes the two different task types --- /hardware tasks/ and /software tasks/ --- that together constitute an [[ACRshort:RTIC]] application.
+For more details on [[ACRshort:RTIC]] and how it is implemented, refer to [[textcite:&rtic]] and [[textcite:&tjader2021rtic]].
+
+Hardware tasks are regular Rust functions that are bound to a hardware /interrupt/.
+When this interrupt is made pending in hardware, and no interrupt handler of higher priority is currently exeuting, the task function executes.
+An example hardware task is declared via [[cref:rtic-hw-task-example]].
+With this declaration, =app::foo= will be executed when =EXTI0= is pending.
+When =app::foo= returns, the interrupt has been handled and =EXTI0= is no longer pending.
 #+name: rtic-hw-task-example
+#+CAPTION: [[ACRshort:RTIC]] hardware task bound to the ~EXTI0~ interrupt.
 #+begin_src rust
   #[rtic::app]
   mod app {
@@ -408,13 +416,14 @@ An example hardware task is declared via
       }
   }
 #+end_src
-With this declaration, =foo= will be executed when ~EXTI0~ is made pending in hardware.
-After =foo= returns, the interrupt has been handled and ~EXTI0~ is no longer pending.
-
 
 Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
-For this reason, the used hardware interrupt is considered a "dispatcher".
-An example software task is declared via
+For this reason, the interrupt used to dispatch software tasks termed a /task dispatcher/.
+An example of two software tasks are declared via [[cref:rtic-sw-task-example]].
+Multiple task dispatchers can be declared.
+It is not possible to declare which tasks a task dispatcher should handle; this is done automatically.
+#+name: rtic-sw-task-example
+#+caption: [[ACRshort:RTIC]] software task, bound non-exclusively to the ~EXTI0~ interrupt, acting as the task dispatcher.
 #+begin_src rust
   #[rtic::app(dispatchers = [EXTI0])]
   mod app {
@@ -425,7 +434,11 @@ An example software task is declared via
   }
 #+end_src
 
-In difference to hardware tasks, software tasks can be scheduled by software.
+The purpose of hardware tasks is to respond to external stimuli, e.g. a button press, a timer trigger, or similar.
+Hardware tasks cannot be scheduled via the [[ACRshort:RTIC]] [[ACRshort:API]].
+
+The purpose of software tasks is to provide a task implementation that is scheduled by software via the [[ACRshort:RTIC]] [[ACRshort:API]] instead of being triggered by external stimuli.
+Example usage of a software task may be to send a response over a line of communication after a hardware task executed to read a message on the same line.
 **** Hardware debuggers (probes)
 # TODO required for a host system to flash and read data from an embedded system
 
