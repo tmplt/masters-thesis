@@ -882,15 +882,15 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3.1 of RTIC Scope
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-~cortex-m-rtic-trace~ is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for tracing, namely the [[acrfull:DCB]][fn:: A component of the [[acrfull:SCB]] peripheral.], [[ACRshort:TPIU]], [[ACRshort:DWT]], and [[ACRshort:ITM]].
+=cortex-m-rtic-trace= is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for tracing, namely the [[acrfull:DCB]][fn:: A component of the [[acrfull:SCB]] peripheral.], [[ACRshort:TPIU]], [[ACRshort:DWT]], and [[ACRshort:ITM]].
 The crate exposes two functions:
-- ~cortex_m_rtic_trace::configure~ :: a regular Rust function for configuration of the peripherals mentioned above; and
-- ~cortex_m_rtic_trace::trace~ :: a Rust macro with with to trace software tasks.
-Henceforth, within this section, these two functions will be referred to as ~configure~ and ~trace~, respectively.
+- =cortex_m_rtic_trace::configure= :: a regular Rust function for configuration of the peripherals mentioned above; and
+- =cortex_m_rtic_trace::trace= :: a Rust macro with with to trace software tasks.
+Henceforth, within this section, these two functions will be referred to as =configure= and =trace=, respectively.
 
-This section is divided into two parts: [[cref:impl:rtic-trace:peripheral-config]], which covers the application of ~configure~; and [[cref:impl:rtic-trace:trace-macro]], which covers the application of the ~trace~ macro.
+This section is divided into two parts: [[cref:impl:rtic-trace:peripheral-config]], which covers the application of =configure=; and [[cref:impl:rtic-trace:trace-macro]], which covers the application of the =trace= macro.
 
-It is important to point out that ~cortex-m-rtic-trace~ is a crutch which incurs unecessary overhead for the end-user.
+It is important to point out that =cortex-m-rtic-trace= is a crutch which incurs unecessary overhead for the end-user.
 On the RTIC Scope roadmap is thus the eventual deprecation of this crate. See [[cref:fut:rm-rtic-trace]] for more on this topic.
 
 **** Peripheral configuration
