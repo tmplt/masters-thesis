@@ -569,7 +569,7 @@ An exhaustive summary of these contributions are described below (listed in no p
   Refer to [[cref:impl:rtic-trace]] and [[cref:impl:itm]] for a detailed description of the usage of this library.
 - =rtic-rs/rtic-syntax= :: A crate that defines and parses the RTIC meta language [[parencite:&rtic-syntax]], utilized to fulfill Requirement [[req:rtic]].
   Contributions are:
-  - /improve error string if parse\textunderscore binds is not set/: improves documentation when the crate is used as a library [[parencite:&pr:rtic-syntax:47]].
+  - /improve error string if parse\textunderscore binds is not set/: improves run-time documentation when the crate is used as a library [[parencite:&pr:rtic-syntax:47]].
 - =rtic-rs/cortex-m-rtic= :: The RTIC implementation for Cortex-M platforms [[parencite:&rtic]].
   Contributions are:
   - \textit{book/migration/v5: update init signature, fix example syntax}: improves documentation for migration to an updated version of RTIC [[parencite:&pr:rtic:480]].
