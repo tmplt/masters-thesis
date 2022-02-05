@@ -61,22 +61,26 @@
 #+latex_header: }
 
 #+NAME: glossary
-| label       | name                   | description |
-|-------------+------------------------+-------------|
-| tokenstream | tokenstream            | cock        |
-| token       | token                  | TODO        |
-| static-anal | static analysis        | TODO        |
-| sample-rate | sample rate            | TODO        |
-| downstream  | downstream             | TODO        |
-| frontend    | frontend               | TODO        |
-| upstream    | upstream               | TODO        |
-| elf:data    | \texttt{.data}         | TODO        |
-| JSON        | JSON                   | TODO        |
-| cdylib      | cdylib                 | TODO        |
-| JTAG        | JTAG                   | TODO        |
-| manglfn     | mangled function       | TODO        |
-| envvar      | environmental variable | TODO        |
-| stdoud      | \textttBreak{stdout}   | TODO        |
+| label       | name                         | description |
+|-------------+------------------------------+-------------|
+| tokenstream | tokenstream                  | cock        |
+| token       | token                        | TODO        |
+| static-anal | static analysis              | TODO        |
+| sample-rate | sample rate                  | TODO        |
+| downstream  | downstream                   | TODO        |
+| frontend    | frontend                     | TODO        |
+| upstream    | upstream                     | TODO        |
+| elf:data    | \texttt{.data}               | TODO        |
+| JSON        | JSON                         | TODO        |
+| cdylib      | cdylib                       | TODO        |
+| JTAG        | JTAG                         | TODO        |
+| manglfn     | mangled function             | TODO        |
+| envvar      | environmental variable       | TODO        |
+| stdoud      | \textttBreak{stdout}         | TODO        |
+| sigint      | \textttBreak{SIGINT} handler | TODO        |
+| thread      | thread                       | TODO        |
+
+
 
 
 # TODO cdylib above: A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo. This is not the case with dylibs that instead target the unstable Rust ABI. The only way to generate a shared object file is by building a dylib or a cdylib.
@@ -1616,10 +1620,10 @@ From this point on the target will generate and emit [[ACRshort:ITM]] packets.
 :END:
 With all the preparatory steps concluded and the target being (optionally) reset its up to =cargo-rtic-scope= to record these packets host-side.
 This is done in a number of steps in the imaginatively named =run_loop= function:
-1. A SIGINT handler is installed, which allows the end-user to terminate =cargo-rtic-scope=.
-   If this signal is not eventually sent ~cargo-rtic-scope~ will never termiate.
-2. A second thread is spawned with the mission of polling trace data from the source.
-   In order to avoid the generation of overflow packets the should poll data as fast as possible.
+1. A [[gls:sigint][SIGINT handler]] is installed, which allows the end-user to terminate =cargo-rtic-scope=.
+   If this signal is not eventually sent ~cargo-rtic-scope~ will never terminate.
+2. A second [[gls:thread]] is spawned with the mission of polling trace data from the source.
+   In order to avoid the generation of overflow packets the thread should poll data as fast as possible.
    The easiest implementation to accomplish this is via a separate thread.
 3. In a loop:
    1. Asynchronously polls any buffered trace data from the separate thread and the eventual SIGINT signal for a duration of 100ms.
@@ -1631,10 +1635,10 @@ This is done in a number of steps in the imaginatively named =run_loop= function
       This status message describes:
       - the application under trace;
       - how many ITM packets that have been recorded;
-      - how many of these packets that are malformed or unmappable;
+      - how many of these packets that are /malformed/ or /unmappable/[fn:: See [[cref:impl:itm]].];
       - for how long the application has been traced;
       - how many ITM packets per second that are being recorded; and
-      - how many sinks that are operational (not marked as broken; see below).
+      - how many /sinks/ that are operational (not marked as broken; see below).
 
 =handle_packet= does just that: handles a single =TimestampedTracePacket= (henceforth referred to as a /packet chunk/).
 This is done several steps:
