@@ -73,6 +73,7 @@
 | elf:data    | \texttt{.data}  | TODO        |
 | JSON        | JSON            | TODO        |
 | cdylib      | cdylib          | TODO        |
+| JTAG        | JTAG            | TODO        |
 
 # TODO cdylib above: A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo. This is not the case with dylibs that instead target the unstable Rust ABI. The only way to generate a shared object file is by building a dylib or a cdylib.
 
@@ -116,6 +117,9 @@
 | LTS1          | LTS1             | \textit{Local timestamp packet format 1}              |
 | LTS2          | LTS2             | \textit{Local timestamp packet format 2}              |
 | IPSR          | IPSR             | \textit{Interrupt Program Status Register}            |
+| USB           | USB              | \textit{Universal Serial Bus}                         |
+| SWD           | SWD              | \textit{Serial Wire Debug}                            |
+
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -439,8 +443,18 @@ Hardware tasks cannot be scheduled via the [[ACRshort:RTIC]] [[ACRshort:API]].
 
 The purpose of software tasks is to provide a task implementation that is scheduled by software via the [[ACRshort:RTIC]] [[ACRshort:API]] instead of being triggered by external stimuli.
 Example usage of a software task may be to send a response over a line of communication after a hardware task executed to read a message on the same line.
-**** Hardware debuggers (probes)
-# TODO required for a host system to flash and read data from an embedded system
+**** Hardware debuggers
+:PROPERTIES:
+:CUSTOM_ID: background:probes
+:END:
+Hardware debuggers, also known as /probes/, are dedicated hardware that provide a debugging interface between the host and target.
+In practise, the probe is its own embedded system, used to program and debug the embedded system that is considered the target.
+A probe usually provides a [[acrfull:USB]] interface for the host-side and a [[acrfull:SWD]] and/or [[gls:JTAG]] interface for the target.
+An embedded system may provide its own probe, usually the case for development kits, or expose headers on which to attach a probe for programming and debugging.
+
+In order to interface with a hardware probe a software suite is required on the host side.
+Examples of such suites are =openocd=, [[textcite:&openocd]]; and =probe-rs=, [[textcite:&probe-rs]].
+Two different such suites may offer different feature sets and hardware probe support sets.
 
 *** Motivation
 # We must cross a hardware boundry when debugging embedded systems.
