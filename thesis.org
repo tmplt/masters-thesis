@@ -961,11 +961,11 @@ After applying device-specific configurations for trace generation, and querying
    1. first, resolves the target addresses of two =u32= /watch variables/ which live in [[gls:elf:data]];
    2. dereferences two [[ACRshort:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[ACRshort:API]] for specifying these comparators can be greatly improved. See [[cref:fut:dwtcomps]].]
    3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
-      1. writes to seven fields in the [[acrfull:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $1$):
+      1. writes to seven fields in the [[acrfull:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
          0b1101 to /FUNCTION/, configuring the comparator to match on address access;
          0 to /EMITRANGE/, disabling trace address packet generation;[fn:: We are not interested in the address that contains the watch variable.]
-         0 to /DATAVMATCH/, to disable data value comparison;
-         0 to /CYCMATCH/, to disable cycle counter comparison;
+         0 to /DATAVMATCH/, to disable data value comparison[fn:not-of-concern];
+         0 to /CYCMATCH/, to disable cycle counter comparison[fn:not-of-concern];
          and 0 to /DATAVSIZE/, /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[acrfull:SBZ]] [[parencite:&arm-rm Glossary-855]] in address comparison context.
       2. writes the first watch variable address to [[acrfull:DWT_COMPn]][fn:dwt-n] (with $n = 1$), in order for the comparator to match on that address access; and
       3. writes 0 to [[acrfull:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
@@ -979,13 +979,12 @@ During the steps in [[cref:rtic-trace:itm]], if any read-back values does not ma
 It is up to the end-user to reset the target to the state before ~configure~ was called.
 For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:382]].
 
-The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} and cannot fail.
+The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} cannot fail.
 
-Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in ~.data~ to trace software tasks, and how the watch variables in this section are aligned in memory.
+Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in memory to trace software tasks, and how the watch variables in this section are aligned in memory.
 The [[ACRshort:DWT]] comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
-However, due to performance reasons, the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
+However, due to performance reasons (and in order to reduce implementation complexity), the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
 Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]] and [[cref:fut:opt-dwt-units]].
-\todo{improve this paragraph.}
 
 **** Tracing software tasks with ~trace~
 :PROPERTIES:
@@ -1968,6 +1967,7 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 
 
 * Footnotes
+[fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
 
 [fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[ACRshort:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] comments that a value of [[Acrfull:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[ACRshort:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
 
