@@ -808,7 +808,7 @@ Its payload contains two fields:
 - /FN/ :: A 2-bit field describing the action taken by the processor regarding the interrupt handler.
   This field can have three possible values:
   - FN $=$ 0b01 :: the exception was entered;
-  - FN $=$ 0b10 :: the exception was exited; and
+  - FN $=$ 0b10 :: the exception was exited; or
   - FN $=$ 0b11 :: the exception was returned to.
     This action indicates that exception was previously preempted by an exception of higher priority which has now exited.
   *FN $=$ 0b00* is a reserved value.
@@ -838,7 +838,7 @@ Its payload contains two fields:
 |         16 + $N$ | External interrupt $N$ |
 |------------------+------------------------|
 
-The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the "data trace packet", are emitted when the processor accesses data in memory as a consequence of appropriate [[ACRshort:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
+The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a watch address after appropriate [[ACRshort:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
 The payload contains three fields of information:
 - /CMPN/ :: A 2-bit identifier of the [[ACRshort:DWT]] comparator which matched the configured address access.
   This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
@@ -1968,7 +1968,7 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 
 * Footnotes
 
-[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[ACRshort:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] the comments that a value of [[Acrfull:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[ACRshort:RTIC]] tasks entered and exited.
+[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[ACRshort:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] comments that a value of [[Acrfull:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[ACRshort:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
 
 
 [fn:recovery-build] A positive side-effect of this step is that the RTIC Scope user does not have to manually call =cargo build= before =cargo rtic-scope trace=.
