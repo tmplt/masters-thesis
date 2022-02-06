@@ -782,7 +782,7 @@ instead they supply a different maximum relative timestamp.
 More specifially, an [[ACRshort:LTS2]] can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
 [[ACRshort:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
-This flag have four possible values:
+This flag have four possible values, termed /qualities/ throughout this text, described in decreasing quality:
 - TC $=$ 0b00 :: /Synchronous/: the timestamp value denotes the time when the non-timestamp packet was generated.
 - TC $=$ 0b01 :: /Delayed relative/: the timestamp value denotes the time when the timestamp packet itself was generated.
   The synchron ous timestamp is here unknown, "but must be between the previous and current timestamp values".
