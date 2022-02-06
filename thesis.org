@@ -1221,13 +1221,13 @@ It is thus up to the RTIC Scope end-user to ensure that traces of interests are 
 For this purpose the optional ~--trace-dir <dir>~ option overrides the output directory of the trace files.
 
 The trace filename contains three sections of information:
-- the name of the RTIC application :: to help with the seperation of a crate that potentially contains more than one binary;
+- the name of the RTIC application :: which associates the trace with the application that generated it, useful when a crate contains more than one application.
 - the git revision of the local repository :: to associate the trace with the source code of the traced RTIC application; and
-- a second-accurate timestamp :: to associate the trace with MCU-external events (e.g. conditions of the environment in which the application is traced).
+- a second-accurate timestamp :: to associate the trace with target-external events (e.g. conditions of the physical environment in which the application is traced).
 
-After some tracing and development during January 13th and 14th, 2022, the trace directory could for example contain the files in [[cref:lst:cargo-rtic-scope:trace-example-files]].
+For example, after some tracing and development during January 13th and 14th, 2022, the trace directory could for example contain the files in [[cref:lst:cargo-rtic-scope:trace-example-files]].
 #+NAME: lst:cargo-rtic-scope:trace-example-files
-#+CAPTION: Example of trace filenames after two traces. ~blinky~ is the name of the RTIC application binary; ~g124b3c5~ the git revision; and the remainder (sans ~.trace~) is the timestamp of the trace. The second trace file was recoded from an RTIC application with uncommitted changes, hence the ~-dirty~ suffix to the git revision.
+#+CAPTION: Example of trace filenames after two traces. ~blinky~ is the name of the RTIC application binary; ~124b3c5~ the git revision; and the remainder (sans ~.trace~) is the timestamp of the trace. The second trace file was recoded from an RTIC application with uncommitted changes, hence the ~-dirty~ suffix to the git revision.
 #+begin_src text
   $ ls -ogh target/rtic-traces
   total 8.0K
@@ -1235,7 +1235,8 @@ After some tracing and development during January 13th and 14th, 2022, the trace
   -rw-r--r-- 1 1.3K Jan 14 18:38 blinky-g124b3c5-dirty-2022-01-14T18:37:57.trace
 #+end_src
 
-In case two ~cargo rtic-scope trace~ instances are executed within the span of one second without any changes to the git repository the same trace filename will be generated twice; this will be caught by the second instance which will exit with an error: ~cargo-rtic-scope~ cannot overwrite trace files.
+In case two ~cargo rtic-scope trace~ instances are executed within the span of one second without any changes to the git repository the same trace filename will be generated twice; this will be caught by the second instance which will exit with an error[fn:: A virtual limitation. The timestamp granularity can be increased, but from a user standpoint it is unlikely to start a trace twice within the same second unless two targets are traced at the same time with the same application.]:
+~cargo-rtic-scope~ cannot overwrite trace files.
 Trace files can however be explicitly deleted:
 if the user wants to record a trace and remove all previously recoded traces in the trace directory ~--clear-traces~ can be specified.
 This flag only deletes files with the ~.trace~ file extension.
@@ -1245,14 +1246,14 @@ This flag only deletes files with the ~.trace~ file extension.
 :CUSTOM_ID: impl:cargo-rtic-scope:generating-metadata-maps
 :END:
 # Introduction: we must translate raw ITM data to RTIC run-time information.
-As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol is used to trace hardware and software tasks.
+As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol is used to trace [[ACRshort:RTIC]] tasks.
 This protocol is not designed with RTIC in mind:
 instead of information that can be directly associated to an RTIC tasks the protocol tells us the number of the [[ACRshort:DWT]] comparator that signaled a write to a watch address along with the data written, used to signal a software task enter or exit;
 and the IRQ number of the interrupt handler that entered, exited or was returned to, used to signal a hardware task enter or exit.
 These pieces of information must be associated back to the RTIC tasks responsible for their emission in a preparatory /recovery step/.
 This section covers this step which is divided into two parts:
-1. the generation of the =recovery::HardwareMap=, [[cref:impl:hardware-map]]; and
-2. the generation of the =recovery::SoftwareMap=, [[cref:impl:software-map]].
+1. the generation of the =recovery::HardwareMap= for hardware tasks associations, [[cref:impl:hardware-map]]; and
+2. the generation of the =recovery::SoftwareMap= for software tasks associations, [[cref:impl:software-map]].
 Together these two lookup maps constitute the full =recovery::TraceLookupMaps= which is used by =recovery::TraceMetadata= in order to fulfill Requirement [[req:rtic]].
 
 ***** Generating the ~recovery::HardwareMap~
