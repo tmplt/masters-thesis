@@ -1695,13 +1695,13 @@ decoded packets are trivially acquired via the exposed iterators summarized abov
 RTIC Scope utilizes the =iter::Timestamps= iterator, and is thus the only iterator covered in this text.
 
 As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol define packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
-Effectively, the protocol follows a [[acrfull:TLV]] encoding sheme.
+Effectively, the protocol follows a [[ACRshort:TLV]] encoding sheme.
 Decoding such a protocol is rather trivial, especially in Rust:
 the individual bytes of the header are pattern-matched in order to decode the packet type after which the remaining bytes are dispatched to another pattern-matcher in order to decode its payload.
 On success an =itm::TracePacket= is emitted.
 On failure --- if a header or payload contains data that is not covered by [[textcite:&arm-rm Appendix D4]] --- an =itm::MalformedPacket= is emitted, describing why the decode failed.
 
-=iter::Timestamps= intercepts all global and local timestamps in order to maintain a monotonically increasing duration from target boot.
+=iter::Timestamps= intercepts all global and local timestamps in order to maintain a monotonically increasing duration from when the reference clocks start ticking.
 Logically, this duration is initially zero, before any timestamp packets have been decoded.
 When a local timestamp is intercepted, its value is added to the current duration and its quality recorded.
 When a global timestamp is intercepted, the duration is reset to this value, discarding information from previously received timestamps.
