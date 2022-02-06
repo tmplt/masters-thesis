@@ -1145,23 +1145,18 @@ These are specified in the metadata block of the crate's manifest, ~Cargo.toml~.
 One may for example write the information in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]].
 #+NAME: lst:cargo-rtic-scope:manifest-metadata-example
 #+CAPTION: Example of required user-supplied information in crate manifest, ~Cargo.toml~.
-#+begin_src text
-  $ cat Cargo.toml
-  [...]
-
+#+begin_src toml
   [package.metadata.rtic-scope]
   pac_name = "atsamd51n"
   pac_features = []
   pac_version = "0.11"
   interrupt_path = "atsamd51n::Interrupt"
   tpiu_freq = 12000000
-  tpiu_baud = 38400
+  tpiu_baud = 1000000
   dwt_enter_id = 1
   dwt_exit_id = 2
   lts_prescaler = 1
   expect_malformed = false
-
-  [...]
 #+end_src
 Of these fields the below are utilized in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]]:
 - ~pac_name~,
