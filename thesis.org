@@ -1640,13 +1640,13 @@ This is done in a number of steps in the imaginatively named =run_loop= function
       - how many ITM packets per second that are being recorded; and
       - how many /sinks/ that are operational (not marked as broken; see below).
 
-=handle_packet= does just that: handles a single =TimestampedTracePacket= (henceforth referred to as a /packet chunk/).
+=handle_packet= handles a single =TimestampedTracePacket= (henceforth referred to as a /packet chunk/).
 This is done several steps:
 1. first, the packet chunk is converted to an =api::EventChunk= (see [[cref:impl:api]]) via =TraceMetadata::build_event_chunk= (see below).
 2. Any unmappable, unknown, or invalid packets ITM packets in the chunk are echoed as warnings to the end-user with an apt message.
 3. Chunks are /drained/ to all /sinks/ (the replay file and all spawned frontends).
    If a drain fails for any sink, it is marked as broken and an error is echoed to the end-user.
-   As long as at least one sink is not marked as broken, tracing continues.[fn:: TODO tracing should stop if we cannot drain to file.]
+   As long as at least one sink is not marked as broken, tracing continues.
    If all sinks are marked as broken =cargo-rtic-scope= terminates with an error.
 
 =TraceMetadata::build_event_chunk= is responsible for recovering RTIC application metadata for a packet chunk.
@@ -1654,14 +1654,14 @@ This is done by matching all =itm::TracePacket= structures in the chunk: If a pa
 - a synchronization packet (=TracePacket::Sync=), it is ignored because it does not contain any trace information;
 - an exception trace packet (=TracePacket::ExceptionTrace=), the lookup maps generated in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] are consulted for the task matching the packet's IRQ number.
   If the exception trace corresponds to a hardware task, an =api::EventType::Task= is constructed.
-  If the trace corresponds to a software task dispatcher or a Thread mode enter/exit it is ignored because it contains redundant trace information.[fn:exception-number-0]
-  If none of these predicates are true the trace is logged as an /unmappable event/ by the construction of an =api::EventType::Unmappable=.
+  If the trace corresponds to a software task dispatcher or a Thread mode enter/exit it is ignored because it contains redundant trace information.
+  If none of these predicates are true the trace is logged as an unmappable event by the construction of an =api::EventType::Unmappable=.
 - If the chunk packet is a data trace value (=TracePacket::DataTraceValue=), the lookup maps are again consulted:
   if the comparator ID in the packet matches either =dwt_enter_id= or =dwt_exit_id= then the trace is a software task event.
   The packet's data value is matched against the set of RTIC application tasks decorated with =#[trace]=.
   If such a match exists, an =api::EventType::Task= is constructed, otherwise the trace is logged as an unmappable event.
-If none of the above predicates were true, the chunk packet is logged as an /unknown packet/ by wrapping it in an =api::EventType::Unknown=.
-Last of all are the /malformed packets/: these are simply wrapped in an =api::EventType::Invalid=.
+If none of the above predicates were true, the chunk packet is logged as an unknown packet by wrapping it in an =api::EventType::Unknown=.
+Last of all are the malformed packets: these are simply wrapped in an =api::EventType::Invalid=.
 
 *** Decoding the ITM packet stream via ~itm~
 :PROPERTIES:
