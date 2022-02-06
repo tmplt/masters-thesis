@@ -1174,45 +1174,18 @@ For a description of each field, see the respective sections.
 
 The fields of information in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]] are read from ~Cargo.toml~ by help of ~cargo_metadata~ [[parencite:&cargo-metadata]] and ~serde_json~ [[parencite:&serde-json]].
 
-# TODO reformat the below
-The last piece of the puzzle is from where to source user-supplied information.
-Four fields of information is required to complete the second step above: the PAC name, version, features (if any), and the path to the =PAC::Interrupt= enum.
-There are two methods the user can supply this information: via commandline options, see [[lst:recovery-user-info-cmdopt]];
-or by entering the fields into the ~rtic-scope~ metadata block of the application's ~Cargo.toml~, see [[lst:recovery-user-info-toml]].
-PAC information in ~Cargo.toml~ is persisent, and simplifies an iterative workflow.
-
-#+NAME: lst:recovery-user-info-cmdopt
-#+CAPTION: Supplying information to RTIC Scope for recovery purposes via command line options.
-#+begin_src shell
-  $ cargo rtic-scope trace --pac-name stm32f4 --pac-version 0.13 --pac-features stm32f401 --pac-features some-other-feature --interrupt-path "stm32f4::stm32f401::Interrupt"
-#+end_src
-
-#+NAME: lst:recovery-user-info-toml
-#+CAPTION: Supplying information to RTIC Scope for recovery purposes via ~Cargo.toml~ metadata.
-#+begin_src toml
-# ...
-
-[package.metadata.rtic-scope]
-pac_name = "stm32f4"
-pac_features = ["stm32f401", "some-other-feature"]
-pac_version = "0.13"
-interrupt_path = "stm32f4::stm32f401::Interrupt"
-
-# ...
-#+end_src
-
 **** Creating a trace file
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:create-trace-file
 :END:
-To enable port-mortem analysis of a traced RTIC application the recorded trace must be saved to disk.
+To enable post-mortem analysis of a traced RTIC application the recorded trace must be saved to disk.
 The build step (see [[cref:impl:cargo-rtic-scope:building-rtic-app]]) yields the crate root of the traced application.
 A natural directory in which to save trace files is then under ~/target/~ which contains all build artifacts of the crate.
-For purposes of separation trace files are saved under the ~rtic-traces~ sub-directory; the full path to this directory is then ~/target/rtic-traces/~.
-While this directory is meant for ephemeral artifacts (of which recorded traces may not belong) it was the simplest approach to associate traces to a particular crate (including its state; see below) while also not writing files to a wholly unexpected directory (e.g. the crate root directory).
+For purposes of separation trace files are then saved under the ~rtic-traces~ sub-directory; the full path to this directory is then ~/target/rtic-traces/~.
+While this directory is meant for ephemeral artifacts (of which recorded traces may not belong) it was the simplest approach to associate traces to a particular crate (including its git revision; see below) while also not writing files to a wholly unexpected directory (e.g. the crate root directory).
 
 Of note is that ~/target/~ is removed if ~cargo clean~ is executed.
-It is thus up to the RTIC Scope end-user to ensure that traces of interests are saved to a persistent location.
+It is thus up to the RTIC Scope user to ensure that traces of interests are saved to a persistent location.
 For this purpose the optional ~--trace-dir <dir>~ option overrides the output directory of the trace files.
 
 The trace filename contains three sections of information:
