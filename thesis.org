@@ -787,7 +787,7 @@ This flag have four possible values, termed /qualities/ throughout this text, de
 - TC $=$ 0b01 :: /Delayed relative/: the timestamp value denotes the time when the timestamp packet itself was generated.
   The synchron ous timestamp is here unknown, "but must be between the previous and current timestamp values".
 - TC $=$ 0b10 :: Synchronous, but the corresponding non-timestamp packet generation was "delayed relative to the associated event".
-- TC $=$ 0b11 :: ...
+- TC $=$ 0b11 :: Delayed relative, and the corresponding non-timestamp packet generation was delayed relative to the associated event.
 [[ACRshort:LTS2]] packets are always synchronous.
 
 # TODO? in impl: current implementation (dummy) assumes local timestamps are all sync. time restriction.
