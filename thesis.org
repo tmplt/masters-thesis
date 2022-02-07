@@ -680,13 +680,15 @@ Timestamp packets are sourced from a reference clock.
 The reference clock is either the system clock, an asynchronous [[ACRshort:TPIU]] reference clock, or a /global timestamp clock/.
 The frequencies and behavior of these reference clocks and how the target clock hierarchy is configured in general is wholly specific to each target and will thus not be covered in further detail.
 
-For more information on the ITM unit, refer to [[parencite:&arm-rm C1.7]]. For more information on global and local timestamps, refer to  [[parencite:&arm-rm C1-710]].
+For more information on the ITM unit, refer to [[parencite:&arm-rm C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm C1-710]].
 **** [[Acrfull:TPIU]]
 # Summarize TPIU functionality
-The TPIU provides external visibility of the trace packet stream by serializing...
+The TPIU provides external visibility of the trace packet stream by serializing them either in /parallel/ or /asynchronously/.
+Parallel serialization utilizes a number of data pins and one pin for the clock signal.
+Asynchronous serialization utilizes a single pin for data communication with no dedicated clock signal.
+In order to communicate over an asynchronous serialization channel the /baud rate/ must be known on both ends.
 
-by serializing these over a set of exposed hardware pins or via the MCU programmer unit (depending on target platform).
-Depending on the platform, these can be GPIO pins which can be configured in parallel mode by use of multiple pins or a singular GPIO pin for an asynchronous port.
+When asynchronous serial is used, a choice of two protocols can be chosen: /Manchester/ or /NRZ/ encoding.
 
 # Embedded Trace Buffer (ETB), SWO, or parallel trace port
 
@@ -705,10 +707,10 @@ This protocol defines packets that contain a one-byte /header/, which describes 
 Some headers also contain payload.
 The protocol effectively implements a [[acrfull:TLV]] encoding sheme.
 This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[crefrange:fig:lts1,fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
-Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet;
+Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet:
 if C is not set, the next byte in the stream is a header for the next packet.
 
-For other packets, and a full description of the protocol, see [[textcite:&arm-rm Appendix D4]].
+For other packet types, and a full description of the protocol, see [[textcite:&arm-rm Appendix D4]].
 
 RTIC Scope v0.3.1 concerns itself with six packets:
 - [[acrfull:GTS1]] :: A timestamp packet containing the lower 26 bits of the /absolute/ timestamp.
@@ -719,7 +721,7 @@ RTIC Scope v0.3.1 concerns itself with six packets:
 - Data trace data value packet format :: A hardware-event packet describing the value read or written to a watch address monitored by a [[ACRshort:DWT]] comparator.
 
 Timestamp packets come in two types: /absolute/ and /relative/.
-Both types derive their timestamps from a reference clock (see [[cref:theory:itm-periph]]):
+Both types derive their timestamps from one or more reference clocks (see [[cref:theory:itm-periph]]):
 /absolute/ timestamps denote how many ticks this clock have tocked ever since it began; and
 /relative/ timestamps denote how many ticks this clock have tocked ever since the last relative timestamp.
 When a relative timestamp is generated, the relative timestamp is then reset.
