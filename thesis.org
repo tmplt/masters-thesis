@@ -842,7 +842,8 @@ Because RTIC implements tasks by use of exception handlers it is only natural to
 This approach is however only directly applicable to hardware tasks which dedicate a handler for each task.
 Software tasks are implemented with an additional layer of abstraction above handlers by use of task dispatchers, as covered in [[cref:rtic]].
 If exception tracing is employed to trace software tasks such a trace packet would only describe that one of the potentially multiple software tasks handled by one dispatcher changed state.
-Instead, a unique identifier is assigned to each software task and written to a data traced memory range when the task enters and exits.
+Instead, a unique identifier is assigned to each software task and written to a watch address when the task enters and exits.
+An additional decoding step is then applied to trace software tasks.
 
 ** Implementation
 This chapter covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
