@@ -934,9 +934,9 @@ After applying device-specific configurations for trace generation, and querying
       The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm C1.10.4]].[fn:: This configuration implementation is faulty. See [[cref:fut:swoscaler]].]
       #+NAME: eq:prescaler
       \begin{equation}
-        \lfloor
+        \left\lfloor
         \frac{\texttt{tpiu\textunderscore freq}}{\texttt{tpiu\textunderscore baud}}
-        \rfloor - 1
+        \right\rfloor - 1
       \end{equation}
    3. drops any [[acrfull:ETM]][fn:: A debug facility similar to the [[ACRshort:ITM]], but ultimately outside the scope of this thesis.] packets that the [[ACRshort:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
    4. sets the /EXCTRCENA/ bit in [[acrshort:DWT_CTRL]] which enables the generation of exception traces in the [[ACRshort:DWT]] [[parencite:&arm-rm C1.8.7]].
