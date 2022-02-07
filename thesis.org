@@ -924,19 +924,21 @@ After applying device-specific configurations for trace generation, and querying
   }
 #+end_src
 
-~configure~ in [[cref:lst:rtic-trace:configure]] does a number of things in the following order:
+~configure~ in [[cref:lst:rtic-trace:configure]] does a number of operations in the following order:
 1. <<rtic-trace:conf-protocol>> ensures that the target's [[ACRshort:TPIU]] peripheral supports the requested ~protocol~ by reading the [[acrfull:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
 2. ensures that the user did not request an invalid [[ACRshort:TPIU]] configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
-3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[ACRshort:DWT]] peripheral supports exception tracing by reading the /NOTRCPKT/ bit in [[acrfull:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
+3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[ACRshort:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[acrfull:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
 4. <<rtic-trace:nofail-conf>> configures the [[ACRshort:DCB]], [[ACRshort:TPIU]], and [[ACRshort:DWT]] peripherals (partially):
    1. sets the /TRCENA/ bit in the [[acrfull:DCB_DEMCR]], a "global enable for all [[ACRshort:DWT]] and [[ACRshort:ITM]] features";
    2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[acrfull:TPIU_ACPR]] such that the [[ACRshort:TPIU]] communicates with a requested baud rate.
       The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm C1.10.4]].[fn:: This configuration implementation is faulty. See [[cref:fut:swoscaler]].]
       #+NAME: eq:prescaler
       \begin{equation}
-      \frac{\texttt{tpiu\textunderscore freq}}{\texttt{tpiu\textunderscore baud}} - 1
+        \lfloor
+        \frac{\texttt{tpiu\textunderscore freq}}{\texttt{tpiu\textunderscore baud}}
+        \rfloor - 1
       \end{equation}
-   3. drops any [[acrfull:ETM]] packets that the [[ACRshort:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
+   3. drops any [[acrfull:ETM]][fn:: A debug facility similar to the [[ACRshort:ITM]], but ultimately outside the scope of this thesis.] packets that the [[ACRshort:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
    4. sets the /EXCTRCENA/ bit in [[acrshort:DWT_CTRL]] which enables the generation of exception traces in the [[ACRshort:DWT]] [[parencite:&arm-rm C1.8.7]].
 5. <<rtic-trace:itm>> Applies [[ACRshort:ITM]]-related options given to ~configure~ by writing to the [[acrfull:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
    1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[ACRshort:ITM]], forwards trace packets from the [[ACRshort:DWT]] to the [[ACRshort:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
@@ -944,7 +946,7 @@ After applying device-specific configurations for trace generation, and querying
    3. writes 0 to the /TSPrescale/ field, disabling prescaling for local timestamps; and
    4. writes 0 to the /GTSFREQ/ field, disabling global timestamps.[fn:: Global timestamps are an optional feature, and is not supported by all Cortex-M targets.]
 6. <<rtic-trace:dwt>> Configures [[ACRshort:DWT]] comparators for software task tracing:
-   1. first, resolves the target addresses of two =u32= /watch variables/ which live in [[gls:elf:data]];
+   1. first, resolves the target addresses of two =u32= /watch variables/ which live in target memory;
    2. dereferences two [[ACRshort:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[ACRshort:API]] for specifying these comparators can be greatly improved. See [[cref:fut:dwtcomps]].]
    3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
       1. writes to seven fields in the [[acrfull:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
