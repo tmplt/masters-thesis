@@ -61,24 +61,24 @@
 #+latex_header: }
 
 #+NAME: glossary
-| label       | name                         | description |
-|-------------+------------------------------+-------------|
-| tokenstream | tokenstream                  | cock        |
-| token       | token                        | TODO        |
-| static-anal | static analysis              | TODO        |
-| sample-rate | sample rate                  | TODO        |
-| downstream  | downstream                   | TODO        |
-| frontend    | frontend                     | TODO        |
-| upstream    | upstream                     | TODO        |
-| elf:data    | \texttt{.data}               | TODO        |
-| JSON        | JSON                         | TODO        |
-| cdylib      | cdylib                       | TODO        |
-| JTAG        | JTAG                         | TODO        |
-| manglfn     | mangled function             | TODO        |
-| envvar      | environmental variable       | TODO        |
-| stdoud      | \textttBreak{stdout}         | TODO        |
-| sigint      | \textttBreak{SIGINT} handler | TODO        |
-| thread      | thread                       | TODO        |
+| label       | name                    | description |
+|-------------+-------------------------+-------------|
+| tokenstream | tokenstream             | cock        |
+| token       | token                   | TODO        |
+| static-anal | static analysis         | TODO        |
+| sample-rate | sample rate             | TODO        |
+| downstream  | downstream              | TODO        |
+| frontend    | frontend                | TODO        |
+| upstream    | upstream                | TODO        |
+| elf:data    | \texttt{.data}          | TODO        |
+| JSON        | JSON                    | TODO        |
+| cdylib      | cdylib                  | TODO        |
+| JTAG        | JTAG                    | TODO        |
+| manglfn     | mangled function        | TODO        |
+| envvar      | environmental variable  | TODO        |
+| stdout      | \texttt{stdout}         | TODO        |
+| sigint      | \texttt{SIGINT} handler | TODO        |
+| thread      | thread                  | TODO        |
 
 
 
