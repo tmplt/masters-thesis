@@ -1897,6 +1897,39 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 # target-side conf can be done by RTIC
 **** Supporting other [[ACRshortpl:RTOS]] than [[ACRshort:RTIC]]
 **** Publishing all crates to the crate registery
+In order to publish a crate all of its dependencies must first be published.
+When a crate has been published, it can be used as a dependency by specifying the crate name and version alone in =Cargo.toml=, as seen in [[cref:lst:cargo-lib-dep]].
+A published crate can also be installed via =cargo= by simply specifying the name of the crate;
+this makes it trivial for end-users to install your program as long as any non-Rust dependencies are installed.
+Ideally, an user should be able to install RTIC Scope via [[cref:lst:cargo-install-bins]], but as of writing the easiest way to install RTIC Scope is via [[cref:lst:cargo-install-git]], simply because RTIC Scope v0.3.1 has yet to be published at the time of writing.
+
+#+NAME: lst:cargo-lib-dep
+#+CAPTION: Declaring ~cortex-m-rtic-trace~, which is here presumed to be published on the crate repository, as a dependency in a ~Cargo.toml~
+#+begin_src toml
+  # ...
+
+  [dependencies]
+  cortex-m-rtic-trace = "0.3.1"
+
+  # ...
+#+end_src
+
+#+NAME: lst:cargo-install-bins
+#+CAPTION: Installing RTIC Scope via ~cargo install~, presuming v0.3.1 has been published on the crate reposity.
+#+begin_src shell
+  $ cargo install cargo-rtic-scope rtic-scope-frontend-dummy --version 0.3.1
+#+end_src
+
+#+NAME: lst:cargo-install-git
+#+CAPTION: Installing RTIC Scope via ~cargo install~ via the git repository.
+#+begin_src shell
+  $ cargo install --git https://github.com/rtic-scope/cargo-rtic-scope cargo-rtic-scope rtic-scope-frontend-dummy --branch v0.3.1
+#+end_src
+
+RTIC Scope has yet to be published because of contributions made upstream.
+Either these contributions have been merged (but not released) or are awaiting feedback from their respective maintainers.
+A tracking issue has been created that documents the effort to publish RTIC Scope; see [[textcite:&issue:cargo-rtic-scope:101]].
+
 **** Replacing ~itm-tools~
 :PROPERTIES:
 :CUSTOM_ID: fut:itm-tools
