@@ -1893,8 +1893,36 @@ It would then be logical to store both =u8= variables on the same 32-bit address
 :PROPERTIES:
 :CUSTOM_ID: fut:rm-rtic-trace
 :END:
-# TODO merging things upstream into probe-rs, RTIC, etc.
-# target-side conf can be done by RTIC
+=cortex-m-rtic-trace= is an auxilliary library that provides =configure=, which configures all relevant peripherals for tracing; and =trace=, a macro with which software tasks can be traced after =configure= has been called successfully.
+Refer to [[cref:impl:rtic-trace]] for implementation details.
+
+A goal of RTIC Scope is to minimize the end-user overhead when applying it.
+The version of RTIC Scope presented in this text requires the user to modify their RTIC application's =init= function by calling =configure=.
+Ideally, the end-user should be able to enable tracing via flags to RTIC, either for the whole application or tasks of interest.
+See [[cref:lst:ideal-trace-enable]] for an example.
+Then the =trace= flag is set, RTIC could then inject the code to =configure= into the application.
+
+
+#+NAME: lst:ideal-trace-enable
+#+CAPTION: Ideal methods to enable tracing of RTIC applications via flag specification: either
+#+begin_src rust
+  #[rtic::app(trace = true, ...)] // enables tracing of all tasks
+  mod app {
+      // ...
+
+      #[task(trace = true, ...)] // enables tracing of just this task
+      fn task(_: task::Context) {
+          // ...
+      }
+  }
+#+end_src
+
+Of note is that only a portion of =configure= is specific to RTIC Scope; other RTOSs could benefit from its implementation.
+It may be apt to upstream portions of its implementations to [[textcite:&cortex-m]] (which =cortex-m-rtic-trace= extends).
+
+Regardless of what the outcome of minimizing end-user overhead is, =cortex-m-rtic-trace= is predicted to be deprecated.
+A tracking issue for this eventuality is available; see [[textcite:&issue:cargo-rtic-scope:90]].
+
 **** Supporting other [[ACRshortpl:RTOS]] than [[ACRshort:RTIC]]
 **** Publishing all crates to the crate registery
 In order to publish a crate all of its dependencies must first be published.
