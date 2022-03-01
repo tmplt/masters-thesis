@@ -1959,7 +1959,8 @@ Why the thesis took to long, etc.
 :END:
 The baud rate of the [[ACRshort:TPIU]] is configured via [[cref:lst:tpiu-baud-rate]] which implements [[cref:eq:prescaler]].
 This implementation is error-prone due to integer division and because it does not verify the written prescaler value by reading it back.
-This behavior is not documented.
+The implementation will also attempt a divide-by-zero if a baud rate of 0 is requested; in the best case, this leads to a panic.
+Currently, this behavior is not documented.
 
 #+NAME: lst:tpiu-baud-rate
 #+CAPTION: [[ACRshort:TPIU]] baud rate configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[ACRshort:TPIU]] configuration registers. This implementation is subject to integer division and does not verify the written prescaler value; it is thus error-prone.
