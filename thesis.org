@@ -1647,7 +1647,7 @@ While the implementation of =itm= has been influenced by the development of RTIC
 RTIC Scope is then considered a /downstream/ crate of =itm=, because it depends on it.
 
 The crate is a /green-field implementation/ of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.7 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
-Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
+Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated (intepreted as such; not explicitly stated as of writing) =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
 Both =itm-decode= and =itm-tools= are convenient UNIX-like tools for decoding the ITM packet protocol.
 
 =itm= is a packet decoder with state that handles its own data input.
@@ -2088,6 +2088,32 @@ A tracking issue has been created that documents the effort to publish RTIC Scop
 :PROPERTIES:
 :CUSTOM_ID: fut:itm-tools
 :END:
+=itm-tools= [[parencite:&itm-tools]] is a toolset for analyzing [[ACRshort:ITM]] trace streams.
+As of writing, the tools decode the [[ACRshort:ITM]] packet standard and offer interpretation of exception traces, [[ACRshort:PC]] samples (via =pcsampl=), and instrumentation packet port demuxing (via =port-demux=).
+Of certain interest is that =pcsampl= can answer the quetion of "where is my program spending most if its time?"
+An example invocation of =pcsampl= would yield [[cref:lst:pcsampl]], describing that the program spent almost 92% of its time sleeping during the time the target was traced.
+
+#+NAME: lst:pcsampl
+#+CAPTION: Example invocation of ~pcsampl~ from [[textcite:&itm-tools]].
+#+begin_src shell
+  $ pcsampl -e target/thumbv7m-none-eabi/release/app itm.bin 2>/dev/null
+      % FUNCTION
+  91.69 *SLEEP*
+   3.70 app::foo_o7xa::h9e4953f3ea6a58d8
+   2.87 app::bar_t7fm::hf544b1b6f026d266
+   0.95 SysTick
+   0.52 EXTI1
+   0.26 EXTI0
+   0.01 main
+  -----
+   100% 11692 samples
+#+end_src
+
+In comparison to =itm-decode= provided as a result of this thesis, =itm-tools= does not: configure an optional serial device for direct reading, offer the option to maintain a monotonically increasing timestamp, optionally associates trace packets with such a timestamp, or trivially describes the timestamp quality.
+=itm-decode= does on the other hand not offer equivalents to =pcsampl= and =port-demux=.
+
+It would be beneficial to incorporate the features offered by =itm-tools= into =itm= (within which =itm-decode= is available) in order to collect [[ACRshort:ITM]] decoding and interpretation efforts in a singular crate.
+For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] and [[textcite:&issue:itm:14]], respectively.
 
 ** Conclusion
 The RTIC Scope project fulfills all requirements enumered in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]].
