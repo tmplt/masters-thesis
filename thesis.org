@@ -1963,7 +1963,7 @@ The implementation will also attempt a divide-by-zero if a baud rate of 0 is req
 Currently, this behavior is not documented.
 
 #+NAME: lst:tpiu-baud-rate
-#+CAPTION: [[ACRshort:TPIU]] baud rate configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[ACRshort:TPIU]] configuration registers. This implementation is subject to integer division and does not verify the written prescaler value; it is thus error-prone.
+#+CAPTION: [[ACRshort:TPIU]] baud rate configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[ACRshort:TPIU]] configuration registers. This implementation is subject to integer division, divide-by-zero, and does not verify the written prescaler value; it is thus error-prone.
 #+begin_src rust
   impl TPIU {
       /// Sets the prescaler value for a wanted baud rate of the Serial
@@ -1981,6 +1981,7 @@ Currently, this behavior is not documented.
 #+end_src
 
 For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value 137.88 to be written, but because this prescaler must be an integer 137 is written instead, configuring the [[ACRshort:TPIU]] to use a baud rate of approximately 115942 instead as per [[textcite:&arm-rm C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
+A sufficiently large error will induce communication problems.
 #+NAME: eq:baud-rate-error
 \begin{equation}
   \left\lvert 1 - \left(\frac{115942}{115200}\right)\right\rvert = 0.00644
