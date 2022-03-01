@@ -1940,18 +1940,11 @@ Why the thesis took to long, etc.
 :CUSTOM_ID: disc:minimizing-end-user-overhead
 :END:
 *** Future work
-# Link to all(?) issues
-
-# TODO deprecating cortex-m-rtic-trace: push upstream to RTIC, probe-rs
-# TODO cargo-embed functionality, RTICScope.toml
-# TODO queries from frontend
-# TODO replace serde with protobuf
-# TODO HIL testing?
-# TODO replace bash scripts with xtask testing
-# TODO Cargo warning/errors not propagated when building application
-# TODO Cargo-flash hints?
-
-# TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
+This section comments on some choice topics of future work planned for RTIC Scope, most sections being referred to previously in this text and being filed as issues in the relevant repository.
+This section is not exhaustive for sake of brevity:
+as of writing 31 issues are open for RTIC Scope[fn:: Refer to [[https://github.com/rtic-scope/cargo-rtic-scope/issues][https://github.com/rtic-scope/cargo-rtic-scope/issues]].];
+7 for =itm=[fn:: Refer to [[https://github.com/rtic-scope/itm/issues][https://github.com/rtic-scope/itm/issues]].];
+and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to tracing functionality).
 
 **** [[ACRshort:TPIU]] baud rate configuration
 :PROPERTIES:
