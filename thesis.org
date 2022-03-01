@@ -960,7 +960,7 @@ After applying device-specific configurations for trace generation, and querying
    4. writes 0 to the /GTSFREQ/ field, disabling global timestamps.[fn:: Global timestamps are an optional feature, and is not supported by all Cortex-M targets.]
 6. <<rtic-trace:dwt>> Configures [[ACRshort:DWT]] comparators for software task tracing:
    1. first, resolves the target addresses of two =u32= /watch variables/ which live in target memory;
-   2. dereferences two [[ACRshort:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[ACRshort:API]] for specifying these comparators can be greatly improved. See [[cref:fut:dwtcomps]].]
+   2. dereferences two [[ACRshort:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[ACRshort:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
    3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
       1. writes to seven fields in the [[acrfull:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
          0b1101 to /FUNCTION/, configuring the comparator to match on address access;
@@ -985,7 +985,7 @@ The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} cannot fail.
 Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in memory to trace software tasks, and how the watch variables in this section are aligned in memory.
 The [[ACRshort:DWT]] comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
 However, due to performance reasons (and in order to reduce implementation complexity), the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
-Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]] and [[cref:fut:opt-dwt-units]].
+Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]].
 
 **** Tracing software tasks with ~trace~
 :PROPERTIES:
@@ -2004,18 +2004,6 @@ This relationship (validity of a zero trace bus ID when [[ACRshort:ETM]] packets
 
 An issue covering the potential invalidity of a zero trace bus ID is available at [[textcite:&issue:cortex-m:392]].
 
-**** [[ACRshort:DWT]] comparator configuration
-:PROPERTIES:
-:CUSTOM_ID: fut:dwtcomps
-:END:
-# TODO move positional arguments to the struct instead. ensure that the two comparators are not the same one.
-**** Optimizing [[ACRshort:DWT]] comparator utilization
-:PROPERTIES:
-:CUSTOM_ID: fut:opt-dwt-units
-:END:
-It would then be logical to store both =u8= variables on the same 32-bit address base: the first at offset 0, the other at offset 1.
-
-# TODO elaborate
 **** Deprecating ~cortex-m-rtic-trace~
 :PROPERTIES:
 :CUSTOM_ID: fut:rm-rtic-trace
