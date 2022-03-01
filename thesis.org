@@ -105,6 +105,7 @@
 | WCET          | WCET             | \textit{Worst Case Execution Time}                    |
 | EDF           | EDF              | \textit{Earliest Deadline First}                      |
 | PAC           | PAC              | \textit{Peripheral Access Crates}                     |
+| HAL           | HAL              | \textit{Hardware Abstraction Library}                 |
 | API           | API              | \textit{Application Programming Interface}            |
 | TPIU_ACPR     | TPIU\_ACPR       | \textit{Asynchronous Clock Prescaler Register}        |
 | ETM           | ETM              | \textit{Embedded Trace Macrocell}                     |
@@ -942,14 +943,14 @@ After applying device-specific configurations for trace generation, and querying
 4. <<rtic-trace:nofail-conf>> configures the [[ACRshort:DCB]], [[ACRshort:TPIU]], and [[ACRshort:DWT]] peripherals (partially):
    1. sets the /TRCENA/ bit in the [[acrfull:DCB_DEMCR]], a "global enable for all [[ACRshort:DWT]] and [[ACRshort:ITM]] features";
    2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[acrfull:TPIU_ACPR]] such that the [[ACRshort:TPIU]] communicates with a requested baud rate.
-      The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm C1.10.4]].[fn:: This configuration implementation is faulty. See [[cref:fut:swoscaler]].]
+      The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm C1.10.4]].[fn:: This configuration implementation is error-prone: See [[cref:fut:swoscaler]].]
       #+NAME: eq:prescaler
       \begin{equation}
         \left\lfloor
         \frac{\texttt{tpiu\textunderscore freq}}{\texttt{tpiu\textunderscore baud}}
         \right\rfloor - 1
       \end{equation}
-   3. drops any [[acrfull:ETM]][fn:: A debug facility similar to the [[ACRshort:ITM]], but ultimately outside the scope of this thesis.] packets that the [[ACRshort:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
+   3. drops any [[acrfull:ETM]][fn:: A debug facility similar to (but with finer granularity than) the [[ACRshort:ITM]], but outside the scope of this thesis.] packets that the [[ACRshort:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
    4. sets the /EXCTRCENA/ bit in [[acrshort:DWT_CTRL]] which enables the generation of exception traces in the [[ACRshort:DWT]] [[parencite:&arm-rm C1.8.7]].
 5. <<rtic-trace:itm>> Applies [[ACRshort:ITM]]-related options given to ~configure~ by writing to the [[acrfull:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
    1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[ACRshort:ITM]], forwards trace packets from the [[ACRshort:DWT]] to the [[ACRshort:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
@@ -1950,11 +1951,43 @@ Why the thesis took to long, etc.
 # TODO Cargo-flash hints?
 
 # TODO add a link to the issue tracker, or should we list all issues that are open when v0.3.0 is tagged?
-**** Local timestamp prescaler configuration
+
+**** [[ACRshort:TPIU]] baud rate configuration
 :PROPERTIES:
 :CUSTOM_ID: fut:swoscaler
 :END:
-# TODO integer division
+The baud rate of the [[ACRshort:TPIU]] is configured via [[cref:lst:tpiu-baud-rate]] which implements [[cref:eq:prescaler]].
+This implementation is error-prone due to integer division and because it does not verify the written prescaler value by reading it back.
+This behavior is not documented.
+
+#+NAME: lst:tpiu-baud-rate
+#+CAPTION: [[ACRshort:TPIU]] baud rate configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[ACRshort:TPIU]] configuration registers. This implementation is subject to integer division and does not verify the written prescaler value; it is thus error-prone.
+#+begin_src rust
+  impl TPIU {
+      /// Sets the prescaler value for a wanted baud rate of the Serial
+      /// Wire Output (SWO) in relation to a given asynchronous refernce
+      /// clock rate.
+      #[inline]
+      pub fn set_swo_baud_rate(&mut self, ref_clk_rate: u32, baud_rate: u32) {
+          unsafe {
+              self.acpr.write((ref_clk_rate / baud_rate) - 1);
+          }
+      }
+
+      // ...
+  }
+#+end_src
+
+For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value 137.88 to be written, but because this prescaler must be an integer 137 is written instead, configuring the [[ACRshort:TPIU]] to use a baud rate of approximately 115942 instead as per [[textcite:&arm-rm C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
+#+NAME: eq:baud-rate-error
+\begin{equation}
+  \left\lvert 1 - \left(\frac{115942}{115200}\right)\right\rvert = 0.00644
+\end{equation}
+
+An issue that further documents the erroneous implementation and offers improvements has been created at [[textcite:&issue:cortex-m:388]].
+
+Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically during compilation, but such a feature would require non-trivial changes to the embedded Rust eco-system because =cortex-m= currently has no idea about the clock configuration of the target device.[fn:: This would require changes to all [[acrshortpl:HAL]] to statically hold information about the device-specific clock hierarchy that can then be passed to and inspected by =cortex-m=.]
+
 **** Trace stream ID configuration
 :PROPERTIES:
 :CUSTOM_ID: fut:TraceBusID
