@@ -33,6 +33,7 @@
 #+latex_header: \usepackage{tocbibind}
 #+latex_header: \usepackage{todonotes}
 #+latex_header: \usepackage[capitalize]{cleveref}
+#+latex_header: \usepackage{csquotes}
 #+LATEX_HEADER: \makeglossaries
 
 # NOTE auto linebreaks / : - and _ inside \textttBreak. Adapted from <https://tex.stackexchange.com/a/219497>.
@@ -1984,7 +1985,7 @@ For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 1
   \left\lvert 1 - \left(\frac{115942}{115200}\right)\right\rvert = 0.00644
 \end{equation}
 
-An issue that further documents the erroneous implementation and offers improvements has been created at [[textcite:&issue:cortex-m:388]].
+An issue that further documents the erroneous implementation and offers improvements is available at [[textcite:&issue:cortex-m:388]].
 
 Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically during compilation, but such a feature would require non-trivial changes to the embedded Rust eco-system because =cortex-m= currently has no idea about the clock configuration of the target device.[fn:: This would require changes to all [[acrshortpl:HAL]] to statically hold information about the device-specific clock hierarchy that can then be passed to and inspected by =cortex-m=.]
 
@@ -1992,7 +1993,17 @@ Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically 
 :PROPERTIES:
 :CUSTOM_ID: fut:TraceBusID
 :END:
-# TODO 0 may not be a valid value, and tracebusid should be set before ITMENA
+[[textcite:&arm-rm 718]] documents:
+#+begin_quote
+If a system supports multiple trace streams, the debugger must write a nonzero value to the ITM\textunderscore TCR.TraceBusID field.
+\textelp{} An example of a system with multiple trace streams is an ARMv7-M core with ETM trace stream.
+#+end_quote
+However, no documentation covers the use-case when [[ACRshort:ETM]] should be disabled and only the [[ACRshort:ITM]] trace stream is of interest.
+From brief communication with the ARM errata team, it seems that writing zero to this field is valid if the device does not support [[ACRshort:ETM]], but anecdotally (during RTIC Scope testing) it also seems valid when [[ACRshort:ETM]] packets are dropped (see [[cref:impl:rtic-trace:peripheral-config]]) on a device that does offer an [[ACRshort:ETM]], particularly the Atmel ATSAME51N20A.
+This relationship (validity of a zero trace bus ID when [[ACRshort:ETM]] packets are dropped) has not been verified.
+
+An issue covering the potential invalidity of a zero trace bus ID is available at [[textcite:&issue:cortex-m:392]].
+
 **** [[ACRshort:DWT]] comparator configuration
 :PROPERTIES:
 :CUSTOM_ID: fut:dwtcomps
