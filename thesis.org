@@ -1912,10 +1912,45 @@ The performance of the host-side =cargo-rtic-scope= and =rtic-scope-frontend-dum
 :PROPERTIES:
 :CUSTOM_ID: disc:nested-tracing-restrictions
 :END:
-*** Should ~cargo-rtic-scope~ terminate on malformed packets?
-# TODO also related: MalformedPacket in itm
+While implementing software task tracing by help of the =trace= macro, support was also added to apply the macro to nested functions.
+However, due to how the macro expands (see [[cref:lst:rtic-trace:trace-expanded]]), a nested function would expand to [[cref:lst:trace-expanded-nested]]: the exit state change of the nested function would never be reported due to the return statement just before.
+
+#+NAME: lst:trace-expanded-nested
+#+CAPTION: Expanded [[ACRshort:RTIC]] task declaration with a traced nested function.
+#+begin_src rust
+  // ...
+
+  #[allow(non_snake_case)]
+  fn task(_: task::Context) {
+      ::cortex_m_rtic_trace::__write_enter_id(0);
+      use rtic::Mutex as _;
+      use rtic::mutex_prelude::*;
+      fn nested() {
+          ::cortex_m_rtic_trace::__write_enter_id(1);
+          // some work
+          return // or equivalent
+          ::cortex_m_rtic_trace::__write_exit_id(1);
+      }
+      ::cortex_m_rtic_trace::__write_exit_id(0);
+  }
+
+  // ...
+#+end_src
+
+This limitation can be side-stepped by implementing =task::nested= such that it only applies side-effects to the function's parameters.
+Such an approach can be compared to how functions in C are commonly implemented, where the returned value is a pointer or an integer signalling if the operation was successful.
+However, due to the strict requirement that the function must not return any value in its last statement, any return data or signals must first be intermediately allocated and passed as a mutable reference to the traced function, yielding an ad-hoc [[ACRshort:API]] that not only breaks Rust's implementation guidelines but is different from a C [[ACRshort:API]].
+
+An alternative implementation of =trace= could instead wrap the call to =task::nested=, allowing a implementation of a pure function[fn:: A function without side-effects.], but because =trace= is an attribute macro it cannot be applied to statements in functions [[parencite:&docs:rust-proc-macros]].
+If trace was available as a function-like macro one could in theory wrap and trace any block expression via a theoretical =trace!(|| { nested() + nested() })=, but that would non-trivial changes to the recovery step of =cargo-rtic-scope= in order to assign a unique ID to each macro invocation.
+Furthermore it would also require the allocation of a key-word to differentiate trace macros from non-trace macros, inducing end-user overhead.
+
+The support for nested function tracing is likely to be removed in a future release of RTIC Scope.
+It is thus recommended to only use the =trace= macro on [[ACRshort:RTIC]] task declarations.
+
 *** FIFO queues
 # TODO go over all the FIFO queues in the system. How many do we have? which are limited in space?
+# TODO merge this into "Avoiding overflows"?
 *** Avoiding overflows
 :PROPERTIES:
 :CUSTOM_ID: disc:overflows
@@ -1932,10 +1967,8 @@ To avoid timestamps, in order of recommentation:
 :PROPERTIES:
 :CUSTOM_ID: disc:ts-quality
 :END:
-# TODO find what I had to do in order to increase more local timestamps inbetween DWT packets. Show itm-decode output examples.
-*** Lessons learned
-Why the thesis took to long, etc.
-*** Minimizing end-user overhead
+# TODO find what I had to do in order to increase more local timestamps inbetween DWT packets. Show itm-decode output examples
+*** Remaining end-user overhead
 :PROPERTIES:
 :CUSTOM_ID: disc:minimizing-end-user-overhead
 :END:
