@@ -2147,18 +2147,6 @@ While end-user overhead has been minimized as much as possible with the allotted
 ** Glossary & Bibliography                                          :ignore:
 [[printglossaries:]]
 [[printbibliography:]]
-** Appendices                                                       :ignore:
-#+begin_export latex
-\appendix
-\addappheadtotoc
-#+end_export
-*** TODO Application to a complex control system
-:PROPERTIES:
-:CUSTOM_ID: control-application
-:END:
- # The results of the R7014E-alike course
-
-
 
 * Footnotes
 [fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
