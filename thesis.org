@@ -136,9 +136,6 @@
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
-# TODO +NAME all listings?
-# TODO cite any mentioned crates.
-# TODO call an RTIC app just that, or firmware, throughout.
 # TODO fix cites to sections (remove the "p."?)
 # TODO verify software versions with Cargo.lock from v0.3.0 tag.
 # TODO fix hbox overflows on texttt in list of listings, bibliography, glossary
