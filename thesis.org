@@ -599,7 +599,7 @@ An exhaustive summary of these contributions are described below (listed in no p
   - /Dir: add extract-to-filesystem functionality/: implements functionality for extracting embedded file trees to disk [[parencite:&pr:includedir:57]].
   - \textit{dir/extract: add mode for overwriting existing files}: implements functionality for overwriting existing files when extracting embedded file trees to disk [[parencite:&pr:includedir:65]].
 
-*** Outline
+*** TODO Outline
  This paper is structured as follows
  - Introduction :: provides an introduction to Rust, RTIC, ARMv7-M hardware peripherals of interest, and the RTIC Scope project.
  - Previous work :: presents work previously done in the same domain, which this thesis builds upon.
@@ -1817,8 +1817,8 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 #+end_src
 
 # TODO document cortex-m-rtic-trace usage
-**** Tracing the ~atsame51n~
-**** Tracing the ~stm32f401retx~
+**** TODO Tracing the ~atsame51n~
+**** TODO Tracing the ~stm32f401retx~
 
 ** Discussion
 :PROPERTIES:
@@ -1948,10 +1948,10 @@ Furthermore it would also require the allocation of a key-word to differentiate 
 The support for nested function tracing is likely to be removed in a future release of RTIC Scope.
 It is thus recommended to only use the =trace= macro on [[ACRshort:RTIC]] task declarations.
 
-*** FIFO queues
+*** TODO FIFO queues
 # TODO go over all the FIFO queues in the system. How many do we have? which are limited in space?
 # TODO merge this into "Avoiding overflows"?
-*** Avoiding overflows
+*** TODO Avoiding overflows
 :PROPERTIES:
 :CUSTOM_ID: disc:overflows
 :END:
@@ -1963,12 +1963,12 @@ To avoid timestamps, in order of recommentation:
 - lower system clock.
 
 # refer to ETB here, with which we get another set of issues: host-side poll-rate, etc.
-*** Increasing timestamp quality
+*** TODO Increasing timestamp quality
 :PROPERTIES:
 :CUSTOM_ID: disc:ts-quality
 :END:
 # TODO find what I had to do in order to increase more local timestamps inbetween DWT packets. Show itm-decode output examples
-*** Remaining end-user overhead
+*** TODO Remaining end-user overhead
 :PROPERTIES:
 :CUSTOM_ID: disc:minimizing-end-user-overhead
 :END:
