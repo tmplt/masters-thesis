@@ -596,19 +596,21 @@ An exhaustive summary of these contributions are described below (listed in no p
   - /Dir: add extract-to-filesystem functionality/: implements functionality for extracting embedded file trees to disk [[parencite:&pr:includedir:57]].
   - \textit{dir/extract: add mode for overwriting existing files}: implements functionality for overwriting existing files when extracting embedded file trees to disk [[parencite:&pr:includedir:65]].
 
-*** TODO Outline
- This paper is structured as follows
- - Introduction :: provides an introduction to Rust, RTIC, ARMv7-M hardware peripherals of interest, and the RTIC Scope project.
- - Previous work :: presents work previously done in the same domain, which this thesis builds upon.
- - Related work :: presents some tools similar to the features of RTIC Scope.
- - Implementation :: covers the implementation of RTIC Scope and the ~itm~ crate.
- - Results :: TODO
- - Discussion :: TODO
- - Conclusions :: TODO
- - Future work :: TODO
- - Appendices :: TODO
+*** Outline
+ This paper is structured as follows:
+ - [[cref:introduction]], Introduction :: Provides a background introduction to Rust, the embedded Rust ecosystem and [[ACRshort:RTIC]].
+   Subsequently covers the  project motivation, problem definition, delimitations and the contributions made within the scope of this thesis.
+ - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
+ - [[cref:theory]], Theory :: Covers the ARMv7-M debug facilities, the [[ACRshort:ITM]] packet protocol and how [[ACRshort:RTIC]] tasks are traced in theory via RTIC Scope.
+ - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the =itm= crate.
+ - [[cref:results]], Results :: Covers the results of this thesis.
+ - [[cref:discussion]], Discussion :: discusses some topics of interests regarding RTIC Scope, and a choice selection of topics for further development.
+ - [[cref:conclusion]], Conclusions :: Summarizes the work done in this thesis.
 
 ** Previous and Related Work
+:PROPERTIES:
+:CUSTOM_ID: prev-work
+:END:
 This chapter briefly covers previous work upon which RTIC Scope is based and related work.
 *** Previous work
 The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
@@ -623,6 +625,9 @@ Some toolsets similar to RTIC Scope were already available before the start of t
 Neither of the above tools support [[ACRshort:RTIC]] at the time of writing.
 
 ** Theory
+:PROPERTIES:
+:CUSTOM_ID: theory
+:END:
 This chapter covers the purpose and usage of the utilized ARMv7-M debug peripherals, relevant sections of the [[ACRshort:ITM]] packet protocol and how [[ACRshort:RTIC]] tasks are traced.
 *** ARMv7-M debug facilities
 :PROPERTIES:
@@ -1776,6 +1781,9 @@ When replaying a file, =cargo-rtic-scope= will terminate when the replay file en
 #+end_src
 
 ** Results
+:PROPERTIES:
+:CUSTOM_ID: results
+:END:
 From [[cref:impl]] it follows that all requirements enumerated in [[cref:requirements]] are fulfilled.
 This project has yielded a collection of five crates; four of which constitute the RTIC Scope project, the last crate a (much more; i.e. not specific to RTIC Scope) generally applicable trace stream decoding library.
 These crates are described in [[cref:contribs]].
@@ -2139,9 +2147,12 @@ It would be beneficial to incorporate the features offered by =itm-tools= into =
 For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] and [[textcite:&issue:itm:14]], respectively.
 
 ** Conclusion
+:PROPERTIES:
+:CUSTOM_ID: conclusion
+:END:
 The RTIC Scope project fulfills all requirements enumered in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]].
 While end-user overhead has been minimized as much as possible with the allotted development time overhead may still be considered significant depending on factors of [[ACRshort:HAL]] availability and complexity of the embedded system.
-** Glossary & Bibliography                                          :ignore:
+** Backmatter                                                       :ignore:
 [[printglossaries:]]
 [[printbibliography:]]
 
