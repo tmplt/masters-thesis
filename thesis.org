@@ -338,7 +338,7 @@ In order to lighten the implementation burden one may employ [[Acrfull:RTIC]], (
 # Project aim
 The aim of this thesis is thus to employ and extend upon RTIC with a toolset, aptly named RTIC Scope, to trace /tasks/ by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
 RTIC Scope will aim for minimal end-user overhead in order to apply the toolset, and lighten the burden when verifying the implementation of an embedded system.
-The resulting toolset will be employed to verify the implementation of a regulator for a non-trivial dynamic system (see [[#control-application]]), and the functionality and end-user overhead of the toolset evaluated (see [[#discussion]]).
+The functionality and end-user overhead of the toolset will then be evaluated (see [[cref:discussion]]).
 
 *** Background
 This introductory section covers the software components that have realized RTIC Scope.
@@ -494,12 +494,6 @@ Enabling and correctly configuring these facilites to generate a trace stream an
 RTIC is a novel RTOS which offers improvements over conventional RTOSs [[parencite:&tjader2021rtic 23]].
 The motivation behind RTIC Scope is thus to offer a /batteries included/[fn:: where details regarding trace stream generation and decoding is abstracted, and where no additional work must be done to utilize the tool.] toolset that enables instant insight into an RTIC application.
 Such a toolset would make it easier to verify the implementation of an RTIC application.
-
-# Control application.
-RTIC Scope will then be used to verify the implementation of a regulator for a complex dynamic system (see  [[cref:control-application]]).
-This is done in order to establish a base-line for the end-user experience of the toolset, so that is can be improved upon;
-and provide an example where the toolset is applied to a realistic RTIC application.
-The regulation of a complex dynamic system is chosen because an RTIC application for such a task is non-trivial, and it provides an ample opportunity to improve one's capabilities for control engineering.
 
 *** Problem definition
 :PROPERTIES:
