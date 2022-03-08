@@ -92,6 +92,8 @@
 |---------------+------------------+-------------------------------------------------------|
 | PC            | PC               | \textit{program counter}                              |
 | CPU           | CPU              | \textit{central processing unit}                      |
+| MCU           | MCU              | \textit{microcontroller unit}                         |
+| SWO           | SWO              | \textit{Serial Wire Out}                              |
 | RTIC          | RTIC             | \textit{Real-Time Interrupt-driven Concurrency}       |
 | RTOS          | RTOS             | \textit{real-time operating system}                   |
 | SRP           | SRP              | \textit{Stack Resource Policy}                        |
@@ -1952,6 +1954,49 @@ Furthermore it would also require the allocation of a key-word to differentiate 
 
 The support for nested function tracing is likely to be removed in a future release of RTIC Scope.
 It is thus recommended to only use the =trace= macro on [[ACRshort:RTIC]] task declarations.
+*** A fundamental flaw of asynchronous serial trace exfiltration
+:PROPERTIES:
+:CUSTOM_ID: disc:swo-transient
+:END:
+During the development of RTIC Scope done within the scope of this thesis, considerate focus was put on trace exfiltration using asynchronous serial communication.
+This approach saw focus due to the minimal hardware design required to enable tracing support of a product based on a ARMv7-M [[ACRshort:MCU]]:
+the base requirement is to expose the single [[ACRshort:SWO]] pin, after which the remaining work is done by device-external hardware (in order to convert the electrical signal to a byte stream) and software.
+A single [[ACRshort:MCU]] pin commonly multiplex features, however.
+Features can in theory be selected via hardware or software:
+via a hardware configuration (pulling another pin high or low[fn:: Shorting the pin to a 3.3V source, or common ground, respectively.]) the pin in question will expose the wanted feature when the [[ACRshort:MCU]] and eventual [[ACRshort:MCU]]-internal peripherals are powered;
+via software the pin will expose its default feature on power and software must configure the pin during initialization.
+Commonly, most pins can only be configured via software and upon a [[ACRshort:MCU]] reset, the pin returns to its default feature.
+Unfortunately, software configuration is prone to induce transient noise on the pin until it is configured.
+If this noise it not accounted for and host-side trace recording starts as the [[ACRshort:MCU]] resets, the recorded noise will put the trace decoder in an unknown state and likely emit malformed packets.
+Ultimately, task state changes are likely to be lost and the error induced to the decoder may not necessarily be transient.
+This behavior is intrinsically [[ACRshort:MCU]]-specific: there is unlikely a common model of this noise that can be used to filter the bytes host-side in software.
+
+The ATSAME51N20A is one example of an [[ACRshort:MCU]] that displays this noise, seen in Fig. ???, as a consequence of the configuration done to pin PC27 in [[cref:lst:atsame51n20a-swo-conf]].
+\missingfigure{Display the noise seen when configuring SWO on the ATSAM}
+
+#+NAME: lst:atsame51n20a-swo-conf
+#+CAPTION: Configuration of the PC27 pin for the ATSAME51N20A [[ACRshort:MCU]] to act as the [[ACRshort:SWO]] pin. This configuration induces transient noise on the pin, seen in Fig. ???.
+#+begin_src rust
+  #[init]
+  fn init(mut ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics()) {
+      // configure trace clock
+      let mut gcc = GenericClockController::with_internal_32kosc(
+          ctx.device.GCLK,
+          &mut ctx.device.MCLK,
+          &mut ctx.device.OSC32KCTRL,
+          &mut ctx.device.OSCCTRL,
+          &mut ctx.device.NVMCTRL,
+      );
+      let gclk0 = gcc.gclk0();
+      let _trace_clk = gcc.cm4_trace(&gclk0).unwrap();
+
+      // configure SWO pin; this induces transient noise on the pin.
+      let pins = hal::gpio::v2::Pins::new(ctx.device.PORT);
+      let _pc27 = pins.pc27.into_mode::<Alternate<M>>();
+  }
+#+end_src
+
+A few methods of "escaping" this transient that require further investigation are proposed in [[cref:fut:espace-swo-transient]].
 
 *** TODO FIFO queues
 # TODO go over all the FIFO queues in the system. How many do we have? which are limited in space?
@@ -2141,6 +2186,31 @@ In comparison to =itm-decode= provided as a result of this thesis, =itm-tools= d
 
 It would be beneficial to incorporate the features offered by =itm-tools= into =itm= (within which =itm-decode= is available) in order to collect [[ACRshort:ITM]] decoding and interpretation efforts in a singular crate.
 For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] and [[textcite:&issue:itm:14]], respectively.
+
+**** Escaping the [[ACRshort:SWO]] transient noise
+:PROPERTIES:
+:CUSTOM_ID: fut:espace-swo-transient
+:END:
+Below is a list of possible methods of espacing the transient noise of the [[ACRshort:SWO]] pin described in [[cref:disc:swo-transient]].
+
+- Using the parallel trace port :: [[textcite:&arm-rm C1.10]] describes the optional feature of a "parallel trace port".
+  This is a synchronous trace exfiltration method that uses one pin for the clock and at least one pin for data communication.
+  An optional "control pin" may also be supported by the [[ACRshort:MCU]], but its purpose has not been investigated.
+
+  This approach may remove the noise entirely, but may depend on the order in which the pins are configured.
+  It will also require more complex hardware between the target and host in order to adapt the parallel interface to a serial device which =cargo-rtic-scope= can read.
+  [[textcite:&orbuculum]] has done some work on this front, and offer hardware designs to demux multiple data pins.
+
+- Using sentinel synchronization packets :: [[textcite:&arm-rm D4.2.1]] defines a synchronization packet that "trace capture hardware can [use to] identify the alignment of packet bytes in the bitstream".
+  If such a packet is emitted after pin configuration, the decoder may be able to implement support to drop read trace data until this packet is encountered.
+  Due to the constitution of this packet (at least 47 zeros followed by a single 1 bit), the possibility of the transient noise generating such a packet may be sufficiently low to ensure a stable trace stream.
+  However, this possibility is difficult to find because the induces noise depends on the internal characteristics of the [[ACRshort:MCU]].
+  Refer to [[textcite:&issue:itm:11]] for the progress and applicability of this approach.
+
+- Storing trace data on-chip :: [[textcite:&arm-rm C1.10]] refers to a [[ACRshort:TPIU]]-alternative dubbed the [[acrfull:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
+  An attached debugger could theoretically read this data, sidestepping the [[ACRshort:TPIU]] (and thus any pin transients) completely.
+  =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the [[ACRshort:ETB]].
+  Refer to [[textcite:&issue:cargo-rtic-scope:128]] for the progress of this approach.
 
 ** Conclusion
 :PROPERTIES:
