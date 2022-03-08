@@ -300,7 +300,7 @@ Unfortunately are embedded systems subject to the observer effect: to observe th
 # A proper implementation would not block on a serial write.
 This observeration is often realized by exfiltrating data via serial communication which in the best case can induce bus contention and full output queues,
 but it is not uncommon that a program blocks until the data has been serialized, severely affecting the purpose of the program --- regulation --- if the payload is large.
-In a perfect implementation, the user application[fn:1] would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, removing the observer effect and thus the effect on the underlying control system.
+In a perfect implementation, the user application[fn:: The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the /main loop/.] would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, removing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
 ARM Ltd. is a company that licenses out designs of ARM [[acrfullpl:CPU]] for embedded systems.
@@ -2160,24 +2160,5 @@ While end-user overhead has been minimized as much as possible with the allotted
 [fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
 
 [fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[ACRshort:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] comments that a value of [[Acrfull:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[ACRshort:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
-
-
-[fn:recovery-build] A positive side-effect of this step is that the RTIC Scope user does not have to manually call =cargo build= before =cargo rtic-scope trace=.
-
-[fn:1] The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the /main loop/.
-
-[fn:dwt-running-bit] Alternatively, one bit in the =DataTraceValue= payload can denote whether a task was entered or exited.
-
-[fn:cargo] See https://crates.io/crates/cargo.
-
-[fn:rtic-syntax] See https://crates.io/crates/rtic-syntax.
-
-[fn:decoder] Based upon the existing works of ~itm-tools~[fn:itm-tools].
-
-[fn:memory-lanes] https://github.com/rtic-rs/rfcs/issues/31 discusses the RTIC-abstraction of RTT and similar peripherals to "memory lanes".
-
-[fn:itm-tools] See https://github.com/japaric/itm-tools.
-
-[fn:cli] Command-line interface.
 
 [fn:dwt-n] $n$ emphasized for reasons of readability and typesetting.
