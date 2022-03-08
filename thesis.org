@@ -1790,7 +1790,7 @@ These crates are described in [[cref:contribs]].
 
 As mentioned in [[cref:introduction]] the aim of RTIC Scope is to offer instant insight into the embedded system under test by minimizing end-user overhead.
 While significant development time as been dedicated to this aim the overhead may not necessarily be considered minimal.
-The remaining overhead aspects are discussed in [[cref:disc:minimizing-end-user-overhead]].
+# TODO talk about the remaining overhead?
 
 *** Using RTIC Scope
 From an end-user perspective RTIC Scope offers a "batteries-included" toolset that enables great insight into a target RTIC applications,
@@ -1973,10 +1973,6 @@ To avoid timestamps, in order of recommentation:
 :CUSTOM_ID: disc:ts-quality
 :END:
 # TODO find what I had to do in order to increase more local timestamps inbetween DWT packets. Show itm-decode output examples
-*** TODO Remaining end-user overhead
-:PROPERTIES:
-:CUSTOM_ID: disc:minimizing-end-user-overhead
-:END:
 *** Future work
 This section comments on some choice topics of future work planned for RTIC Scope, most sections being referred to previously in this text and being filed as issues in the relevant repository.
 This section is not exhaustive for sake of brevity:
