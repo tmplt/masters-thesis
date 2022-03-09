@@ -1704,8 +1704,6 @@ If trace packets are generated faster than they can be emitted from the target, 
 One of these packets may be a local timestamp.
 For a discussion on how to avoid overflows, see [[cref:disc:overflows]].
 
-For a discussion on how to increase the quality of timestamps (and thus the general quality of the trace), see [[cref:disc:ts-quality]].
-
 *** Handling the resolved trace stream in the frontend
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-scope-frontend-dummy
@@ -2028,11 +2026,6 @@ If overflows are encountered the below description of approaches can be consulte
 
 - Generate less events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[ACRshort:RTIC]] application to generate less events: that is, decrease the frequency at which tasks are entered and exited.
   The lowest hanging fruit of this approach is to simply disable the tracing of software tasks by omitting all instances of the =trace= macro.
-*** TODO Increasing timestamp quality
-:PROPERTIES:
-:CUSTOM_ID: disc:ts-quality
-:END:
-# TODO find what I had to do in order to increase more local timestamps inbetween DWT packets. Show itm-decode output examples
 *** Future work
 This section comments on some choice topics of future work planned for RTIC Scope, most sections being referred to previously in this text and being filed as issues in the relevant repository.
 This section is not exhaustive for sake of brevity:
