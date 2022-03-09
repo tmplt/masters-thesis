@@ -95,6 +95,7 @@
 | MCU           | MCU              | \textit{microcontroller unit}                         |
 | SWO           | SWO              | \textit{Serial Wire Out}                              |
 | RTIC          | RTIC             | \textit{Real-Time Interrupt-driven Concurrency}       |
+| FIFO          | FIFO             | \textit{Fist-In, First-Out}                           |
 | RTOS          | RTOS             | \textit{real-time operating system}                   |
 | SRP           | SRP              | \textit{Stack Resource Policy}                        |
 | DCB           | DCB              | \textit{Debug Control Block}                          |
@@ -1992,21 +1993,41 @@ The ATSAME51N20A is one example of an [[ACRshort:MCU]] that displays this noise,
 
 A few methods of "escaping" this transient that require further investigation are proposed in [[cref:fut:espace-swo-transient]].
 
-*** TODO FIFO queues
-# TODO go over all the FIFO queues in the system. How many do we have? which are limited in space?
-# TODO merge this into "Avoiding overflows"?
-*** TODO Avoiding overflows
+*** Avoiding overflows
 :PROPERTIES:
 :CUSTOM_ID: disc:overflows
 :END:
-# XXX merge fifo queues into this section?
-Summarized: the target must not generate packets faster than it can emit.
-To avoid timestamps, in order of recommentation:
-- increase the baud rate (host-side limits (Linux vs. BSD, may apply));
-- increase the TPIU clock frequency; and
-- lower system clock.
+The theory behind overflow avoidance is simple: the [[ACRshort:ITM]] and [[ACRshort:DWT]] may not generate more trace packets than what the [[ACRshort:TPIU]] can serialize.
 
-# refer to ETB here, with which we get another set of issues: host-side poll-rate, etc.
+If overflows are encountered the below description of approaches can be consulted, in order of recommendations.
+- Increase [[ACRshort:TPIU]] baud rate :: the [[ACRshort:SWO]] baud rate is controlled via the /SWOSCALER/ bitrange in [[ACRshort:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
+  /SWOSCALER/ can be calculated via [[cref:eq:prescaler]], and can be considered arbitrary.
+  Increasing the baud rate by lowering /SWOSCALER/ gives the [[ACRshort:TPIU]] more time to serialize a packet onto the [[ACRshort:SWO]] pin, thus inceasing the margin until the internal [[ACRshort:FIFO]] queue fills up prompts an overflow on the next packet.
+
+  While the [[ACRshort:TPIU]] can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
+  Linux, for example, can only communicate with a set of pre-defined baud rates as described in =termios.h= [[parencite:&linux:termios]].
+  With a sufficiently low error rate, $\left\lvert1 - \frac{\text{Linux baud rate}}{\text{TPIU baud rate}}\right\rvert$, it may be possible to establish a stable communication with non-matched baud rates.
+
+  The baud rate can be selected via =cortex_m_rtic_trace::configure= by appropriately configuring the passed =TraceConfiguration::tpiu_baud= structure field.
+
+- Asynchronously clock [[ACRshort:TPIU]] :: The [[ACRshort:TPIU]] can be clocked with the system clock or via an asynchronous clock, configured via the =TraceConfiguration::timestamp_clk_src= enum passed to =cortex_m_rtic_trace::configure=.
+  If overflows are encountered when using the system clock, it is recommended to use a faster asynchronous clock instead.
+  The capabilites of this clock, how it is configured, and whether an asynchronous clock source is supported at all is [[ACRshort:MCU]]-specific.
+  In combination with the previous recommendation, this gives a lot more leeway when configuring the baud rate;
+  with a dedicated trace clock the baud rate can much more easily match the baud rates the host system can communicate with, without affecting the [[ACRshort:MCU]]'s system clock.
+
+  As the configuration field name implies, this clock is also used to increment the timestamp values --- specifically local timestamps.
+  Note also [[textcite:&arm-rm C1.7.6]], under /SWOENA/, which the configuration field is equivalent to: "[When an asynchronous clock is used] the timestamp counter is held in reset while the output line is idle."
+  This implies that when the system clock is used the timestamp counter will continue to run even if there are no trace packets to serialize.[fn:: Anecdotally, when experimenting with the Atmel ATSAME51N20A, a local timestamp would be emitted before it wrapped when using the system clock.]
+  This behavior must be taken into account when changing the clock source.
+  It is in any case recommended to always use an asynchonous clock source if available in case the sysem clock frequency must be changed.
+
+- Lower the system clock :: The frequency at which trace packets are generated is entirely bound to how often tasks are entered and exited and the frequency of the system clock.
+  If the above recommendations have been applied and overflows are still encountered, a last resort before the traced application must be refactored is to lower the system clock frequency.
+  This frequency should as per the last recommendation be lower than that of the asynchronous clock frequency which the [[ACRshort:TPIU]] sources.
+
+- Generate less events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[ACRshort:RTIC]] application to generate less events: that is, decrease the frequency at which tasks are entered and exited.
+  The lowest hanging fruit of this approach is to simply disable the tracing of software tasks by omitting all instances of the =trace= macro.
 *** TODO Increasing timestamp quality
 :PROPERTIES:
 :CUSTOM_ID: disc:ts-quality
