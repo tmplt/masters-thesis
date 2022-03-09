@@ -528,8 +528,6 @@ These /delimitations/[fn:: Uses the key words *MUST* and *SHOULD NOT* which are 
 
 Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
 
-# TODO describe that this paper only covers v0.3.0, except for the content of future work
-
 *** Contributions
 :PROPERTIES:
 :CUSTOM_ID: contribs
@@ -710,7 +708,6 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 :PROPERTIES:
 :CUSTOM_ID: theory:itm-proto
 :END:
-# TODO summarize the packet protocol and cover the packet types which we utilize
 The [[ACRshort:ITM]] packet protocol is used by RTIC Scope to garner insight about the executing RTIC application.
 This protocol defines packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
 Some headers also contain payload.
@@ -787,7 +784,6 @@ For example, if the sequence reads
 5. [[ACRshort:LTS2]],
 then the [[ACRshort:LTS1]] corresponds to data packet 1;
 and [[ACRshort:LTS2]] corresponds to data packet 2 and 3, presuming that the hardware events occured without idle time inbetween.
-# TODO confirm this? [fn:: unconfirmed]? [fn:: author's interpretation]? can we ask ARM?
 
 #+NAME: fig:lts1
 #+CAPTION: [[ACRshort:LTS1]] packet format, copied from [[textcite:&arm-rm Figure D4-4]].
@@ -869,10 +865,6 @@ That is, how
 6. how a frontend handles a trace stream.
 
 As mentioned in [[cref:delimitations]], this chapter covers v0.3.1 of RTIC Scope.
-
-# TODO dedicated section for the replay verb
-
-# TODO list a whole RTIC application example here somewhere that we can keep referring to?
 
 \missingfigure{Draw the data flow in RTIC Scope: DWT to ITM to TPIU to cargo-rtic-scope and the itm crate, to replay file and frontends.}
 
@@ -1264,7 +1256,6 @@ These must be skipped in order to parse correctly.
       }
   } // this must be the last line of the file
 #+end_src
-# TODO document limitations of the parsing approach: no external tasks, no content after the macro
 
 In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:lst:recovery-example]] the ~std::String~ that represents the content of the source file must be converted to an [[acrfull:AST]];
 or more specifically, a =proc_macro2::TokenStream2= [[parencite:&proc-macro2]].
@@ -1291,8 +1282,7 @@ More restrictions that have yet to be discovered may apply.
 #+end_src
 
 # known and unknown maps
-# TODO pluralize HardwareTask
-At this point we have the necessary =rtic_syntax::App= structure to continue: =App::hardware_tasks= is a collection of =rtic_syntax::HardwareTask= that lists what interrupt handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]=.
+At this point we have the necessary =rtic_syntax::App= structure to continue: =App::hardware_tasks= is a collection of multiple =rtic_syntax::HardwareTask= that lists what interrupt handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]=.
 After parsing [[cref:lst:recovery-example]], =hardware_tasks= contains [fn:: Abstracted for brevity.]
 #+begin_export latex
 $$
@@ -1638,7 +1628,7 @@ Aside from covering the entirety of the protocol, this crate offers two iterator
 - [\texttt{iter::Singles}] :: which decodes each packet in the stream in sequence, yielding [\textttBreak{TracePacket} structures].
 - [\texttt{iter::Timestamps}] :: which continuously decodes packets from the stream until a local timestamp is encountered,
   yielding \linebreak[4] [\texttt{TimestampedTracePackets} structures],
-  which contains a \linebreak[4] [nanosecond-accurate] timestamp relative to target reset of when the packets where generated target-side.[fn:: TODO not necessarily true, right?]
+  which contains a \linebreak[4] [nanosecond-accurate] timestamp relative to trace reset of when the packets where generated target-side.
 #+end_quote
 
 While the implementation of =itm= has been influenced by the development of RTIC Scope it is logically disjoint from the the RTIC Scope feature set.
@@ -1708,7 +1698,6 @@ For a discussion on how to avoid overflows, see [[cref:disc:overflows]].
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-scope-frontend-dummy
 :END:
-# TODO we need some sentence before we start talking about the dummy.
 The purpose of the of =rtic-scope-frontend-dummy= frontend is to act as a reference implementation upon which more useful frontends can be built.
 There is no limit to what a frontend could do.
 It could present a real-time graphical representation of the system alike a logic analyzer, it could store the resolved trace in a database, or it could simply echo the messages to =stderr=.
