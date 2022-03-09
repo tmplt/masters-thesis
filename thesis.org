@@ -303,7 +303,7 @@ Unfortunately are embedded systems subject to the observer effect: to observe th
 # A proper implementation would not block on a serial write.
 This observeration is often realized by exfiltrating data via serial communication which in the best case can induce bus contention and full output queues,
 but it is not uncommon that a program blocks until the data has been serialized, severely affecting the purpose of the program --- regulation --- if the payload is large.
-In a perfect implementation, the user application[fn:: The program that executes on the embedded system when initialization has concluded. In some contexts also referred to as the /main loop/.] would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, removing the observer effect and thus the effect on the underlying control system.
+In a perfect implementation, the user application --- the program that executes on the embedded system --- would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, removing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
 ARM Ltd. is a company that licenses out designs of ARM [[acrfullpl:CPU]] for embedded systems.
