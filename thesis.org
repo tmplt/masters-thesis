@@ -67,7 +67,6 @@
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
-# TODO fix cites to sections (remove the "p."?)
 # TODO verify software versions with Cargo.lock from v0.3.0 tag.
 # TODO fix hbox overflows on texttt in list of listings, bibliography, glossary
 # TODO fix second list of listings page saying "list of figures"
@@ -600,7 +599,7 @@ For the purpose of RTIC Scope the DWT is configured to emit /hardware event pack
 - whenever the processor enters, exits, and returns to an exception handler (known as /exception tracing/).
 Within this text the range of memory used for data tracing is referred to as a /watch address/.
 
-Refer to [[textcite:&arm-rm C1.8]] for more information on the DWT unit.
+Refer to [[textcite:&arm-rm Section C1.8]] for more information on the DWT unit.
 **** \glsxtrfull{ITM}
 :PROPERTIES:
 :CUSTOM_ID: theory:itm-periph
@@ -616,7 +615,7 @@ Timestamp packets are sourced from a reference clock.
 The reference clock is either the system clock, an asynchronous [[gls:TPIU]] reference clock, or a /global timestamp clock/.
 The frequencies and behavior of these reference clocks and how the target clock hierarchy is configured in general is wholly specific to each target and will thus not be covered in further detail.
 
-For more information on the ITM unit, refer to [[parencite:&arm-rm C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm C1-710]].
+For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm p. C1-710]].
 **** \glsxtrfull{TPIU}
 # Summarize TPIU functionality
 The TPIU provides external visibility of the trace packet stream by serializing them either in /parallel/ or /asynchronously/.
@@ -628,7 +627,7 @@ When asynchronous serial is used, a choice of two protocols can be chosen: /Manc
 
 # Embedded Trace Buffer (ETB), SWO, or parallel trace port
 
-For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
+For more information on the TPIU, refer to [[parencite:&arm-rm Section C1.10]].
 
 # TODO recreate Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]] without ETM component.
 
@@ -645,7 +644,7 @@ This section covers the packet types that RTIC Scope exploits and provide graphi
 Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet:
 if C is not set, the next byte in the stream is a header for the next packet.
 
-For other packet types, and a full description of the protocol, see [[textcite:&arm-rm Appendix D4]].
+For other packet types, and a full description of the protocol, see [[textcite:&arm-rm Part D4]].
 
 RTIC Scope v0.3.1 concerns itself with six packets:
 - [[gls:GTS1]] :: A timestamp packet containing the lower 26 bits of the /absolute/ timestamp.
@@ -858,13 +857,13 @@ After applying device-specific configurations for trace generation, and querying
 #+end_src
 
 =configure= in [[cref:lst:rtic-trace:configure]] does a number of operations in the following order:
-1. <<rtic-trace:conf-protocol>> ensures that the target's [[gls:TPIU]] peripheral supports the requested =protocol= by reading the [[gls:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
+1. <<rtic-trace:conf-protocol>> ensures that the target's [[gls:TPIU]] peripheral supports the requested =protocol= by reading the [[gls:TPIU_TYPE]] [[parencite:&arm-rm Section C1.10.6]];
 2. ensures that the user did not request an invalid [[gls:TPIU]] configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
-3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[gls:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[gls:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
+3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[gls:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[gls:DWT_CTRL]] [[parencite:&arm-rm Section C1.8.7]];
 4. <<rtic-trace:nofail-conf>> configures the [[gls:DCB]], [[gls:TPIU]], and [[gls:DWT]] peripherals (partially):
    1. sets the /TRCENA/ bit in the [[gls:DCB_DEMCR]], a "global enable for all [[gls:DWT]] and [[gls:ITM]] features";
    2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[gls:TPIU_ACPR]] such that the [[gls:TPIU]] communicates with a requested baud rate.
-      The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm C1.10.4]].[fn:: This configuration implementation is error-prone: See [[cref:fut:swoscaler]].]
+      The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm Section C1.10.4]].[fn:: This configuration implementation is error-prone: See [[cref:fut:swoscaler]].]
       #+NAME: eq:prescaler
       \begin{equation}
         \left\lfloor
@@ -872,8 +871,8 @@ After applying device-specific configurations for trace generation, and querying
         \right\rfloor - 1
       \end{equation}
    3. drops any [[gls:ETM]][fn:: A debug facility similar to (but with finer granularity than) the [[gls:ITM]], but outside the scope of this thesis.] packets that the [[gls:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
-   4. sets the /EXCTRCENA/ bit in [[gls:DWT_CTRL]] which enables the generation of exception traces in the [[gls:DWT]] [[parencite:&arm-rm C1.8.7]].
-5. <<rtic-trace:itm>> Applies [[gls:ITM]]-related options given to =configure= by writing to the [[gls:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
+   4. sets the /EXCTRCENA/ bit in [[gls:DWT_CTRL]] which enables the generation of exception traces in the [[gls:DWT]] [[parencite:&arm-rm Section C1.8.7]].
+5. <<rtic-trace:itm>> Applies [[gls:ITM]]-related options given to =configure= by writing to the [[gls:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm Section C1.7.6]]:
    1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[gls:ITM]], forwards trace packets from the [[gls:DWT]] to the [[gls:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
    2. writes 0 to the /TraceBusID/ field because RTIC Scope does not support multi-source tracing within the scope of this thesis[fn:: Writing 0 to this field is potentially invalid. See [[cref:fut:TraceBusID]].]
    3. writes 0 to the /TSPrescale/ field, disabling prescaling for local timestamps; and
@@ -882,19 +881,19 @@ After applying device-specific configurations for trace generation, and querying
    1. first, resolves the target addresses of two =u32= /watch variables/ which live in target memory;
    2. dereferences two [[gls:DWT]] comparators as specified by the 5th and 6th arguments to =configure= in [[cref:lst:rtic-trace:configure]];[fn:: The [[gls:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
    3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
-      1. writes to seven fields in the [[gls:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
+      1. writes to seven fields in the [[gls:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm Section C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
          0b1101 to /FUNCTION/, configuring the comparator to match on address access;
          0 to /EMITRANGE/, disabling trace address packet generation;[fn:: We are not interested in the address that contains the watch variable.]
          0 to /DATAVMATCH/, to disable data value comparison[fn:not-of-concern];
          0 to /CYCMATCH/, to disable cycle counter comparison[fn:not-of-concern];
-         and 0 to /DATAVSIZE/, /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[gls:SBZ]] [[parencite:&arm-rm Glossary-855]] in address comparison context.
+         and 0 to /DATAVSIZE/, /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[gls:SBZ]] [[parencite:&arm-rm p. Glossary-855]] in address comparison context.
       2. writes the first watch variable address to [[gls:DWT_COMPn]][fn:dwt-n] (with $n = 1$), in order for the comparator to match on that address access; and
       3. writes 0 to [[gls:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
    4. Lastly, the second comparator is configured in the same manner as the first, but with the second watch variable address in mind and $n=2$.
 
 If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-trace]] fails =configure= prematurely returns an =Err(_)= that signals what went wrong, and no peripheral configuration will have been applied: the target will be in the same state as before =configure= was called.
 
-Several fields in [[gls:ITM_TCR]] are potentially [[gls:RAZ-WI]], [[gls:RAZ]], or [[gls:RAO]] [[parencite:&arm-rm Glossary-854]] in order to signal hardware support.
+Several fields in [[gls:ITM_TCR]] are potentially [[gls:RAZ-WI]], [[gls:RAZ]], or [[gls:RAO]] [[parencite:&arm-rm p. Glossary-854]] in order to signal hardware support.
 This requires the field to be read after a write to ensure that a configuration was applied.
 During the steps in [[cref:rtic-trace:itm]], if any read-back values does not match what was written, =configure= prematurely returns an =Err(_)= signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the end-user that a partial configuration has now been applied.
 It is up to the end-user to reset the target to the state before =configure= was called.
@@ -1551,7 +1550,7 @@ The =itm= library crate, [[textcite:&itm]], is
 #+ATTR_LATEX: :environment quotation
 #+begin_quote
 \noindent
-A decoder for the [[gls:ITM]] and [[gls:DWT]] packet protocol[fn:: [[gls:DWT]] packets (hardware event packets) are included in the [[gls:ITM]] packet protocol standard.] as specifed in [[[textcite:&arm-rm Appendix D4]]].
+A decoder for the [[gls:ITM]] and [[gls:DWT]] packet protocol[fn:: [[gls:DWT]] packets (hardware event packets) are included in the [[gls:ITM]] packet protocol standard.] as specifed in [[[textcite:&arm-rm Part D4]]].
 
 Aside from covering the entirety of the protocol, this crate offers two iterators which reads data from the given [\textttBreak{std::io::Read}] instance:
 - [\texttt{iter::Singles}] :: which decodes each packet in the stream in sequence, yielding [\textttBreak{TracePacket} structures].
@@ -1579,7 +1578,7 @@ Effectively, the protocol follows a [[gls:TLV]] encoding sheme.
 Decoding such a protocol is rather trivial, especially in Rust:
 the individual bytes of the header are pattern-matched in order to decode the packet type after which the remaining bytes are dispatched to another pattern-matcher in order to decode its payload.
 On success an =itm::TracePacket= is emitted.
-On failure --- if a header or payload contains data that is not covered by [[textcite:&arm-rm Appendix D4]] --- an =itm::MalformedPacket= is emitted, describing why the decode failed.
+On failure --- if a header or payload contains data that is not covered by [[textcite:&arm-rm Part D4]] --- an =itm::MalformedPacket= is emitted, describing why the decode failed.
 
 =iter::Timestamps= intercepts all global and local timestamps in order to maintain a monotonically increasing duration from when the reference clocks start ticking.
 Logically, this duration is initially zero, before any timestamp packets have been decoded.
@@ -1933,7 +1932,7 @@ If overflows are encountered the below description of approaches can be consulte
   with a dedicated trace clock the baud rate can much more easily match the baud rates the host system can communicate with, without affecting the [[gls:MCU]]'s system clock.
 
   As the configuration field name implies, this clock is also used to increment the timestamp values --- specifically local timestamps.
-  Note also [[textcite:&arm-rm C1.7.6]], under /SWOENA/, which the configuration field is equivalent to: "[When an asynchronous clock is used] the timestamp counter is held in reset while the output line is idle."
+  Note also [[textcite:&arm-rm Section C1.7.6]], under /SWOENA/, which the configuration field is equivalent to: "[When an asynchronous clock is used] the timestamp counter is held in reset while the output line is idle."
   This implies that when the system clock is used the timestamp counter will continue to run even if there are no trace packets to serialize.[fn:: Anecdotally, when experimenting with the Atmel ATSAME51N20A, a local timestamp would be emitted before it wrapped when using the system clock.]
   This behavior must be taken into account when changing the clock source.
   It is in any case recommended to always use an asynchonous clock source if available in case the sysem clock frequency must be changed.
@@ -1978,7 +1977,7 @@ Currently, this behavior is not documented.
   }
 #+end_src
 
-For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value 137.88 to be written, but because this prescaler must be an integer 137 is written instead, configuring the [[gls:TPIU]] to use a baud rate of approximately 115942 instead as per [[textcite:&arm-rm C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
+For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value 137.88 to be written, but because this prescaler must be an integer 137 is written instead, configuring the [[gls:TPIU]] to use a baud rate of approximately 115942 instead as per [[textcite:&arm-rm Section C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
 A sufficiently large error will induce communication problems.
 #+NAME: eq:baud-rate-error
 \begin{equation}
@@ -1993,7 +1992,7 @@ Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically 
 :PROPERTIES:
 :CUSTOM_ID: fut:TraceBusID
 :END:
-[[textcite:&arm-rm 718]] documents:
+[[textcite:&arm-rm p. C1-718]] documents:
 #+begin_quote
 If a system supports multiple trace streams, the debugger must write a nonzero value to the ITM\textunderscore TCR.TraceBusID field.
 \textelp{} An example of a system with multiple trace streams is an ARMv7-M core with ETM trace stream.
@@ -2120,7 +2119,7 @@ For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] a
 :END:
 Below is a list of possible methods of espacing the transient noise of the [[gls:SWO]] pin described in [[cref:disc:swo-transient]].
 
-- Using the parallel trace port :: [[textcite:&arm-rm C1.10]] describes the optional feature of a "parallel trace port".
+- Using the parallel trace port :: [[textcite:&arm-rm Section C1.10]] describes the optional feature of a "parallel trace port".
   This is a synchronous trace exfiltration method that uses one pin for the clock and at least one pin for data communication.
   An optional "control pin" may also be supported by the [[gls:MCU]], but its purpose has not been investigated.
 
@@ -2128,13 +2127,13 @@ Below is a list of possible methods of espacing the transient noise of the [[gls
   It will also require more complex hardware between the target and host in order to adapt the parallel interface to a serial device which =cargo-rtic-scope= can read.
   [[textcite:&orbuculum]] has done some work on this front, and offer hardware designs to demux multiple data pins.
 
-- Using sentinel synchronization packets :: [[textcite:&arm-rm D4.2.1]] defines a synchronization packet that "trace capture hardware can [use to] identify the alignment of packet bytes in the bitstream".
+- Using sentinel synchronization packets :: [[textcite:&arm-rm Section D4.2.1]] defines a synchronization packet that "trace capture hardware can [use to] identify the alignment of packet bytes in the bitstream".
   If such a packet is emitted after pin configuration, the decoder may be able to implement support to drop read trace data until this packet is encountered.
   Due to the constitution of this packet (at least 47 zeros followed by a single 1 bit), the possibility of the transient noise generating such a packet may be sufficiently low to ensure a stable trace stream.
   However, this possibility is difficult to find because the induces noise depends on the internal characteristics of the [[gls:MCU]].
   Refer to [[textcite:&issue:itm:11]] for the progress and applicability of this approach.
 
-- Storing trace data on-chip :: [[textcite:&arm-rm C1.10]] refers to a [[gls:TPIU]]-alternative dubbed the [[gls:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
+- Storing trace data on-chip :: [[textcite:&arm-rm Section C1.10]] refers to a [[gls:TPIU]]-alternative dubbed the [[gls:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
   An attached debugger could theoretically read this data, sidestepping the [[gls:TPIU]] (and thus any pin transients) completely.
   =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the [[gls:ETB]].
   Refer to [[textcite:&issue:cargo-rtic-scope:128]] for the progress of this approach.
@@ -2145,7 +2144,7 @@ Below is a list of possible methods of espacing the transient noise of the [[gls
 :END:
 As of writing RTIC Scope assumes that local and global timestamps are incremented via the same clock.
 As per [[textcite:&arm-rm p. C1-710]] this may not necessarily be the case: "[Global timestamps] provide absolute timestamp values, based on a system global timestamp clock" whereas "[Local timestamps are generated] from the timestamp clock in the ITM unit".
-[[textcite:&arm-rm Fig. C1-1]] can on the other hand be interpreted to imply that both local and global timestamps are derived from this global timestamp clock, but it is nowhere unambiguously stated as such.
+[[textcite:&arm-rm Figure C1-1]] can on the other hand be interpreted to imply that both local and global timestamps are derived from this global timestamp clock, but it is nowhere unambiguously stated as such.
 Due to this ambiguity it is presumed that the relationship between the clocks that generate local and global timestamps is unknown and thus [[gls:MCU]]-specific;
 =itm= should be adapted to account for this.
 Refer to [[textcite:&issue:itm:12]] regarding the progress on this issue.
@@ -2163,6 +2162,6 @@ While end-user overhead has been minimized as much as possible with the allotted
 * Footnotes
 [fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
 
-[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[gls:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] comments that a value of [[gls:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[gls:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
+[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm Section B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[gls:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm p. B1-517]] comments that a value of [[gls:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[gls:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
 
 [fn:dwt-n] $n$ emphasized for reasons of readability and typesetting.
