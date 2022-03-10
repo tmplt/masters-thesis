@@ -2138,6 +2138,17 @@ Below is a list of possible methods of espacing the transient noise of the [[gls
   =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the [[gls:ETB]].
   Refer to [[textcite:&issue:cargo-rtic-scope:128]] for the progress of this approach.
 
+**** Review local and global timestamp clock relationship
+:PROPERTIES:
+:CUSTOM_ID: fut:review-timestamp-relation
+:END:
+As of writing RTIC Scope assumes that local and global timestamps are incremented via the same clock.
+As per [[textcite:&arm-rm p. C1-710]] this may not necessarily be the case: "[Global timestamps] provide absolute timestamp values, based on a system global timestamp clock" whereas "[Local timestamps are generated] from the timestamp clock in the ITM unit".
+[[textcite:&arm-rm Fig. C1-1]] can on the other hand be interpreted to imply that both local and global timestamps are derived from this global timestamp clock, but it is nowhere unambiguously stated as such.
+Due to this ambiguity it is presumed that the relationship between the clocks that generate local and global timestamps is unknown and thus [[gls:MCU]]-specific;
+=itm= should be adapted to account for this.
+Refer to [[textcite:&issue:itm:12]] regarding the progress on this issue.
+
 ** Conclusion
 :PROPERTIES:
 :CUSTOM_ID: conclusion
