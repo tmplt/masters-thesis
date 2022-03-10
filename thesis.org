@@ -72,7 +72,6 @@
 # TODO fix hbox overflows on texttt in list of listings, bibliography, glossary
 # TODO fix second list of listings page saying "list of figures"
 # TODO tweak geometry for last overfull hboxes
-# TODO replace ~~ with == in regular text
 # TODO fix memoir page header to use H:3
 # TODO ask ARM about permission to copy figures/tables?
 # TODO copy more relevant images from ARM spec.
@@ -296,12 +295,12 @@ Rather than providing an ad-hoc implementation inlined in an embedded applicatio
 
 # Differentiate {architecture,device}-specific PACs
 In the embedded Rust ecosystems, these are two kinds of PACs:
-- Architecture-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a [[gls:PAC]] that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
+- Architecture-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, =cortex-m= [[parencite:&cortex-m]] is a [[gls:PAC]] that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
 - Device-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals available on a smaller family of embedded systems.
-  For example, ~stm32-rs~ [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
+  For example, =stm32-rs= [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
 
 # svd2rust
-A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
+A common tool to generate PACs is =svd2rust= [[parencite:&svd2rust]].
 
 An important component of device-specific [[glspl:PAC]] for RTIC Scope is the /interrupt enum/.
 An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
@@ -441,7 +440,7 @@ The set of /requirements/ RTIC Scope must fulfill within the scope of this thesi
 6. <<req:protocol>> report RTIC task events to the RTIC Scope end-user by use of a defined communication protocol.
 7. <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the the protocol described in Requirement [[req:protocol]].
 8. <<req:record>> record a trace to file which can be replayed offline by use of a host-side daemon; and
-9. <<req:cargo>> be invoked as a ~cargo~ subcommand.
+9. <<req:cargo>> be invoked as a =cargo= subcommand.
 
 Delimitations to the above requirements apply, see [[#delimitations]].
 *** Delimitations
@@ -454,7 +453,7 @@ These /delimitations/[fn:: Uses the key words *MUST* and *SHOULD NOT* which are 
 2. Requirement [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope *MUST* fail or warn the end-user if it is unable to correctly decode the read data stream.
 3. Requirement [[req:rtic]]: RTIC Scope *MUST* support RTIC version 1.0.0, see [[textcite:&rtic]].
    RTIC Scope *MUST* recover metadata necessary to report the timestamped state changes of hardware and software tasks, as defined by RTIC.
-4. Requirement [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the ~cargo~ subcommand /backend/ to the reference /frontend/. The protocol *SHOULD NOT* enable two-way communication.
+4. Requirement [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the =cargo= subcommand /backend/ to the reference /frontend/. The protocol *SHOULD NOT* enable two-way communication.
 
 Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
 
@@ -471,7 +470,7 @@ The development of RTIC Scope has yielded a number of [[gls:downstream]] contrib
   See [[cref:impl:api]] and [[textcite:&rtic-scope:api]].
 - =cortex-m-rtic-trace= :: An auxilliary target-side crate that properly configures the device for trace stream generation and exfiltration, which fulfills Requirement [[req:itm-gen]].
   See [[cref:impl:rtic-trace]] and [[textcite:&rtic-scope:rtic-trace]].
-- ~itm~ :: A library crate for decoding the trace stream exfiltrated from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
+- =itm= :: A library crate for decoding the trace stream exfiltrated from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
   See [[cref:impl:itm]] and [[textcite:&itm]].
 
 Of certain note is =itm= which =cargo-rtic-scope= relies on: its implementation is disjoint from RTIC and can be used independently of RTIC Scope.
@@ -784,13 +783,13 @@ An additional decoding step is then applied to trace software tasks.
 :PROPERTIES:
 :CUSTOM_ID: impl
 :END:
-This chapter covers the implementation of ~cargo-rtic-scope~, ~cortex-m-rtic-trace~, and ~rtic-scope-frontend-dummy~ of RTIC Scope and the implementation of ~itm~.
+This chapter covers the implementation of =cargo-rtic-scope=, =cortex-m-rtic-trace=, and =rtic-scope-frontend-dummy= of RTIC Scope and the implementation of =itm=.
 The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied.
 That is, how
-1. ~cortex-m-rtic-trace~ is applied on the target-side and what it does;
-2. ~cargo-rtic-scope~ recovers metadata from the RTIC application and how it reads the raw trace stream from the source;
-3. ~itm~ decodes this stream into manageable Rust structures;
-4. ~cargo-rtic-scope~ recovers RTIC metadata for the decoded trace stream;
+1. =cortex-m-rtic-trace= is applied on the target-side and what it does;
+2. =cargo-rtic-scope= recovers metadata from the RTIC application and how it reads the raw trace stream from the source;
+3. =itm= decodes this stream into manageable Rust structures;
+4. =cargo-rtic-scope= recovers RTIC metadata for the decoded trace stream;
 5. this resolved trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
 
@@ -817,7 +816,7 @@ On the RTIC Scope roadmap is thus the eventual deprecation of this crate. See [[
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace:peripheral-config
 :END:
-After applying device-specific configurations for trace generation, and querying the frequency of the [[gls:TPIU]] reference clock, ~configure~ is applied as shown in [[cref:lst:rtic-trace:configure]].
+After applying device-specific configurations for trace generation, and querying the frequency of the [[gls:TPIU]] reference clock, =configure= is applied as shown in [[cref:lst:rtic-trace:configure]].
 #+NAME: lst:rtic-trace:configure
 #+CAPTION: Example application of ~cortex_m_rtic_trace::configure~.
 #+begin_src rust
@@ -858,8 +857,8 @@ After applying device-specific configurations for trace generation, and querying
   }
 #+end_src
 
-~configure~ in [[cref:lst:rtic-trace:configure]] does a number of operations in the following order:
-1. <<rtic-trace:conf-protocol>> ensures that the target's [[gls:TPIU]] peripheral supports the requested ~protocol~ by reading the [[gls:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
+=configure= in [[cref:lst:rtic-trace:configure]] does a number of operations in the following order:
+1. <<rtic-trace:conf-protocol>> ensures that the target's [[gls:TPIU]] peripheral supports the requested =protocol= by reading the [[gls:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
 2. ensures that the user did not request an invalid [[gls:TPIU]] configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
 3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[gls:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[gls:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
 4. <<rtic-trace:nofail-conf>> configures the [[gls:DCB]], [[gls:TPIU]], and [[gls:DWT]] peripherals (partially):
@@ -874,14 +873,14 @@ After applying device-specific configurations for trace generation, and querying
       \end{equation}
    3. drops any [[gls:ETM]][fn:: A debug facility similar to (but with finer granularity than) the [[gls:ITM]], but outside the scope of this thesis.] packets that the [[gls:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
    4. sets the /EXCTRCENA/ bit in [[gls:DWT_CTRL]] which enables the generation of exception traces in the [[gls:DWT]] [[parencite:&arm-rm C1.8.7]].
-5. <<rtic-trace:itm>> Applies [[gls:ITM]]-related options given to ~configure~ by writing to the [[gls:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
+5. <<rtic-trace:itm>> Applies [[gls:ITM]]-related options given to =configure= by writing to the [[gls:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
    1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[gls:ITM]], forwards trace packets from the [[gls:DWT]] to the [[gls:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
    2. writes 0 to the /TraceBusID/ field because RTIC Scope does not support multi-source tracing within the scope of this thesis[fn:: Writing 0 to this field is potentially invalid. See [[cref:fut:TraceBusID]].]
    3. writes 0 to the /TSPrescale/ field, disabling prescaling for local timestamps; and
    4. writes 0 to the /GTSFREQ/ field, disabling global timestamps.[fn:: Global timestamps are an optional feature, and is not supported by all Cortex-M targets.]
 6. <<rtic-trace:dwt>> Configures [[gls:DWT]] comparators for software task tracing:
    1. first, resolves the target addresses of two =u32= /watch variables/ which live in target memory;
-   2. dereferences two [[gls:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[gls:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
+   2. dereferences two [[gls:DWT]] comparators as specified by the 5th and 6th arguments to =configure= in [[cref:lst:rtic-trace:configure]];[fn:: The [[gls:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
    3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
       1. writes to seven fields in the [[gls:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
          0b1101 to /FUNCTION/, configuring the comparator to match on address access;
@@ -893,12 +892,12 @@ After applying device-specific configurations for trace generation, and querying
       3. writes 0 to [[gls:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
    4. Lastly, the second comparator is configured in the same manner as the first, but with the second watch variable address in mind and $n=2$.
 
-If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-trace]] fails ~configure~ prematurely returns an ~Err(_)~ that signals what went wrong, and no peripheral configuration will have been applied: the target will be in the same state as before ~configure~ was called.
+If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-trace]] fails =configure= prematurely returns an =Err(_)= that signals what went wrong, and no peripheral configuration will have been applied: the target will be in the same state as before =configure= was called.
 
 Several fields in [[gls:ITM_TCR]] are potentially [[gls:RAZ-WI]], [[gls:RAZ]], or [[gls:RAO]] [[parencite:&arm-rm Glossary-854]] in order to signal hardware support.
 This requires the field to be read after a write to ensure that a configuration was applied.
-During the steps in [[cref:rtic-trace:itm]], if any read-back values does not match what was written, ~configure~ prematurely returns an ~Err(_)~ signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the end-user that a partial configuration has now been applied.
-It is up to the end-user to reset the target to the state before ~configure~ was called.
+During the steps in [[cref:rtic-trace:itm]], if any read-back values does not match what was written, =configure= prematurely returns an =Err(_)= signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the end-user that a partial configuration has now been applied.
+It is up to the end-user to reset the target to the state before =configure= was called.
 For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:382]].
 
 The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} cannot fail.
@@ -933,7 +932,7 @@ Of the two tasks, =task2= is traced by simply decorating it with =#[trace]=, the
   // ...
 #+end_src
 
-Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expanding the macros applied in [[cref:lst:rtic-trace:trace]] via ~cargo-expand~ [[parencite:&cargo-expand]].
+Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expanding the macros applied in [[cref:lst:rtic-trace:trace]] via =cargo-expand= [[parencite:&cargo-expand]].
 #+NAME: lst:rtic-trace:trace-expanded
 #+CAPTION: Application example of the ~trace~ macro after macro expansion via ~cargo-expand~. Unrelated expansions omitted.
 #+begin_src rust
@@ -961,16 +960,16 @@ A traced software task then writes its unique ID to two watch addresses that sig
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope
 :END:
-~cargo-rtic-scope~ is a host-side daemon that fulfills [[crefrange:req:input,req:protocol]] and [[crefrange:req:record,req:cargo]].
-It is run like a ~cargo~ subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where ~<verb>~ is either ~trace~ or ~replay~.
-As the verbs imply, ~trace~ is used to trace the execution of an RTIC application on the target and ~replay~ is used to replay a trace for post-mortem analysis.
+=cargo-rtic-scope= is a host-side daemon that fulfills [[crefrange:req:input,req:protocol]] and [[crefrange:req:record,req:cargo]].
+It is run like a =cargo= subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where =<verb>= is either =trace= or =replay=.
+As the verbs imply, =trace= is used to trace the execution of an RTIC application on the target and =replay= is used to replay a trace for post-mortem analysis.
 #+NAME: lst:cargo-rtic-scope:summary
 #+CAPTION: Summary of ~cargo-rtic-scope~ invocation.
 #+begin_src shell
   $ cargo rtic-scope [options...] <verb> [options...]
 #+end_src
 
-This section covers the options and implementation of the ~trace~ verb.
+This section covers the options and implementation of the =trace= verb.
 
 **** Section overview
 The implementation responsible for recording and presenting a trace to the end-user is covered in 10 parts.
@@ -994,17 +993,17 @@ These parts are enumerated below.
 The first step is to build the RTIC application the end-user wants to trace.
 This is done as a preparatory stage for [[crefrange:impl:cargo-rtic-scope:generating-metadata-maps,impl:cargo-rtic-scope:create-trace-file]] and [[cref:impl:cargo-rtic-scope:flash-target]];
 and logically, if the application cannot be built, it cannot be traced so the process should prematurely end.
-An additional side-effect of building the RTIC application is the possibility of executing ~cargo rtic-scope trace~ like one would execute ~cargo run~.
+An additional side-effect of building the RTIC application is the possibility of executing =cargo rtic-scope trace= like one would execute =cargo run=.
 
-The application is built via [[cref:lst:cargo-rtic-scope:build]] by the =trace= verb, where ~OPTIONS~ are optional additional flags to forward to ~cargo build~ from the invocation of ~cargo rtic-scope trace~.
+The application is built via [[cref:lst:cargo-rtic-scope:build]] by the =trace= verb, where =OPTIONS= are optional additional flags to forward to =cargo build= from the invocation of =cargo rtic-scope trace=.
 #+NAME: lst:cargo-rtic-scope:build
 #+CAPTION: The build process of RTIC Scope. ~OPTIONS~ is a set of additional flags potentially forwarded by ~cargo-rtic-scope~.
 #+begin_src shell
   $ cargo build --message-format=json-diagnostic-rendered-ansi [OPTIONS...]
 #+end_src
-For example, if the crate would yield multiple binaries on build, ~cargo rtic-scope trace~ must know the singlar binary which the end-user wants to trace.
-Specifying this flag is done in the same way as for ~cargo build~: via ~--bin~.
-[[cref:lst:cargo-rtic-scope:build-bin]] contains an example use of this option, which would yield the ~cargo build~ invocation in [[cref:lst:cargo-rtic-scope:build-bin-forwarded]].
+For example, if the crate would yield multiple binaries on build, =cargo rtic-scope trace= must know the singlar binary which the end-user wants to trace.
+Specifying this flag is done in the same way as for =cargo build=: via =--bin=.
+[[cref:lst:cargo-rtic-scope:build-bin]] contains an example use of this option, which would yield the =cargo build= invocation in [[cref:lst:cargo-rtic-scope:build-bin-forwarded]].
 #+NAME: lst:cargo-rtic-scope:build-bin
 #+CAPTION: Invocation of ~cargo rtic-scope trace~ with the optional ~--bin~ option which is forwarded to the underlying ~cargo build~ invocation, where ~OPTIONS~ is a set of additional flags and/or options potentially set by the end-user; not all of which are necessarily forwarded.
 #+begin_src shell
@@ -1016,21 +1015,21 @@ Specifying this flag is done in the same way as for ~cargo build~: via ~--bin~.
   $ cargo build --message-format=json-diagnostic-rendered-ansi --bin my-rtic-application [OPTIONS...]
 #+end_src
 
-Below are a description of the flags and options the end-user can specify during the invocation of ~cargo rtic-scope trace~ (in the same manner as ~cargo build~) that are forwarded to the underlying ~cargo build~ invocation in [[cref:lst:cargo-rtic-scope:build]].
-- ~--bin <binary>~ :: Used to specify which singlar binary to build.
-- ~--example <example>~ :: Used to build a singular example binary instead of a non-example binary.
-- ~--package <package>~ :: Used to build a crate instead of a singlar binary inside of a crate.
+Below are a description of the flags and options the end-user can specify during the invocation of =cargo rtic-scope trace= (in the same manner as =cargo build=) that are forwarded to the underlying =cargo build= invocation in [[cref:lst:cargo-rtic-scope:build]].
+- =--bin <binary>= :: Used to specify which singlar binary to build.
+- =--example <example>= :: Used to build a singular example binary instead of a non-example binary.
+- =--package <package>= :: Used to build a crate instead of a singlar binary inside of a crate.
   This crate should yield a single binary.
-- ~--release~ :: Used to build the binary in release mode instead of debug mode. Optimizations are applied during build with this flag.
-- ~--target <target-triple>~ :: Used to specify the target platform for which the binary should be built for. This option can be used to override the default target triple, or the one specified via the ~/.cargo/config{,toml}~ files.
-- ~--manifest-path <path>~ :: Used to override the default path to the ~cargo~ manifes, ~Cargo.toml~.
-- ~--no-default-features~ :: Used to disable all default features of the crate that contains the singular binary.
-- ~--all-features~ :: Used to enable all features of the crate that contains the singular binary.
-- ~--features <feat1>[,feat2[,feat3[...]]]~ :: Used to specify the set of features to enable of the crate that contains the singular binary.
+- =--release= :: Used to build the binary in release mode instead of debug mode. Optimizations are applied during build with this flag.
+- =--target <target-triple>= :: Used to specify the target platform for which the binary should be built for. This option can be used to override the default target triple, or the one specified via the =/.cargo/config{,toml}= files.
+- =--manifest-path <path>= :: Used to override the default path to the =cargo= manifes, =Cargo.toml=.
+- =--no-default-features= :: Used to disable all default features of the crate that contains the singular binary.
+- =--all-features= :: Used to enable all features of the crate that contains the singular binary.
+- =--features <feat1>[,feat2[,feat3[...]]]= :: Used to specify the set of features to enable of the crate that contains the singular binary.
 
 The above flags and options were deemed as the most common flags an end-user would want to specify when building the RTIC application.
-If the user wants to specify an option or flag that is not among the above set the sentinel ~--~ can be used.
-For example, if the user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~cargo-rtic-scope~ invokes [[cref:lst:cargo-rtic-scope:sentinel-forwarded]].
+If the user wants to specify an option or flag that is not among the above set the sentinel =--= can be used.
+For example, if the user invokes [[cref:lst:cargo-rtic-scope:sentinel]], =cargo-rtic-scope= invokes [[cref:lst:cargo-rtic-scope:sentinel-forwarded]].
 #+NAME: lst:cargo-rtic-scope:sentinel
 #+CAPTION: Example ~cargo rtic-scope trace~ incovation with an arbitrary ~cargo build~ argument.
 #+begin_src shell
@@ -1041,21 +1040,21 @@ For example, if the user invokes [[cref:lst:cargo-rtic-scope:sentinel]], ~cargo-
 #+begin_src shell
   $ cargo build --message-format=json-diagnostic-rendered-ansi --bin my-rtic-application [OPTIONS...] --some-cargo-build-flag
 #+end_src
-This approach ensures that the end-user can always build the RTIC application with any set of valid ~cargo build~ flags and options.
+This approach ensures that the end-user can always build the RTIC application with any set of valid =cargo build= flags and options.
 
-The effect of building the binary with =--message-format=json-diagnostic-rendered-ansi= is that the otherwise human-readable output of ~cargo build~ is instead in [[gls:JSON]], a machine-readable format.
-This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which ~cargo build~ tells us the path to the built binary used to flash the target in [[cref:impl:cargo-rtic-scope:flash-target]];
+The effect of building the binary with =--message-format=json-diagnostic-rendered-ansi= is that the otherwise human-readable output of =cargo build= is instead in [[gls:JSON]], a machine-readable format.
+This JSON output describes all artifacts that are built, including the singular binary that the end-user wants to trace, for which =cargo build= tells us the path to the built binary used to flash the target in [[cref:impl:cargo-rtic-scope:flash-target]];
 the path to the root of the crate that this binary lives, used in [[cref:impl:cargo-rtic-scope:create-trace-file]];
 and the path to the source file of this binary, used in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
 
-The JSON is not parsed directly, but via ~cargo_metadata~ [[parencite:&cargo-metadata]].
+The JSON is not parsed directly, but via =cargo_metadata= [[parencite:&cargo-metadata]].
 
 **** Reading options from the ~cargo~ manifest
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:read-manifest
 :END:
-The operation of ~cargo rtic-scope trace~ requires some information about the RTIC application from the end-user.
-These are specified in the metadata block of the crate's manifest, ~Cargo.toml~.
+The operation of =cargo rtic-scope trace= requires some information about the RTIC application from the end-user.
+These are specified in the metadata block of the crate's manifest, =Cargo.toml=.
 One may for example write the information in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]].
 #+NAME: lst:cargo-rtic-scope:manifest-metadata-example
 #+CAPTION: Example of required user-supplied information in crate manifest, ~Cargo.toml~.
@@ -1073,20 +1072,20 @@ One may for example write the information in [[cref:lst:cargo-rtic-scope:manifes
   expect_malformed = false
 #+end_src
 Of these fields the below are utilized in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]]:
-- ~pac_name~,
-- ~pac_features~,
-- ~pac_version~,
-- ~interrupt_path~,
-- ~dwt_enter_id~,
-- ~dwt_exit_id~;
+- =pac_name=,
+- =pac_features=,
+- =pac_version=,
+- =interrupt_path=,
+- =dwt_enter_id=,
+- =dwt_exit_id=;
 and the below fields are utilized in  [[cref:impl:cargo-rtic-scope:reading-the-trace-stream]] and  [[cref:impl:itm]]:
-- ~tpiu_freq~,
-- ~tpiu_baud~,
-- ~lts_prescaler~.
-The last flag, ~expect_malformed~ is a debug option utilized in [[cref:impl:cargo-rtic-scope:trace-target]].
+- =tpiu_freq=,
+- =tpiu_baud=,
+- =lts_prescaler=.
+The last flag, =expect_malformed= is a debug option utilized in [[cref:impl:cargo-rtic-scope:trace-target]].
 For a description of each field, see the respective sections.
 
-The fields of information in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]] are read from ~Cargo.toml~ by help of ~cargo_metadata~ [[parencite:&cargo-metadata]] and ~serde_json~ [[parencite:&serde-json]].
+The fields of information in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]] are read from =Cargo.toml= by help of =cargo_metadata= [[parencite:&cargo-metadata]] and =serde_json= [[parencite:&serde-json]].
 
 **** Creating a trace file
 :PROPERTIES:
@@ -1094,13 +1093,13 @@ The fields of information in [[cref:lst:cargo-rtic-scope:manifest-metadata-examp
 :END:
 To enable post-mortem analysis of a traced RTIC application the recorded trace must be saved to disk.
 The build step (see [[cref:impl:cargo-rtic-scope:building-rtic-app]]) yields the crate root of the traced application.
-A natural directory in which to save trace files is then under ~/target/~ which contains all build artifacts of the crate.
-For purposes of separation trace files are then saved under the ~rtic-traces~ sub-directory; the full path to this directory is then ~/target/rtic-traces/~.
+A natural directory in which to save trace files is then under =/target/= which contains all build artifacts of the crate.
+For purposes of separation trace files are then saved under the =rtic-traces= sub-directory; the full path to this directory is then =/target/rtic-traces/=.
 While this directory is meant for ephemeral artifacts (of which recorded traces may not belong) it was the simplest approach to associate traces to a particular crate (including its git revision; see below) while also not writing files to a wholly unexpected directory (e.g. the crate root directory).
 
-Of note is that ~/target/~ is removed if ~cargo clean~ is executed.
+Of note is that =/target/= is removed if =cargo clean= is executed.
 It is thus up to the RTIC Scope user to ensure that traces of interests are saved to a persistent location.
-For this purpose the optional ~--trace-dir <dir>~ option overrides the output directory of the trace files.
+For this purpose the optional =--trace-dir <dir>= option overrides the output directory of the trace files.
 
 The trace filename contains three sections of information:
 - the name of the RTIC application :: which associates the trace with the application that generated it, useful when a crate contains more than one application.
@@ -1117,11 +1116,11 @@ For example, after some tracing and development during January 13th and 14th, 20
   -rw-r--r-- 1 1.3K Jan 14 18:38 blinky-g124b3c5-dirty-2022-01-14T18:37:57.trace
 #+end_src
 
-In case two ~cargo rtic-scope trace~ instances are executed within the span of one second without any changes to the git repository the same trace filename will be generated twice; this will be caught by the second instance which will exit with an error[fn:: A virtual limitation. The timestamp granularity can be increased, but from a user standpoint it is unlikely to start a trace twice within the same second unless two targets are traced at the same time with the same application.]:
-~cargo-rtic-scope~ cannot overwrite trace files.
+In case two =cargo rtic-scope trace= instances are executed within the span of one second without any changes to the git repository the same trace filename will be generated twice; this will be caught by the second instance which will exit with an error[fn:: A virtual limitation. The timestamp granularity can be increased, but from a user standpoint it is unlikely to start a trace twice within the same second unless two targets are traced at the same time with the same application.]:
+=cargo-rtic-scope= cannot overwrite trace files.
 Trace files can however be explicitly deleted:
-if the user wants to record a trace and remove all previously recoded traces in the trace directory ~--clear-traces~ can be specified.
-This flag only deletes files with the ~.trace~ file extension.
+if the user wants to record a trace and remove all previously recoded traces in the trace directory =--clear-traces= can be specified.
+This flag only deletes files with the =.trace= file extension.
 
 **** Generating metadata maps
 :PROPERTIES:
@@ -1146,7 +1145,7 @@ Together these two lookup maps constitute the full =recovery::TraceLookupMaps= w
 In order to generate a =recovery::HardwareMap= the RTIC application declaration must be parsed.
 This is already done when the RTIC application is built in [[cref:impl:cargo-rtic-scope:building-rtic-app]] when the =rtic::app= macro is expanded via =rtic_syntax::parse{,2}= [[parencite:&rtic]].
 This expansion operation yields an =rtic_syntax::App= [[parencite:&rtic-syntax]] used internally to verify the application declaration and yield the expanded code.
-This structure contains all the information ~cargo rtic-scope trace~ requires (see below) but is not emitted during the building step.
+This structure contains all the information =cargo rtic-scope trace= requires (see below) but is not emitted during the building step.
 This requires the application declaration to be parsed an additional time which requires knowledge about the location of the source code file.
 This knowledge is acquired in [[cref:impl:cargo-rtic-scope:building-rtic-app]].
 
@@ -1187,9 +1186,9 @@ These must be skipped in order to parse correctly.
   } // this must be the last line of the file
 #+end_src
 
-In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:lst:recovery-example]] the ~std::String~ that represents the content of the source file must be converted to an [[gls:AST]];
+In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:lst:recovery-example]] the =std::String= that represents the content of the source file must be converted to an [[gls:AST]];
 or more specifically, a =proc_macro2::TokenStream2= [[parencite:&proc-macro2]].
-This is done by help of the ~syn~ crate [[parencite:&syn]].
+This is done by help of the =syn= crate [[parencite:&syn]].
 
 With a =TokenStream2= structure in hand [[glspl:token][tokens]] are skipped until the =proc_macro2::TokenTree::Group(_)= that contains =#[rtic::app(...)]= is found ([[cref:lst:recovery-example]], line 4).
 The remainder of the source file is then assumed to be the =mod app { ... }= input to the =rtic::app= macro.
@@ -1270,9 +1269,9 @@ The above process is unfortunately non-trivial: Rust does not have dynamic progr
 
 # libadhoc
 Enter =recovery::resolve_int_nrs=: given a list of labels, the function
-1. extracts an embedded file tree constituting a skeleton crate to the RTIC application's ~target/cargo-rtic-trace-libadhoc~, by help of [[textcite:&includedir]];
-2. writes the user-specified [[gls:PAC]] dependency into this crate's ~Cargo.toml~[fn:: By use of the ~pac_name~, ~pac_version~, ~pac_features~, and ~interrupt_path~ acquired from [[cref:impl:cargo-rtic-scope:read-manifest]].];
-3. for each label: writes a non-[[gls:manglfn][mangled function]] with the same name as the label that returns the associated IRQ number offset, $N$ (for [[cref:lst:recovery-example]] the generated recovery code can be seen in [[cref:lst:resolve_int_nrs-example]]), to ~lib.rs~;
+1. extracts an embedded file tree constituting a skeleton crate to the RTIC application's =target/cargo-rtic-trace-libadhoc=, by help of [[textcite:&includedir]];
+2. writes the user-specified [[gls:PAC]] dependency into this crate's =Cargo.toml=[fn:: By use of the =pac_name=, =pac_version=, =pac_features=, and =interrupt_path= acquired from [[cref:impl:cargo-rtic-scope:read-manifest]].];
+3. for each label: writes a non-[[gls:manglfn][mangled function]] with the same name as the label that returns the associated IRQ number offset, $N$ (for [[cref:lst:recovery-example]] the generated recovery code can be seen in [[cref:lst:resolve_int_nrs-example]]), to =lib.rs=;
    #+NAME: lst:resolve_int_nrs-example
    #+CAPTION: Generated IRQ number recovery functions for [[cref:lst:recovery-example]] with ~interrupt_path = "st32::stm32f401::Interrupt"~ from the \glsxtrfull{RTIC} application's ~Cargo.toml~.
    #+begin_src rust
@@ -1300,7 +1299,7 @@ When this [[gls:token]] is found the software task the macro is used on is assoc
 This counter is modified in the same manner as the internal counter when =cortex_m_rtic_trace::trace= expands.
 
 To complete the =SoftwareMap= the IDs of the [[gls:DWT]] comparators and the interrupts which handle the dispatch of the application's software tasks must be recorded.
-The former are acquired from  [[cref:impl:cargo-rtic-scope:read-manifest]] via the ~dwt_enter_id~ and ~dwt_exit_id~ fields.
+The former are acquired from  [[cref:impl:cargo-rtic-scope:read-manifest]] via the =dwt_enter_id= and =dwt_exit_id= fields.
 The latter are acquired via =rtic_syntax::ast::AppArgs::extern_interrupts=.
 
 For the example in [[cref:lst:rtic-scope:trace-software-task]], =SoftwareMap= would contain[fn:: Abstracted for brevity.] the information denoting =EXTI2= as the software task dispatcher and
@@ -1368,25 +1367,25 @@ See [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:spawning-frontends
 :END:
-The host-side of RTIC Scope is divided into two parts: the backend, ~cargo-rtic-scope~;
-and the frontends, of which ~rtic-scope-frontend-dummy~ is provided within the scope of this thesis, fulfilling Requirement [[req:dummy]] and also acting as the frontend reference implementation (see [[cref:impl:rtic-scope-frontend-dummy]]).
+The host-side of RTIC Scope is divided into two parts: the backend, =cargo-rtic-scope=;
+and the frontends, of which =rtic-scope-frontend-dummy= is provided within the scope of this thesis, fulfilling Requirement [[req:dummy]] and also acting as the frontend reference implementation (see [[cref:impl:rtic-scope-frontend-dummy]]).
 Frontends are separate processes that receive JSON messages from the backend over a local socket connection (see [[cref:impl:api]]).
 This section covers how frontends are specified, found in the environment, and executed.
 
-The set of frontends to spawn is specified with the ~--frontend~ option before the ~<verb>~ in [[cref:lst:spawn-frontend]].
+The set of frontends to spawn is specified with the =--frontend= option before the =<verb>= in [[cref:lst:spawn-frontend]].
 #+NAME: lst:spawn-frontend
 #+CAPTION: Starting the RTIC Scope backend with an explicit frontend.
 #+begin_src shell
   $ cargo rtic-scope --frontend=rtic-scope-frontend-dummy <verb> [OPTIONS...]
 #+end_src
-Multiple frontends (or multiple instances of a single frontend) can be spawned by specifying the ~--frontend~ option multiple times.
-By default (by not specifying the option) a single instance of ~rtic-scope-frontend-dummy~ is spawned.
+Multiple frontends (or multiple instances of a single frontend) can be spawned by specifying the =--frontend= option multiple times.
+By default (by not specifying the option) a single instance of =rtic-scope-frontend-dummy= is spawned.
 
-~cargo-rtic-scope~ searches for frontends in three locations in the environment.
-With ~--frontend=rtic-scope-frontend-dummy~ the search pattern in decreasing order of priority is
-1. in the ~PATH~ [[gls:envvar][environmental variable]];
-2. the relative path: ~./rtic-scope-frontend-dummy~; and
-3. the absolute path: ~/rtic-scope-frontend-dummy~.
+=cargo-rtic-scope= searches for frontends in three locations in the environment.
+With =--frontend=rtic-scope-frontend-dummy= the search pattern in decreasing order of priority is
+1. in the =PATH= [[gls:envvar][environmental variable]];
+2. the relative path: =./rtic-scope-frontend-dummy=; and
+3. the absolute path: =/rtic-scope-frontend-dummy=.
 If a higher priority location is valid, the search ends.
 [[cref:lst:spawn-frontends]] contains an example of spawning three frontends in each of the supported location types.
 #+NAME: lst:spawn-frontends
@@ -1502,7 +1501,7 @@ From this point on the target will generate and emit [[gls:ITM]] packets.
 With all the preparatory steps concluded and the target being (optionally) reset its up to =cargo-rtic-scope= to record these packets host-side.
 This is done in a number of steps in the imaginatively named =run_loop= function:
 1. A [[gls:sigint][SIGINT handler]] is installed, which allows the end-user to terminate =cargo-rtic-scope=.
-   If this signal is not eventually sent ~cargo-rtic-scope~ will never terminate.
+   If this signal is not eventually sent =cargo-rtic-scope= will never terminate.
 2. A second [[gls:thread]] is spawned with the mission of polling trace data from the source.
    In order to avoid the generation of overflow packets the thread should poll data as fast as possible.
    The easiest implementation to accomplish this is via a separate thread.
@@ -1714,7 +1713,7 @@ To install RTIC Scope, an end-user executes
   $ cargo install cargo-rtic-scope
   $ cargo install rtic-scope-frontend-dummy
 #+end_src
-and adds the following metadata to their RTIC application's ~Cargo.toml~:
+and adds the following metadata to their RTIC application's =Cargo.toml=:
 #+begin_src toml
   [package.metadata.rtic-scope]
   # necessary information for RTIC metadata recovery
