@@ -61,82 +61,9 @@
 #+latex_header:   every text node part/.style={align=center}, % allow multiline node descriptions
 #+latex_header: }
 
-#+NAME: glossary
-| label       | name                    | description |
-|-------------+-------------------------+-------------|
-| tokenstream | tokenstream             | cock        |
-| token       | token                   | TODO        |
-| static-anal | static analysis         | TODO        |
-| sample-rate | sample rate             | TODO        |
-| downstream  | downstream              | TODO        |
-| frontend    | frontend                | TODO        |
-| upstream    | upstream                | TODO        |
-| elf:data    | \texttt{.data}          | TODO        |
-| JSON        | JSON                    | TODO        |
-| cdylib      | cdylib                  | TODO        |
-| JTAG        | JTAG                    | TODO        |
-| manglfn     | mangled function        | TODO        |
-| envvar      | environmental variable  | TODO        |
-| stdout      | \texttt{stdout}         | TODO        |
-| sigint      | \texttt{SIGINT} handler | TODO        |
-| thread      | thread                  | TODO        |
-| task        | task                    | TODO        |
-
-
-
+#+latex_header: \loadglsentries{glossary}
 
 # TODO cdylib above: A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo. This is not the case with dylibs that instead target the unstable Rust ABI. The only way to generate a shared object file is by building a dylib or a cdylib.
-
-# XXX some of these should link to the glossary
-#+NAME: acronyms
-| key           | abbreviation     | full form                                             |
-|---------------+------------------+-------------------------------------------------------|
-| PC            | PC               | \textit{program counter}                              |
-| CPU           | CPU              | \textit{central processing unit}                      |
-| MCU           | MCU              | \textit{microcontroller unit}                         |
-| SWO           | SWO              | \textit{Serial Wire Out}                              |
-| RTIC          | RTIC             | \textit{Real-Time Interrupt-driven Concurrency}       |
-| FIFO          | FIFO             | \textit{Fist-In, First-Out}                           |
-| RTOS          | RTOS             | \textit{real-time operating system}                   |
-| SRP           | SRP              | \textit{Stack Resource Policy}                        |
-| DCB           | DCB              | \textit{Debug Control Block}                          |
-| SCS           | SCS              | \textit{System Control Space}                         |
-| SCB           | SCB              | \textit{System Control Block}                         |
-| DCB_DEMCR     | DEMCR            | \textit{Debug Exception and Monitor Control Register} |
-| ITM           | ITM              | \textit{Instrumentation Trace Macrocell}              |
-| TPIU          | TPIU             | \textit{Trace Port Interface Unit}                    |
-| DWT           | DWT              | \textit{Data Watchpoint and Trace}                    |
-| ETB           | ETB              | \textit{Embedded Trace Buffer}                        |
-| WCET          | WCET             | \textit{Worst Case Execution Time}                    |
-| EDF           | EDF              | \textit{Earliest Deadline First}                      |
-| PAC           | PAC              | \textit{Peripheral Access Crates}                     |
-| HAL           | HAL              | \textit{Hardware Abstraction Library}                 |
-| API           | API              | \textit{Application Programming Interface}            |
-| TPIU_ACPR     | TPIU\_ACPR       | \textit{Asynchronous Clock Prescaler Register}        |
-| ETM           | ETM              | \textit{Embedded Trace Macrocell}                     |
-| DWT_CTRL      | DWT\_CTRL        | \textit{Control Register}                             |
-| TPIU_TYPE     | TPIU\_TYPE       | \textit{TPIU Type Register}                           |
-| ITM_TCR       | TPIU\_TCR        | \textit{Trace Control Register}                       |
-| RAZ-WI        | RAZ/WI           | \textit{Read-As-Zero, Writes Ignored}                 |
-| RAZ           | RAZ              | \textit{Read-As-Zero}                                 |
-| RAO           | RAO              | \textit{Read-As-One}                                  |
-| DWT_FUNCTIONn | DWT\_FUNCTION$n$ | \textit{Comparator Function registers}                |
-| SBZ           | SBZ              | \textit{Should-Be-Zero}                               |
-| DWT_COMPn     | DWT\_COMP$n$     | \textit{Comparator registers}                         |
-| DWT_MASKn     | DWT\_MASK$n$     | \textit{Comparator Mask registers}                    |
-| AST           | AST              | \textit{Abstract Syntax Tree}                         |
-| TLV           | TLV              | \textit{type-length-value}                            |
-| GTS1          | GTS1             | \textit{Global timestamp packet format 1}             |
-| GTS2          | GTS2             | \textit{Global timestamp packet format 2}             |
-| LTS1          | LTS1             | \textit{Local timestamp packet format 1}              |
-| LTS2          | LTS2             | \textit{Local timestamp packet format 2}              |
-| IPSR          | IPSR             | \textit{Interrupt Program Status Register}            |
-| USB           | USB              | \textit{Universal Serial Bus}                         |
-| SWD           | SWD              | \textit{Serial Wire Debug}                            |
-| IRQ           | IRQ              | \textit{Interrupt Request}                            |
-| RFC           | RFC              | \textit{Request for Comments}                         |
-
-
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -535,7 +462,7 @@ Following the above delimitations allows this thesis to be finished within an ac
 :PROPERTIES:
 :CUSTOM_ID: contribs
 :END:
-The development of RTIC Scope has yielded a number of /downstream/ contributions, namely a collection of crates:
+The development of RTIC Scope has yielded a number of [[gls:downstream]] contributions, namely a collection of crates:
 - =cargo-rtic-scope= :: A =cargo= subcommand acting as the RTIC Scope backend (or host-side /daemon/) which fulfill Requirements [[req:input]]--[[req:protocol]] and [[req:record]]--[[req:cargo]].
   See [[cref:impl:cargo-rtic-scope]] and [[textcite:&rtic-scope:cargo-rtic-scope]].
 - =rtic-scope-frontend-dummy= :: A reference implementation of a RTIC Scope frontend, which fulfill Requirement [[req:dummy]].
@@ -552,7 +479,7 @@ Of certain note is =itm= which =cargo-rtic-scope= relies on: its implementation 
 Because of this general nature and detachment from both [[ACRshort:RTIC]] and RTIC Scope it must not necessarily be a part of the RTIC Scope project itself, but is as of writing for reasons of development convenience.
 See [[cref:disc:itm-embedded-wg]] for a discussion on under what banner =itm= belongs.
 
-Further, a number of /upstream/ contributions have been made to the crates which RTIC Scope depends on.
+Further, a number of [[gls:upstream]] contributions have been made to the crates which RTIC Scope depends on.
 An exhaustive summary of these contributions are described below (listed in no particular order).
 
 - =probe-rs/probe-rs= ::
@@ -1636,7 +1563,7 @@ Aside from covering the entirety of the protocol, this crate offers two iterator
 
 While the implementation of =itm= has been influenced by the development of RTIC Scope it is logically disjoint from the the RTIC Scope feature set.
 =itm= can thus be considered a wholly separate project but its inception was a precursor to RTIC Scope in order to fulfill Requirement [[req:decode]], and it is thus within the scope of this thesis.
-RTIC Scope is then considered a /downstream/ crate of =itm=, because it depends on it.
+RTIC Scope is then considered a downstream crate of =itm=, because it depends on it.
 
 The crate is a /green-field implementation/ of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.7 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
 Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated (intepreted as such; not explicitly stated as of writing) =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
