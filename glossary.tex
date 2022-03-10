@@ -4,7 +4,7 @@
   }
 \newglossaryentry{token}{
   name={token},
-  description={TODO}
+  description={A component of Rust source code. A single token could for example be an identifier or a group of other tokens}
   }
 \newglossaryentry{sample-rate}{
   name={sample rate},
@@ -12,55 +12,69 @@
   }
 \newglossaryentry{downstream}{
    name={downstream},
-  description={TODO}
+  description={In software development the dependencies of code is often compared to that of a stream of water. A program commonly depends on libraries. This program is then downstream of the libraries; just as water flows downstream, code from these libraries flow downstream into the dependent program. Opposite of \gls{upstream}}
   }
 \newglossaryentry{upstream}{
   name={upstream},
-  description={TODO}
+  description={Opposite of \gls{downstream}: the libraries are upstream from the program}
   }
 \newglossaryentry{frontend}{
   name={frontend},
-  description={TODO}
-  }
-\newglossaryentry{elf}{
-  name={data},
-  description={TODO}
-  }
+  description={A piece of software that a user of the program in question interacts with. The frontend maintains a connection with a \gls{backend}. A frontend may also be referred to as a \gls{client}}
+}
+\newglossaryentry{client}{
+  name={client},
+  description={A \gls{frontend}}
+}
+\newglossaryentry{backend}{
+  name={backend},
+  description={A piece of software that serves a \gls{frontend}. Also referred to as a \gls{daemon}}
+}
+\newglossaryentry{daemon}{
+  name={daemon},
+  description={A program that runs in the background responsible for a task that does not have a defined execution time (runs continually). An example of a deamon is a web server which serves \glspl{client}. Sometimes also referred to as a \gls{backend}}
+}
 \newglossaryentry{JSON}{
   name={JSON},
-  description={TODO}
-  }
+  description={``A text syntax that facilitates structured data interchange between all programming languages'' \parencite{json}. \acrfull{JSONacr} is an interchange format that is both machine and human-readable}
+}
+\newacronym{JSONacr}{JSON}{\textit{JavaScript Object Notation}}
 \newglossaryentry{cdylib}{
-  name={cdylib},
-  description={TODO}
-  }
+  name={cdylib crate},
+  description={A crate that specifies \texttt{crate\_type = ["cdylib"]} in \texttt{Cargo.toml}. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo which is not the case with non-cdylibs crates that instead target the less stable Rust ABI. The only way to directly generate a shared object file with cargo is by building a dylib or a cdylib}
+}
+\newacronym{ABI}{ABI}{\textit{Application Binary Interface}}
 \newglossaryentry{JTAG}{
   name={JTAG},
-  description={TODO}
-  }
+  description={An industry standard that, among other features, offers the ability to program an MCU \parencite{jtag}}
+}
 \newglossaryentry{manglfn}{
   name={mangled function},
-  description={TODO}
+  description={When Rust code is compiled its functions are mangled in order to allow two functions in different namespaces (e.g. different modules) have the same name. Aside from namespace information, mangling is also used to add argument and return type information to the function. This added information adds complexity when resolving the function in a shared object as a result of building a \gls{cdylib}. When mangling is disabled for a function, it's name can be directly resolved in the shared object}
   }
 \newglossaryentry{envvar}{
   name={environmental variable},
-  description={TODO}
+  description={A string variable that exists in the environment that programs execute. A change to an environmental variable can change how programs are executed and can be seen as a complement to program argument options}
   }
 \newglossaryentry{stdout}{
   name={\texttt{stdout}},
-  description={TODO}
+  description={The standard output of the running program. For example, a ``Hello, World!''-program will write ``Hello, World'' to the standard output}
   }
 \newglossaryentry{sigint}{
-  name={\texttt{SIGINT} handler},
-  description={TODO}
-  }
+  name={SIGINT handler},
+  description={A function that executes when the program receives a SIGINT signal. SIGINT is the interrupt signal. On reception, the program should teminate}
+}
+\newglossaryentry{signal}{
+  name={signal},
+  description={A standardized message sent to a running program by the operating system meant to trigger specific behavior. Some signals can be handled by the program, such as SIGINT (``interrupt'') and SIGHUP (``hang up'')},
+}
 \newglossaryentry{thread}{
   name={thread},
-  description={TODO}
+  description={A unit of concurrency available in rich operating systems used to execute multiple functions at the same time}
   }
 \newglossaryentry{task}{
   name={task},
-  description={TODO}
+  description={An \acrshort{RTIC} task. Refer to \cref{rtic}}
   }
 
 \newacronym{PC} {PC} {\textit{program counter}}

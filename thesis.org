@@ -63,8 +63,6 @@
 
 #+latex_header: \loadglsentries{glossary}
 
-# TODO cdylib above: A cdylib crate is a crate that specifies =crate_type = ["cdylib"]=. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo. This is not the case with dylibs that instead target the unstable Rust ABI. The only way to generate a shared object file is by building a dylib or a cdylib.
-
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
 # TODO fix cites to sections (remove the "p."?)
@@ -1283,7 +1281,7 @@ Enter =recovery::resolve_int_nrs=: given a list of labels, the function
          Interrupt::EXTI0.number()
      }
    #+end_src
-4. builds the crate as a [[gls:cdylib]];
+4. builds the crate as a [[gls:cdylib][cdylib crate]];
 5. loads the library into memory;
 6. for each label: calls the associated function in the library to get the offset $N$ and sums it with 16; and
 7. collects the results.
