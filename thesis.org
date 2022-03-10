@@ -28,7 +28,7 @@
 #+LATEX_HEADER: \usepackage{hyperref}
 #+LATEX_HEADER: \usepackage{xcolor}
 #+LATEX_HEADER: \hypersetup{colorlinks=true,urlcolor=blue,linkcolor={red!50!black},citecolor=blue,breaklinks=true}
-#+LATEX_HEADER: \usepackage{glossaries}
+#+LATEX_HEADER: \usepackage{glossaries-extra}
 #+latex_header: \usepackage{microtype}
 #+latex_header: \usepackage{tocbibind}
 #+latex_header: \usepackage{todonotes}
@@ -62,6 +62,8 @@
 #+latex_header: }
 
 #+latex_header: \loadglsentries{glossary}
+# TODO fix long-em on first use only?
+#+latex_header: \setabbreviationstyle[acronym]{long-em-short-em}
 
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
@@ -232,20 +234,20 @@ but it is not uncommon that a program blocks until the data has been serialized,
 In a perfect implementation, the user application --- the program that executes on the embedded system --- would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, removing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
-ARM Ltd. is a company that licenses out designs of ARM [[acrfullpl:CPU]] for embedded systems.
-ARM [[ACRshortpl:CPU]] are available via a number of vendors, e.g. STMicroelectrics, NXP Semiconductors, and Nordic Semiconductors.
+ARM Ltd. is a company that licenses out designs of ARM [[glspl:CPU]] for embedded systems.
+ARM [[glspl:CPU]] are available via a number of vendors, e.g. STMicroelectrics, NXP Semiconductors, and Nordic Semiconductors.
 The ARMv7-M platform standard offers debugging facilities that enables the developer to trace the system.
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
 These trace facilities allows for an event-based monitoring of
 - interrupt handler enters and exits;
 - Read and write access to in-memory address spaces; and
-- [[acrfull:PC]] samples, among other features.
+- [[gls:PC]] samples, among other features.
 The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the /trace stream/.
 These facilities are not disjoint (if they were, no insight into the traced system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
-Further, with non-invasive trace generation, less code must be executed by the [[ACRshort:CPU]], allowing a shorter duty-cycle of the user application.
+Further, with non-invasive trace generation, less code must be executed by the [[gls:CPU]], allowing a shorter duty-cycle of the user application.
 With a decreased duty-cycle, the system can be put to sleep longer, and thus conserve energy.
 
 # On real-time implementation restictions, embedded implementation difficulties in general.
@@ -260,10 +262,10 @@ Embedded platforms are much more subject to side-effects where peripherals are o
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
 In summary it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
-In order to lighten the implementation burden one may employ [[Acrfull:RTIC]], (see [[cref:rtic]]).
+In order to lighten the implementation burden one may employ [[gls:RTIC]], (see [[cref:rtic]]).
 
 # Project aim
-The aim of this thesis is thus to employ and extend upon [[ACRshort:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their executions off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
+The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their executions off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
 RTIC Scope will aim for minimal end-user overhead in order to apply the toolset, and allow the replay of traces post-mortem.
 
 # Thesis summary
@@ -284,24 +286,24 @@ For a description of this terminology, and the Rust programming language and eco
 
 For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
 
-**** [[Acrfull:PAC]]
+**** \glsxtrfull{PAC}
 :PROPERTIES:
 :CUSTOM_ID: background:PAC
 :END:
 # What is a PAC and what are they used for?
-A PAC is a Rust library crate which exposes an [[acrfull:API]] for hardware peripherals.
+A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
 Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
 
 # Differentiate {architecture,device}-specific PACs
 In the embedded Rust ecosystems, these are two kinds of PACs:
-- Architecture-specific :: [[ACRshortpl:PAC]] exposes an [[ACRshort:API]] for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a [[ACRshort:PAC]] that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
-- Device-specific :: [[ACRshortpl:PAC]] exposes an [[ACRshort:API]] for hardware peripherals available on a smaller family of embedded systems.
+- Architecture-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, ~cortex-m~ [[parencite:&cortex-m]] is a [[gls:PAC]] that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
+- Device-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals available on a smaller family of embedded systems.
   For example, ~stm32-rs~ [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
 
 # svd2rust
 A common tool to generate PACs is ~svd2rust~ [[parencite:&svd2rust]].
 
-An important component of device-specific [[ACRshortpl:PAC]] for RTIC Scope is the /interrupt enum/.
+An important component of device-specific [[glspl:PAC]] for RTIC Scope is the /interrupt enum/.
 An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
 Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enum is utilized.
 #+NAME: lst:pac-interrupt-example
@@ -326,27 +328,27 @@ Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enu
   }
 #+end_src
 
-**** [[Acrfull:RTIC]]
+**** \glsxtrfull{RTIC}
 :PROPERTIES:
 :CUSTOM_ID: rtic
 :END:
-[[ACRshort:RTIC]] [[parencite:&rtic]] is a novel [[ACRshort:RTOS]] targeting the ARM Cortex-M platform.
-It is developed at Luleå Technical University based on the extensively studied [[Acrfull:SRP]], which
+[[gls:RTIC]] [[parencite:&rtic]] is a novel [[gls:RTOS]] targeting the ARM Cortex-M platform.
+It is developed at Luleå Technical University based on the extensively studied [[gls:SRP]], which
 - prevents deadlocks;
 - mitigates priority inversions; and
-- is compatible with [[Acrfull:EDF]] sheduling [[parencite:&srp]].
-[[ACRshort:RTIC]] thus removes some burden out-of-the-box while also
+- is compatible with [[gls:EDF]] sheduling [[parencite:&srp]].
+[[gls:RTIC]] thus removes some burden out-of-the-box while also
 - implementing message passing between tasks;
 - incurring a minimal scheduling overhead;
 - being highly efficient on memory usage; and
-- being amenable to [[Acrfull:WCET]] analysis [[parencite:&rauk]].
+- being amenable to [[gls:WCET]] analysis [[parencite:&rauk]].
 
 # Oh yeah, and Rust
-[[ACRshort:RTIC]] is written in Rust which removes additional developer overhead (see [[cref:rust]]).
+[[gls:RTIC]] is written in Rust which removes additional developer overhead (see [[cref:rust]]).
 
-An [[ACRshort:RTIC]] application is implemented by statically declaring a set of atomic /tasks/ which are executed and scheduled by help of Cortex-M hardware features.
-This section summarizes the two different task types --- /hardware tasks/ and /software tasks/ --- that together constitute an [[ACRshort:RTIC]] application.
-For more details on [[ACRshort:RTIC]] and how it is implemented, refer to [[textcite:&rtic]] and [[textcite:&tjader2021rtic]].
+An [[gls:RTIC]] application is implemented by statically declaring a set of atomic /tasks/ which are executed and scheduled by help of Cortex-M hardware features.
+This section summarizes the two different task types --- /hardware tasks/ and /software tasks/ --- that together constitute an [[gls:RTIC]] application.
+For more details on [[gls:RTIC]] and how it is implemented, refer to [[textcite:&rtic]] and [[textcite:&tjader2021rtic]].
 
 Hardware tasks are regular Rust functions that are bound to a hardware /interrupt/.
 When this interrupt is made pending in hardware, and no interrupt handler of higher priority is currently exeuting, the task function executes.
@@ -354,7 +356,7 @@ An example hardware task is declared via [[cref:rtic-hw-task-example]].
 With this declaration, =app::foo= will be executed when =EXTI0= is pending.
 When =app::foo= returns, the interrupt has been handled and =EXTI0= is no longer pending.
 #+name: rtic-hw-task-example
-#+CAPTION: [[ACRshort:RTIC]] hardware task bound to the ~EXTI0~ interrupt.
+#+CAPTION: \glsxtrfull{RTIC} hardware task bound to the ~EXTI0~ interrupt.
 #+begin_src rust
   #[rtic::app]
   mod app {
@@ -371,7 +373,7 @@ An example of two software tasks are declared via [[cref:rtic-sw-task-example]].
 Multiple task dispatchers can be declared.
 It is not possible to declare which tasks a task dispatcher should handle; this is done automatically.
 #+name: rtic-sw-task-example
-#+caption: [[ACRshort:RTIC]] software task, bound non-exclusively to the ~EXTI0~ interrupt, acting as the task dispatcher.
+#+caption: \glsxtrfull{RTIC} software task, bound non-exclusively to the ~EXTI0~ interrupt, acting as the task dispatcher.
 #+begin_src rust
   #[rtic::app(dispatchers = [EXTI0])]
   mod app {
@@ -383,9 +385,9 @@ It is not possible to declare which tasks a task dispatcher should handle; this 
 #+end_src
 
 The purpose of hardware tasks is to respond to external stimuli, e.g. a button press, a timer trigger, or similar.
-Hardware tasks cannot be scheduled via the [[ACRshort:RTIC]] [[ACRshort:API]].
+Hardware tasks cannot be scheduled via the [[gls:RTIC]] [[gls:API]].
 
-The purpose of software tasks is to provide a task implementation that is scheduled by software via the [[ACRshort:RTIC]] [[ACRshort:API]] instead of being triggered by external stimuli.
+The purpose of software tasks is to provide a task implementation that is scheduled by software via the [[gls:RTIC]] [[gls:API]] instead of being triggered by external stimuli.
 Example usage of a software task may be to send a response over a line of communication after a hardware task executed to read a message on the same line.
 **** Hardware debuggers
 :PROPERTIES:
@@ -393,7 +395,7 @@ Example usage of a software task may be to send a response over a line of commun
 :END:
 Hardware debuggers, also known as /probes/, are dedicated hardware that provide a debugging interface between the host and target.
 In practise, the probe is its own embedded system, used to program and debug the embedded system that is considered the target.
-A probe usually provides a [[acrfull:USB]] interface for the host-side and a [[acrfull:SWD]] and/or [[gls:JTAG]] interface for the target.
+A probe usually provides a [[gls:USB]] interface for the host-side and a [[gls:SWD]] and/or [[gls:JTAG]] interface for the target.
 An embedded system may provide its own probe, usually the case for development kits, or expose headers on which to attach a probe for programming and debugging.
 
 In order to interface with a hardware probe a software suite is required on the host side.
@@ -474,7 +476,7 @@ The development of RTIC Scope has yielded a number of [[gls:downstream]] contrib
 
 Of certain note is =itm= which =cargo-rtic-scope= relies on: its implementation is disjoint from RTIC and can be used independently of RTIC Scope.
 =itm= can also be used to decode trace stream generated by a target using an RTOS other than RTIC.
-Because of this general nature and detachment from both [[ACRshort:RTIC]] and RTIC Scope it must not necessarily be a part of the RTIC Scope project itself, but is as of writing for reasons of development convenience.
+Because of this general nature and detachment from both [[gls:RTIC]] and RTIC Scope it must not necessarily be a part of the RTIC Scope project itself, but is as of writing for reasons of development convenience.
 See [[cref:disc:itm-embedded-wg]] for a discussion on under what banner =itm= belongs.
 
 Further, a number of [[gls:upstream]] contributions have been made to the crates which RTIC Scope depends on.
@@ -521,10 +523,10 @@ An exhaustive summary of these contributions are described below (listed in no p
 
 *** Outline
  This paper is structured as follows:
- - [[cref:introduction]], Introduction :: Provides a background introduction to Rust, the embedded Rust ecosystem and [[ACRshort:RTIC]].
+ - [[cref:introduction]], Introduction :: Provides a background introduction to Rust, the embedded Rust ecosystem and [[gls:RTIC]].
    Subsequently covers the  project motivation, problem definition, delimitations and the contributions made within the scope of this thesis.
  - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
- - [[cref:theory]], Theory :: Covers the ARMv7-M debug facilities, the [[ACRshort:ITM]] packet protocol and how [[ACRshort:RTIC]] tasks are traced in theory via RTIC Scope.
+ - [[cref:theory]], Theory :: Covers the ARMv7-M debug facilities, the [[gls:ITM]] packet protocol and how [[gls:RTIC]] tasks are traced in theory via RTIC Scope.
  - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the =itm= crate.
  - [[cref:results]], Results :: Covers the results of this thesis.
  - [[cref:discussion]], Discussion :: discusses some topics of interests regarding RTIC Scope, and a choice selection of topics for further development.
@@ -544,28 +546,28 @@ This is done for brevity.
 *** Related work
 Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
 - orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
-- Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[acrshortpl:RTOS]] [[parencite:&tracealyzer]].
-Neither of the above tools support [[ACRshort:RTIC]] at the time of writing.
+- Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[glspl:RTOS]] [[parencite:&tracealyzer]].
+Neither of the above tools support [[gls:RTIC]] at the time of writing.
 
 ** Theory
 :PROPERTIES:
 :CUSTOM_ID: theory
 :END:
-This chapter covers the purpose and usage of the utilized ARMv7-M debug peripherals, relevant sections of the [[ACRshort:ITM]] packet protocol and how [[ACRshort:RTIC]] tasks are traced.
+This chapter covers the purpose and usage of the utilized ARMv7-M debug peripherals, relevant sections of the [[gls:ITM]] packet protocol and how [[gls:RTIC]] tasks are traced.
 *** ARMv7-M debug facilities
 :PROPERTIES:
 :CUSTOM_ID: debug-periphs
 :END:
-This section summarizes the hardware peripherals responsible for the generation and exfiltration of the [[ACRshort:ITM]] packet protocol.
+This section summarizes the hardware peripherals responsible for the generation and exfiltration of the [[gls:ITM]] packet protocol.
 The relationship of these perhipherals is also presented.
 This section is not exhaustive for the sake of brevity;
 for full information on each peripheral, refer to the respective sections in [[textcite:&arm-rm]].
-See [[cref:theory:itm-proto]] for a description of the [[ACRshort:ITM]] packet protocol.
+See [[cref:theory:itm-proto]] for a description of the [[gls:ITM]] packet protocol.
 
 # DWT -> ITM -> TPIU -> ETB.
-RTIC Scope utilizes the [[Acrfull:DWT]], [[Acrfull:ITM]], and [[Acrfull:TPIU]] peripherals for on-target trace generation and exfiltration.
-The [[ACRshort:DWT]] and [[ACRshort:ITM]] peripherals are sources of [[ACRshort:ITM]] protocol packets which are forwarded to the [[ACRshort:TPIU]] for device exfiltration via serial communication.
-The [[ACRshort:ITM]] muxes packets emitted by the [[ACRshort:DWT]] and generates timestamp packets in order to establish a timeline of events that occured on the traced target.
+RTIC Scope utilizes the [[gls:DWT]], [[gls:ITM]], and [[gls:TPIU]] peripherals for on-target trace generation and exfiltration.
+The [[gls:DWT]] and [[gls:ITM]] peripherals are sources of [[gls:ITM]] protocol packets which are forwarded to the [[gls:TPIU]] for device exfiltration via serial communication.
+The [[gls:ITM]] muxes packets emitted by the [[gls:DWT]] and generates timestamp packets in order to establish a timeline of events that occured on the traced target.
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
 # TODO properly do the below
@@ -589,9 +591,9 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 #+END_src
 
 # #+NAME: fig:debug-relations
-# #+CAPTION: Relationship between ARMv7-M debug peripherals. Copied from [[textcite:&arm-rm Figure C1-1]]. Utilization of the [[ACRshort:ETM]] peripheral is outside of the scope of this thesis; it's functions are disabled in the context of RTIC Scope v0.3.1.
+# #+CAPTION: Relationship between ARMv7-M debug peripherals. Copied from [[textcite:&arm-rm Figure C1-1]]. Utilization of the \glsxtrfull{ETM} peripheral is outside of the scope of this thesis; it's functions are disabled in the context of RTIC Scope v0.3.1.
 
-**** [[Acrfull:DWT]]
+**** \glsxtrfull{DWT}
 # What does the DWT do and how do we use it?
 The DWT peripheral concerns itself with hardware events and respond to these accordingly depending on the applied configuration.
 For the purpose of RTIC Scope the DWT is configured to emit /hardware event packets/ on two types of events: when
@@ -600,23 +602,23 @@ For the purpose of RTIC Scope the DWT is configured to emit /hardware event pack
 Within this text the range of memory used for data tracing is referred to as a /watch address/.
 
 Refer to [[textcite:&arm-rm C1.8]] for more information on the DWT unit.
-**** [[Acrfull:ITM]]
+**** \glsxtrfull{ITM}
 :PROPERTIES:
 :CUSTOM_ID: theory:itm-periph
 :END:
 # Summarize ITM functionality
-The [[ACRshort:ITM]] unit is of an auxilliary nature; it has three functions:
-- the multiplexing of hardware event packets from the [[ACRshort:DWT]] unit with its own packets which are then forwarded to the TPIU;
+The [[gls:ITM]] unit is of an auxilliary nature; it has three functions:
+- the multiplexing of hardware event packets from the [[gls:DWT]] unit with its own packets which are then forwarded to the TPIU;
 - control and generation of timestamp packets; and
 - a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers, unused by RTIC Scope.
 
 # Summarize the timestamp sources
 Timestamp packets are sourced from a reference clock.
-The reference clock is either the system clock, an asynchronous [[ACRshort:TPIU]] reference clock, or a /global timestamp clock/.
+The reference clock is either the system clock, an asynchronous [[gls:TPIU]] reference clock, or a /global timestamp clock/.
 The frequencies and behavior of these reference clocks and how the target clock hierarchy is configured in general is wholly specific to each target and will thus not be covered in further detail.
 
 For more information on the ITM unit, refer to [[parencite:&arm-rm C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm C1-710]].
-**** [[Acrfull:TPIU]]
+**** \glsxtrfull{TPIU}
 # Summarize TPIU functionality
 The TPIU provides external visibility of the trace packet stream by serializing them either in /parallel/ or /asynchronously/.
 Parallel serialization utilizes a number of data pins and one pin for the clock signal.
@@ -632,14 +634,14 @@ For more information on the TPIU, refer to [[parencite:&arm-rm C1.10]].
 # TODO recreate Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]] without ETM component.
 
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
-*** The [[ACRshort:ITM]] packet protocol
+*** The \glsxtrfull{ITM} packet protocol
 :PROPERTIES:
 :CUSTOM_ID: theory:itm-proto
 :END:
-The [[ACRshort:ITM]] packet protocol is used by RTIC Scope to garner insight about the executing RTIC application.
+The [[gls:ITM]] packet protocol is used by RTIC Scope to garner insight about the executing RTIC application.
 This protocol defines packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
 Some headers also contain payload.
-The protocol effectively implements a [[acrfull:TLV]] encoding sheme.
+The protocol effectively implements a [[gls:TLV]] encoding sheme.
 This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[crefrange:fig:lts1,fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
 Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet:
 if C is not set, the next byte in the stream is a header for the next packet.
@@ -647,12 +649,12 @@ if C is not set, the next byte in the stream is a header for the next packet.
 For other packet types, and a full description of the protocol, see [[textcite:&arm-rm Appendix D4]].
 
 RTIC Scope v0.3.1 concerns itself with six packets:
-- [[acrfull:GTS1]] :: A timestamp packet containing the lower 26 bits of the /absolute/ timestamp.
-- [[acrfull:GTS2]] :: A timestamp packet containig the upper 22 or 38 bits of the /absolute/ timestamp, depending on the hardware implemenation.
-- [[acrfull:LTS1]] :: A multi-byte timestamp packet containing the /relative/ timestamp.
-- [[acrfull:LTS2]] :: A single-byte timestamp packet containing the /relative/ timestamp.
+- [[gls:GTS1]] :: A timestamp packet containing the lower 26 bits of the /absolute/ timestamp.
+- [[gls:GTS2]] :: A timestamp packet containig the upper 22 or 38 bits of the /absolute/ timestamp, depending on the hardware implemenation.
+- [[gls:LTS1]] :: A multi-byte timestamp packet containing the /relative/ timestamp.
+- [[gls:LTS2]] :: A single-byte timestamp packet containing the /relative/ timestamp.
 - Exception trace packet :: A hardware-event packet describing the status of an interrupt handler.
-- Data trace data value packet format :: A hardware-event packet describing the value read or written to a watch address monitored by a [[ACRshort:DWT]] comparator.
+- Data trace data value packet format :: A hardware-event packet describing the value read or written to a watch address monitored by a [[gls:DWT]] comparator.
 
 Timestamp packets come in two types: /absolute/ and /relative/.
 Both types derive their timestamps from one or more reference clocks (see [[cref:theory:itm-periph]]):
@@ -663,61 +665,61 @@ This type separation is done in order to decrease the required bandwidth to comm
 Absolute and relative timestamps are further divided into a total of four different packets, summarized above and detailed below.
 
 Global timestamps come in three flavour: 48-bit, 64-bit, or not at all (omitted).
-Whether global timestamp support is implemented, and the size of this timestamp, depends on the hardware implementation of the [[ACRshort:ITM]].
+Whether global timestamp support is implemented, and the size of this timestamp, depends on the hardware implementation of the [[gls:ITM]].
 
-The two packets that constitute a global timestamp, [[ACRshort:GTS1]] and [[ACRshort:GTS2]], are sent seperately and not necessarily in order.
-A [[ACRshort:GTS2]] packet is not emitted unless any of the bits in the 26--47 or 26--64 range have changed.
-The [[ACRshort:GTS1]] packet also contains two flags aside from the lesser significant 25 bits:
-- /ClkCh/ :: Set if the system which the [[ACRshort:ITM]] is tracing has changed clock input to the processor since the last global timestamp packet.
+The two packets that constitute a global timestamp, [[gls:GTS1]] and [[gls:GTS2]], are sent seperately and not necessarily in order.
+A [[gls:GTS2]] packet is not emitted unless any of the bits in the 26--47 or 26--64 range have changed.
+The [[gls:GTS1]] packet also contains two flags aside from the lesser significant 25 bits:
+- /ClkCh/ :: Set if the system which the [[gls:ITM]] is tracing has changed clock input to the processor since the last global timestamp packet.
   A full global timestamp follows in the stream if this flag is set.
-- /Wrap/ :: Set if the more significant bits above the 25th have changed since the last [[ACRshort:GTS2]] packets.
-If either of the flags are set the [[ACRshort:GTS1]] should be recorded until the next [[ACRshort:GTS2]] is received so that the full timestamp can be decoded.
-[[cref:fig:gts1]], [[cref:fig:gts2-48]], and [[cref:fig:gts2-64]] visually describes the [[ACRshort:GTS1]], [[ACRshort:GTS2]] (48-bit) and [[ACRshort:GTS2]] (64-bit) packets, respectively.
+- /Wrap/ :: Set if the more significant bits above the 25th have changed since the last [[gls:GTS2]] packets.
+If either of the flags are set the [[gls:GTS1]] should be recorded until the next [[gls:GTS2]] is received so that the full timestamp can be decoded.
+[[cref:fig:gts1]], [[cref:fig:gts2-48]], and [[cref:fig:gts2-64]] visually describes the [[gls:GTS1]], [[gls:GTS2]] (48-bit) and [[gls:GTS2]] (64-bit) packets, respectively.
 
 Global timestamps can be generated periodically; or after each packet, if space is available in the queue.
 
 #+NAME: fig:gts1
-#+CAPTION: [[ACRshort:GTS1]] packet format, copied from [[textcite:&arm-rm Figure D4-7]].
+#+CAPTION: \glsxtrfull{GTS1} packet format, copied from [[textcite:&arm-rm Figure D4-7]].
 [[file:svgs/gts1.pdf]]
 #+NAME: fig:gts2-48
-#+CAPTION: [[ACRshort:GTS2]] 48-bit packet format, copied from [[textcite:&arm-rm Figure D4-8]].
+#+CAPTION: \glsxtrfull{GTS2} 48-bit packet format, copied from [[textcite:&arm-rm Figure D4-8]].
 [[file:svgs/gts2-48.pdf]]
 #+NAME: fig:gts2-64
-#+CAPTION: [[ACRshort:GTS2]] 64-bit packet format, copied from [[textcite:&arm-rm Figure D4-9]].
+#+CAPTION: \glsxtrfull{GTS2} 64-bit packet format, copied from [[textcite:&arm-rm Figure D4-9]].
 [[file:svgs/gts2-64.pdf]]
 
-The two local timestamps, [[ACRshort:LTS1]] and [[ACRshort:LTS2]], are not complementary:
+The two local timestamps, [[gls:LTS1]] and [[gls:LTS2]], are not complementary:
 instead they supply a different maximum relative timestamp.
-[[ACRshort:LTS1]] provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included).
-[[ACRshort:LTS2]] is a single-byte packet with a relative timestamp that can be represented with 3 bits that are provided in the header.
-More specifially, an [[ACRshort:LTS2]] can represent a relative timestamp value of 1--6;
+[[gls:LTS1]] provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included).
+[[gls:LTS2]] is a single-byte packet with a relative timestamp that can be represented with 3 bits that are provided in the header.
+More specifially, an [[gls:LTS2]] can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
-[[ACRshort:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
+[[gls:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
 This flag have four possible values, termed /qualities/ throughout this text, described in decreasing quality:
 - TC $=$ 0b00 :: /Synchronous/: the timestamp value denotes the time when the non-timestamp packet was generated.
 - TC $=$ 0b01 :: /Delayed relative/: the timestamp value denotes the time when the timestamp packet itself was generated.
   The synchron ous timestamp is here unknown, "but must be between the previous and current timestamp values".
 - TC $=$ 0b10 :: Synchronous, but the corresponding non-timestamp packet generation was "delayed relative to the associated event".
 - TC $=$ 0b11 :: Delayed relative, and the corresponding non-timestamp packet generation was delayed relative to the associated event.
-[[ACRshort:LTS2]] packets are always synchronous.
+[[gls:LTS2]] packets are always synchronous.
 
 # TODO? in impl: current implementation (dummy) assumes local timestamps are all sync. time restriction.
 
 Local timestamps are emitted after the corresponging non-timestamp packets.
 For example, if the sequence reads
 1. data packet 1;
-2. [[ACRshort:LTS1]];
+2. [[gls:LTS1]];
 3. data packet 2;
 4. data packet 3; and
-5. [[ACRshort:LTS2]],
-then the [[ACRshort:LTS1]] corresponds to data packet 1;
-and [[ACRshort:LTS2]] corresponds to data packet 2 and 3, presuming that the hardware events occured without idle time inbetween.
+5. [[gls:LTS2]],
+then the [[gls:LTS1]] corresponds to data packet 1;
+and [[gls:LTS2]] corresponds to data packet 2 and 3, presuming that the hardware events occured without idle time inbetween.
 
 #+NAME: fig:lts1
-#+CAPTION: [[ACRshort:LTS1]] packet format, copied from [[textcite:&arm-rm Figure D4-4]].
+#+CAPTION: \glsxtrfull{LTS1} packet format, copied from [[textcite:&arm-rm Figure D4-4]].
 [[file:svgs/lts1.pdf]]
 #+NAME: fig:lts2
-#+CAPTION: [[ACRshort:LTS2]] packet format, copied from [[textcite:&arm-rm Figure D4-6]].
+#+CAPTION: \glsxtrfull{LTS2} packet format, copied from [[textcite:&arm-rm Figure D4-6]].
 [[file:svgs/lts2.pdf]]
 
 The exception trace packet ([[cref:fig:exception-packet]]) describes the state of the system's interrupt handlers and are emitted upon a state change.
@@ -735,7 +737,7 @@ Its payload contains two fields:
 #+NAME: fig:exception-packet
 #+CAPTION: Exception trace packet format, copied from [[textcite:&arm-rm Figure D4-16]].
 [[file:svgs/exception-trace.pdf]]
-#+CAPTION: ARMv7-M Exception or [[Acrfull:IRQ]] numbers and names/labels. Redrawn from [[parencite:&arm-rm Table B1-4]], with additional emphasis on $N$.
+#+CAPTION: ARMv7-M Exception or \glsxtrfull{IRQ} numbers and names/labels. Redrawn from [[parencite:&arm-rm Table B1-4]], with additional emphasis on $N$.
 #+NAME: tbl:irqns
 | Exception number | Exception name/label   |
 |------------------+------------------------|
@@ -757,9 +759,9 @@ Its payload contains two fields:
 |         16 + $N$ | External interrupt $N$ |
 |------------------+------------------------|
 
-The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a watch address after appropriate [[ACRshort:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
+The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a watch address after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
 The payload contains three fields of information:
-- /CMPN/ :: A 2-bit identifier of the [[ACRshort:DWT]] comparator which matched the configured watch address access.
+- /CMPN/ :: A 2-bit identifier of the [[gls:DWT]] comparator which matched the configured watch address access.
   This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
 - /WnR/ :: A flag describing whether the access was a read (not set) or write (set).
 - /VALUE/ :: The value that was written to the address.
@@ -769,7 +771,7 @@ The payload contains three fields of information:
 #+NAME: fig:data-trace-packet
 #+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
 [[file:svgs/data-trace.pdf]]
-*** Tracing [[ACRshort:RTIC]] tasks
+*** Tracing \glsxtrfull{RTIC} tasks
 # How tasks are traced, summarized
 Because RTIC implements tasks by use of exception handlers it is only natural to exploit exception tracing in order to trace the tasks abstracted above them.
 This approach is however only directly applicable to hardware tasks which dedicate a handler for each task.
@@ -800,7 +802,7 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3.1 of RTIC Scope
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-=cortex-m-rtic-trace= is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for tracing, namely the [[acrfull:DCB]][fn:: A component of the [[acrfull:SCB]] peripheral.], [[ACRshort:TPIU]], [[ACRshort:DWT]], and [[ACRshort:ITM]].
+=cortex-m-rtic-trace= is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for tracing, namely the [[gls:DCB]][fn:: A component of the [[gls:SCB]] peripheral.], [[gls:TPIU]], [[gls:DWT]], and [[gls:ITM]].
 The crate exposes two functions:
 - =cortex_m_rtic_trace::configure= :: a regular Rust function for configuration of the peripherals mentioned above; and
 - =cortex_m_rtic_trace::trace= :: a Rust macro with with to trace software tasks.
@@ -815,7 +817,7 @@ On the RTIC Scope roadmap is thus the eventual deprecation of this crate. See [[
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace:peripheral-config
 :END:
-After applying device-specific configurations for trace generation, and querying the frequency of the [[ACRshort:TPIU]] reference clock, ~configure~ is applied as shown in [[cref:lst:rtic-trace:configure]].
+After applying device-specific configurations for trace generation, and querying the frequency of the [[gls:TPIU]] reference clock, ~configure~ is applied as shown in [[cref:lst:rtic-trace:configure]].
 #+NAME: lst:rtic-trace:configure
 #+CAPTION: Example application of ~cortex_m_rtic_trace::configure~.
 #+begin_src rust
@@ -857,12 +859,12 @@ After applying device-specific configurations for trace generation, and querying
 #+end_src
 
 ~configure~ in [[cref:lst:rtic-trace:configure]] does a number of operations in the following order:
-1. <<rtic-trace:conf-protocol>> ensures that the target's [[ACRshort:TPIU]] peripheral supports the requested ~protocol~ by reading the [[acrfull:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
-2. ensures that the user did not request an invalid [[ACRshort:TPIU]] configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
-3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[ACRshort:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[acrfull:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
-4. <<rtic-trace:nofail-conf>> configures the [[ACRshort:DCB]], [[ACRshort:TPIU]], and [[ACRshort:DWT]] peripherals (partially):
-   1. sets the /TRCENA/ bit in the [[acrfull:DCB_DEMCR]], a "global enable for all [[ACRshort:DWT]] and [[ACRshort:ITM]] features";
-   2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[acrfull:TPIU_ACPR]] such that the [[ACRshort:TPIU]] communicates with a requested baud rate.
+1. <<rtic-trace:conf-protocol>> ensures that the target's [[gls:TPIU]] peripheral supports the requested ~protocol~ by reading the [[gls:TPIU_TYPE]] [[parencite:&arm-rm C1.10.6]];
+2. ensures that the user did not request an invalid [[gls:TPIU]] configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
+3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[gls:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[gls:DWT_CTRL]] [[parencite:&arm-rm C1.8.7]];
+4. <<rtic-trace:nofail-conf>> configures the [[gls:DCB]], [[gls:TPIU]], and [[gls:DWT]] peripherals (partially):
+   1. sets the /TRCENA/ bit in the [[gls:DCB_DEMCR]], a "global enable for all [[gls:DWT]] and [[gls:ITM]] features";
+   2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[gls:TPIU_ACPR]] such that the [[gls:TPIU]] communicates with a requested baud rate.
       The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm C1.10.4]].[fn:: This configuration implementation is error-prone: See [[cref:fut:swoscaler]].]
       #+NAME: eq:prescaler
       \begin{equation}
@@ -870,30 +872,30 @@ After applying device-specific configurations for trace generation, and querying
         \frac{\texttt{tpiu\textunderscore freq}}{\texttt{tpiu\textunderscore baud}}
         \right\rfloor - 1
       \end{equation}
-   3. drops any [[acrfull:ETM]][fn:: A debug facility similar to (but with finer granularity than) the [[ACRshort:ITM]], but outside the scope of this thesis.] packets that the [[ACRshort:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
-   4. sets the /EXCTRCENA/ bit in [[acrshort:DWT_CTRL]] which enables the generation of exception traces in the [[ACRshort:DWT]] [[parencite:&arm-rm C1.8.7]].
-5. <<rtic-trace:itm>> Applies [[ACRshort:ITM]]-related options given to ~configure~ by writing to the [[acrfull:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
-   1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[ACRshort:ITM]], forwards trace packets from the [[ACRshort:DWT]] to the [[ACRshort:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
+   3. drops any [[gls:ETM]][fn:: A debug facility similar to (but with finer granularity than) the [[gls:ITM]], but outside the scope of this thesis.] packets that the [[gls:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
+   4. sets the /EXCTRCENA/ bit in [[gls:DWT_CTRL]] which enables the generation of exception traces in the [[gls:DWT]] [[parencite:&arm-rm C1.8.7]].
+5. <<rtic-trace:itm>> Applies [[gls:ITM]]-related options given to ~configure~ by writing to the [[gls:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm C1.7.6]]:
+   1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[gls:ITM]], forwards trace packets from the [[gls:DWT]] to the [[gls:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
    2. writes 0 to the /TraceBusID/ field because RTIC Scope does not support multi-source tracing within the scope of this thesis[fn:: Writing 0 to this field is potentially invalid. See [[cref:fut:TraceBusID]].]
    3. writes 0 to the /TSPrescale/ field, disabling prescaling for local timestamps; and
    4. writes 0 to the /GTSFREQ/ field, disabling global timestamps.[fn:: Global timestamps are an optional feature, and is not supported by all Cortex-M targets.]
-6. <<rtic-trace:dwt>> Configures [[ACRshort:DWT]] comparators for software task tracing:
+6. <<rtic-trace:dwt>> Configures [[gls:DWT]] comparators for software task tracing:
    1. first, resolves the target addresses of two =u32= /watch variables/ which live in target memory;
-   2. dereferences two [[ACRshort:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[ACRshort:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
+   2. dereferences two [[gls:DWT]] comparators as specified by the 5th and 6th arguments to ~configure~ in [[cref:lst:rtic-trace:configure]];[fn:: The [[gls:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
    3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
-      1. writes to seven fields in the [[acrfull:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
+      1. writes to seven fields in the [[gls:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
          0b1101 to /FUNCTION/, configuring the comparator to match on address access;
          0 to /EMITRANGE/, disabling trace address packet generation;[fn:: We are not interested in the address that contains the watch variable.]
          0 to /DATAVMATCH/, to disable data value comparison[fn:not-of-concern];
          0 to /CYCMATCH/, to disable cycle counter comparison[fn:not-of-concern];
-         and 0 to /DATAVSIZE/, /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[acrfull:SBZ]] [[parencite:&arm-rm Glossary-855]] in address comparison context.
-      2. writes the first watch variable address to [[acrfull:DWT_COMPn]][fn:dwt-n] (with $n = 1$), in order for the comparator to match on that address access; and
-      3. writes 0 to [[acrfull:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
+         and 0 to /DATAVSIZE/, /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[gls:SBZ]] [[parencite:&arm-rm Glossary-855]] in address comparison context.
+      2. writes the first watch variable address to [[gls:DWT_COMPn]][fn:dwt-n] (with $n = 1$), in order for the comparator to match on that address access; and
+      3. writes 0 to [[gls:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
    4. Lastly, the second comparator is configured in the same manner as the first, but with the second watch variable address in mind and $n=2$.
 
 If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-trace]] fails ~configure~ prematurely returns an ~Err(_)~ that signals what went wrong, and no peripheral configuration will have been applied: the target will be in the same state as before ~configure~ was called.
 
-Several fields in [[ACRshort:ITM_TCR]] are potentially [[acrfull:RAZ-WI]], [[acrfull:RAZ]], or [[acrfull:RAO]] [[parencite:&arm-rm Glossary-854]] in order to signal hardware support.
+Several fields in [[gls:ITM_TCR]] are potentially [[gls:RAZ-WI]], [[gls:RAZ]], or [[gls:RAO]] [[parencite:&arm-rm Glossary-854]] in order to signal hardware support.
 This requires the field to be read after a write to ensure that a configuration was applied.
 During the steps in [[cref:rtic-trace:itm]], if any read-back values does not match what was written, ~configure~ prematurely returns an ~Err(_)~ signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the end-user that a partial configuration has now been applied.
 It is up to the end-user to reset the target to the state before ~configure~ was called.
@@ -902,7 +904,7 @@ For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:3
 The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} cannot fail.
 
 Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in memory to trace software tasks, and how the watch variables in this section are aligned in memory.
-The [[ACRshort:DWT]] comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
+The [[gls:DWT]] comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
 However, due to performance reasons (and in order to reduce implementation complexity), the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
 Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]].
 
@@ -1126,9 +1128,9 @@ This flag only deletes files with the ~.trace~ file extension.
 :CUSTOM_ID: impl:cargo-rtic-scope:generating-metadata-maps
 :END:
 # Introduction: we must translate raw ITM data to RTIC run-time information.
-As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol is used to trace [[ACRshort:RTIC]] tasks.
+As covered in [[cref:theory:itm-proto]], the [[gls:ITM]] packet protocol is used to trace [[gls:RTIC]] tasks.
 This protocol is not designed with RTIC in mind:
-instead of information that can be directly associated to an RTIC tasks the protocol tells us the number of the [[ACRshort:DWT]] comparator that signaled a write to a watch address along with the data written, used to signal a software task enter or exit;
+instead of information that can be directly associated to an RTIC tasks the protocol tells us the number of the [[gls:DWT]] comparator that signaled a write to a watch address along with the data written, used to signal a software task enter or exit;
 and the IRQ number of the interrupt handler that entered, exited or was returned to, used to signal a hardware task enter or exit.
 These pieces of information must be associated back to the RTIC tasks responsible for their emission in a preparatory /recovery step/.
 This section covers this step which is divided into two parts:
@@ -1185,7 +1187,7 @@ These must be skipped in order to parse correctly.
   } // this must be the last line of the file
 #+end_src
 
-In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:lst:recovery-example]] the ~std::String~ that represents the content of the source file must be converted to an [[acrfull:AST]];
+In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:lst:recovery-example]] the ~std::String~ that represents the content of the source file must be converted to an [[gls:AST]];
 or more specifically, a =proc_macro2::TokenStream2= [[parencite:&proc-macro2]].
 This is done by help of the ~syn~ crate [[parencite:&syn]].
 
@@ -1242,7 +1244,7 @@ See [[cref:background:PAC]] for an example of such an enum.
 By finding the label used in =#[task(bind = ...)]= in =PAC::Interrupt= we find what enum constructor to use.
 With the enum in hand, we construct it and get the IRQ number offset $N$ via [[cref:lst:pac:extirq]].
 #+NAME: lst:pac:extirq
-#+CAPTION: Finding $N$ in [[cref:tbl:irqns]] for an external interrupt via the [[ACRshort:PAC]].
+#+CAPTION: Finding $N$ in [[cref:tbl:irqns]] for an external interrupt via the \glsxtrfull{PAC}.
 #+begin_src rust
   let label = PAC::Interrupt::EXTI1;
   assert_eq!(label.number(), 7);
@@ -1258,7 +1260,7 @@ This must be done for all unknown binds.
 
 The above process is unfortunately non-trivial: Rust does not have dynamic programming features and an ideal evaluation function such as [[cref:lst:pac:ideal-pseudo]] is not realizeable.
 #+NAME: lst:pac:ideal-pseudo
-#+CAPTION: Non-realizeable pseudo code to dynamically resolve the IRQ number of an unknown bind via the [[ACRshort:PAC]]. ~quote~ is from [[textcite:&quote]].
+#+CAPTION: Non-realizeable pseudo code to dynamically resolve the IRQ number of an unknown bind via the \glsxtrfull{PAC}. ~quote~ is from [[textcite:&quote]].
 #+begin_src rust
   use quote::quote;
   fn resolve_irq_nr(label: &str) -> u16 {
@@ -1269,10 +1271,10 @@ The above process is unfortunately non-trivial: Rust does not have dynamic progr
 # libadhoc
 Enter =recovery::resolve_int_nrs=: given a list of labels, the function
 1. extracts an embedded file tree constituting a skeleton crate to the RTIC application's ~target/cargo-rtic-trace-libadhoc~, by help of [[textcite:&includedir]];
-2. writes the user-specified [[ACRshort:PAC]] dependency into this crate's ~Cargo.toml~[fn:: By use of the ~pac_name~, ~pac_version~, ~pac_features~, and ~interrupt_path~ acquired from [[cref:impl:cargo-rtic-scope:read-manifest]].];
+2. writes the user-specified [[gls:PAC]] dependency into this crate's ~Cargo.toml~[fn:: By use of the ~pac_name~, ~pac_version~, ~pac_features~, and ~interrupt_path~ acquired from [[cref:impl:cargo-rtic-scope:read-manifest]].];
 3. for each label: writes a non-[[gls:manglfn][mangled function]] with the same name as the label that returns the associated IRQ number offset, $N$ (for [[cref:lst:recovery-example]] the generated recovery code can be seen in [[cref:lst:resolve_int_nrs-example]]), to ~lib.rs~;
    #+NAME: lst:resolve_int_nrs-example
-   #+CAPTION: Generated IRQ number recovery functions for [[cref:lst:recovery-example]] with ~interrupt_path = "st32::stm32f401::Interrupt"~ from the [[ACRshort:RTIC]] application's ~Cargo.toml~.
+   #+CAPTION: Generated IRQ number recovery functions for [[cref:lst:recovery-example]] with ~interrupt_path = "st32::stm32f401::Interrupt"~ from the \glsxtrfull{RTIC} application's ~Cargo.toml~.
    #+begin_src rust
      use stm32::st32f401::Interrupt;
 
@@ -1293,11 +1295,11 @@ This collection then merges with the collection of known maps.
 :END:
 The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap= in the sense that the RTIC application declaration must be parsed again (for a third, but last time).
 This parsing pass is done via =SoftWareMap::parse_ast= instead of =rtic_syntax::parse2=.
-As the function name implies the [[ACRshort:AST]] is parsed by skipping [[glspl:token][tokens]] until the =TokenTree::Group(_)= describing =#[trace]= is found.
+As the function name implies the [[gls:AST]] is parsed by skipping [[glspl:token][tokens]] until the =TokenTree::Group(_)= describing =#[trace]= is found.
 When this [[gls:token]] is found the software task the macro is used on is associated with the current value of an internal counter for software task IDs.
 This counter is modified in the same manner as the internal counter when =cortex_m_rtic_trace::trace= expands.
 
-To complete the =SoftwareMap= the IDs of the [[ACRshort:DWT]] comparators and the interrupts which handle the dispatch of the application's software tasks must be recorded.
+To complete the =SoftwareMap= the IDs of the [[gls:DWT]] comparators and the interrupts which handle the dispatch of the application's software tasks must be recorded.
 The former are acquired from  [[cref:impl:cargo-rtic-scope:read-manifest]] via the ~dwt_enter_id~ and ~dwt_exit_id~ fields.
 The latter are acquired via =rtic_syntax::ast::AppArgs::extern_interrupts=.
 
@@ -1491,7 +1493,7 @@ This is the default behavior but can be disabled by specifying the =--dont-touch
 Resetting the target causes it to begin executing the flashed application from the beginning.
 If =--dont-touch-target= was not specified the executing application will be the flashed RTIC application.
 
-From this point on the target will generate and emit [[ACRshort:ITM]] packets.
+From this point on the target will generate and emit [[gls:ITM]] packets.
 
 **** Tracing the target
 :PROPERTIES:
@@ -1550,7 +1552,7 @@ The =itm= library crate, [[textcite:&itm]], is
 #+ATTR_LATEX: :environment quotation
 #+begin_quote
 \noindent
-A decoder for the [[ACRshort:ITM]] and [[ACRshort:DWT]] packet protocol[fn:: [[ACRshort:DWT]] packets (hardware event packets) are included in the [[ACRshort:ITM]] packet protocol standard.] as specifed in [[[textcite:&arm-rm Appendix D4]]].
+A decoder for the [[gls:ITM]] and [[gls:DWT]] packet protocol[fn:: [[gls:DWT]] packets (hardware event packets) are included in the [[gls:ITM]] packet protocol standard.] as specifed in [[[textcite:&arm-rm Appendix D4]]].
 
 Aside from covering the entirety of the protocol, this crate offers two iterators which reads data from the given [\textttBreak{std::io::Read}] instance:
 - [\texttt{iter::Singles}] :: which decodes each packet in the stream in sequence, yielding [\textttBreak{TracePacket} structures].
@@ -1573,8 +1575,8 @@ e.g. a =std::fs::File= pointing to a preconfigured serial device, or a =probe_rs
 decoded packets are trivially acquired via the exposed iterators summarized above.
 RTIC Scope utilizes the =iter::Timestamps= iterator, and is thus the only iterator covered in this text.
 
-As covered in [[cref:theory:itm-proto]], the [[ACRshort:ITM]] packet protocol define packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
-Effectively, the protocol follows a [[ACRshort:TLV]] encoding sheme.
+As covered in [[cref:theory:itm-proto]], the [[gls:ITM]] packet protocol define packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
+Effectively, the protocol follows a [[gls:TLV]] encoding sheme.
 Decoding such a protocol is rather trivial, especially in Rust:
 the individual bytes of the header are pattern-matched in order to decode the packet type after which the remaining bytes are dispatched to another pattern-matcher in order to decode its payload.
 On success an =itm::TracePacket= is emitted.
@@ -1586,7 +1588,7 @@ When a local timestamp is intercepted, its value is added to the current duratio
 When a global timestamp is intercepted, the duration is reset to this value, discarding information from previously received timestamps.
 
 Any non-timestamp packets will be buffered until a local timestamp is intercepted after which they will be associated to this latest timestamp in an emitted =TimestampedTracePackets=.
-This structure also contains a field describing how many [[ACRshort:ITM]] packets were consumed to generate it.
+This structure also contains a field describing how many [[gls:ITM]] packets were consumed to generate it.
 This information is used in =cargo-rtic-scope= in order to report the number of trace packets received per second.
 
 # XXX qualitative/quantitive? Am I formulating correctly here?
@@ -1747,13 +1749,13 @@ and adds the following metadata to their RTIC application's ~Cargo.toml~:
 :END:
 As mentioned in [[cref:impl:itm]], =itm= is a re-implementationand feature superset of a deprecated library with the same trace stream decoding goal, namely [[textcite:&itm-old]].
 During the re-implementation the changes where pushed upstream to the original repository but a consensus regarding the created merge request was not reached.
-Subsequently, a [[acrfull:RFC]] was created [[parencite:&rfc:rust-embedded:move-itm-crate]] initially proposing that the =itm= crate was moved out of the then-maintaining Cortex-M team of the Embedded Rust working group to a repository under my control to continue the development.
+Subsequently, a [[gls:RFC]] was created [[parencite:&rfc:rust-embedded:move-itm-crate]] initially proposing that the =itm= crate was moved out of the then-maintaining Cortex-M team of the Embedded Rust working group to a repository under my control to continue the development.
 When the discussion concluded it was instead decided to simply add a deprecation notice to the =itm= repository pointing towards the new implementation at [[textcite:&itm]].
 
 The reason for the proposed move was that the maintaining working group would have to maintain a wholly new code-base that had yet to stabilize.
-Changes to both implementation and the [[ACRshort:API]] of the library would then have to be vetted by team members before merge which would induce development friction.
-The [[ACRshort:RFC]] process then decided that a new discussion should be held regarding adopting the new implementation when it has stabilized.
-The [[ACRshort:RFC]] also notes that "the crate is unlikely to stabilize before Q1 2022".
+Changes to both implementation and the [[gls:API]] of the library would then have to be vetted by team members before merge which would induce development friction.
+The [[gls:RFC]] process then decided that a new discussion should be held regarding adopting the new implementation when it has stabilized.
+The [[gls:RFC]] also notes that "the crate is unlikely to stabilize before Q1 2022".
 
 Another root reason that led to the indecision of the merge was the question whether a host-side crate should ultimately be maintained by a working group focused on an embedded aspect.
 While the library could in theory be adapted to operate in an embedded environment such a discussion was not raised at the time
@@ -1776,8 +1778,8 @@ The target-side code of RTIC Scope itself has a theoritecally negligible perform
 - the ITM/DWT/TPIU units need only be configured once in =#[init]= or during some other preparatory stage; and
 - when software tasks are traced, a =u8= variable write must be done when entering and exiting the task.
 
-Some hardware resources are also required: two [[ACRshort:DWT]] comparators for the tracing functionality and 64 bits of flash storage for watch variables (see [[cref:lst:watch-variable-impl]]).
-These resources are only strictly required if software tasks are traced, but are unconditionally required due to the current [[ACRshort:API]] of =cortex-m-rtic-trace=, implemented as such for simplicity.
+Some hardware resources are also required: two [[gls:DWT]] comparators for the tracing functionality and 64 bits of flash storage for watch variables (see [[cref:lst:watch-variable-impl]]).
+These resources are only strictly required if software tasks are traced, but are unconditionally required due to the current [[gls:API]] of =cortex-m-rtic-trace=, implemented as such for simplicity.
 
 #+NAME: lst:watch-variable-impl
 #+CAPTION: Implementation of watch variable storage in ~cortex-m-rtic-trace~. Two ~u8~, aligned to 32 bits, are used to track the state of software tasks. The variables are aligned to 32 bits for implementation simplicity.
@@ -1833,7 +1835,7 @@ While implementing software task tracing by help of the =trace= macro, support w
 However, due to how the macro expands (see [[cref:lst:rtic-trace:trace-expanded]]), a nested function would expand to [[cref:lst:trace-expanded-nested]]: the exit state change of the nested function would never be reported due to the return statement just before.
 
 #+NAME: lst:trace-expanded-nested
-#+CAPTION: Expanded [[ACRshort:RTIC]] task declaration with a traced nested function.
+#+CAPTION: Expanded \glsxtrfull{RTIC} task declaration with a traced nested function.
 #+begin_src rust
   // ...
 
@@ -1856,36 +1858,36 @@ However, due to how the macro expands (see [[cref:lst:rtic-trace:trace-expanded]
 
 This limitation can be side-stepped by implementing =task::nested= such that it only applies side-effects to the function's parameters.
 Such an approach can be compared to how functions in C are commonly implemented, where the returned value is a pointer or an integer signalling if the operation was successful.
-However, due to the strict requirement that the function must not return any value in its last statement, any return data or signals must first be intermediately allocated and passed as a mutable reference to the traced function, yielding an ad-hoc [[ACRshort:API]] that not only breaks Rust's implementation guidelines but is different from a C [[ACRshort:API]].
+However, due to the strict requirement that the function must not return any value in its last statement, any return data or signals must first be intermediately allocated and passed as a mutable reference to the traced function, yielding an ad-hoc [[gls:API]] that not only breaks Rust's implementation guidelines but is different from a C [[gls:API]].
 
 An alternative implementation of =trace= could instead wrap the call to =task::nested=, allowing a implementation of a pure function[fn:: A function without side-effects.], but because =trace= is an attribute macro it cannot be applied to statements in functions [[parencite:&docs:rust-proc-macros]].
 If trace was available as a function-like macro one could in theory wrap and trace any block expression via a theoretical =trace!(|| { nested() + nested() })=, but that would non-trivial changes to the recovery step of =cargo-rtic-scope= in order to assign a unique ID to each macro invocation.
 Furthermore it would also require the allocation of a key-word to differentiate trace macros from non-trace macros, inducing end-user overhead.
 
 The support for nested function tracing is likely to be removed in a future release of RTIC Scope.
-It is thus recommended to only use the =trace= macro on [[ACRshort:RTIC]] task declarations.
+It is thus recommended to only use the =trace= macro on [[gls:RTIC]] task declarations.
 *** A fundamental flaw of asynchronous serial trace exfiltration
 :PROPERTIES:
 :CUSTOM_ID: disc:swo-transient
 :END:
 During the development of RTIC Scope done within the scope of this thesis, considerate focus was put on trace exfiltration using asynchronous serial communication.
-This approach saw focus due to the minimal hardware design required to enable tracing support of a product based on a ARMv7-M [[ACRshort:MCU]]:
-the base requirement is to expose the single [[ACRshort:SWO]] pin, after which the remaining work is done by device-external hardware (in order to convert the electrical signal to a byte stream) and software.
-A single [[ACRshort:MCU]] pin commonly multiplex features, however.
+This approach saw focus due to the minimal hardware design required to enable tracing support of a product based on a ARMv7-M [[gls:MCU]]:
+the base requirement is to expose the single [[gls:SWO]] pin, after which the remaining work is done by device-external hardware (in order to convert the electrical signal to a byte stream) and software.
+A single [[gls:MCU]] pin commonly multiplex features, however.
 Features can in theory be selected via hardware or software:
-via a hardware configuration (pulling another pin high or low[fn:: Shorting the pin to a 3.3V source, or common ground, respectively.]) the pin in question will expose the wanted feature when the [[ACRshort:MCU]] and eventual [[ACRshort:MCU]]-internal peripherals are powered;
+via a hardware configuration (pulling another pin high or low[fn:: Shorting the pin to a 3.3V source, or common ground, respectively.]) the pin in question will expose the wanted feature when the [[gls:MCU]] and eventual [[gls:MCU]]-internal peripherals are powered;
 via software the pin will expose its default feature on power and software must configure the pin during initialization.
-Commonly, most pins can only be configured via software and upon a [[ACRshort:MCU]] reset, the pin returns to its default feature.
+Commonly, most pins can only be configured via software and upon a [[gls:MCU]] reset, the pin returns to its default feature.
 Unfortunately, software configuration is prone to induce transient noise on the pin until it is configured.
-If this noise it not accounted for and host-side trace recording starts as the [[ACRshort:MCU]] resets, the recorded noise will put the trace decoder in an unknown state and likely emit malformed packets.
+If this noise it not accounted for and host-side trace recording starts as the [[gls:MCU]] resets, the recorded noise will put the trace decoder in an unknown state and likely emit malformed packets.
 Ultimately, task state changes are likely to be lost and the error induced to the decoder may not necessarily be transient.
-This behavior is intrinsically [[ACRshort:MCU]]-specific: there is unlikely a common model of this noise that can be used to filter the bytes host-side in software.
+This behavior is intrinsically [[gls:MCU]]-specific: there is unlikely a common model of this noise that can be used to filter the bytes host-side in software.
 
-The ATSAME51N20A is one example of an [[ACRshort:MCU]] that displays this noise, seen in Fig. ???, as a consequence of the configuration done to pin PC27 in [[cref:lst:atsame51n20a-swo-conf]].
+The ATSAME51N20A is one example of an [[gls:MCU]] that displays this noise, seen in Fig. ???, as a consequence of the configuration done to pin PC27 in [[cref:lst:atsame51n20a-swo-conf]].
 \missingfigure{Display the noise seen when configuring SWO on the ATSAM}
 
 #+NAME: lst:atsame51n20a-swo-conf
-#+CAPTION: Configuration of the PC27 pin for the ATSAME51N20A [[ACRshort:MCU]] to act as the [[ACRshort:SWO]] pin. This configuration induces transient noise on the pin, seen in Fig. ???.
+#+CAPTION: Configuration of the PC27 pin for the ATSAME51N20A [[gls:MCU]] to act as the [[gls:SWO]] pin. This configuration induces transient noise on the pin, seen in Fig. ???.
 #+begin_src rust
   #[init]
   fn init(mut ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics()) {
@@ -1912,24 +1914,24 @@ A few methods of "escaping" this transient that require further investigation ar
 :PROPERTIES:
 :CUSTOM_ID: disc:overflows
 :END:
-The theory behind overflow avoidance is simple: the [[ACRshort:ITM]] and [[ACRshort:DWT]] may not generate more trace packets than what the [[ACRshort:TPIU]] can serialize.
+The theory behind overflow avoidance is simple: the [[gls:ITM]] and [[gls:DWT]] may not generate more trace packets than what the [[gls:TPIU]] can serialize.
 
 If overflows are encountered the below description of approaches can be consulted, in order of recommendations.
-- Increase [[ACRshort:TPIU]] baud rate :: the [[ACRshort:SWO]] baud rate is controlled via the /SWOSCALER/ bitrange in [[ACRshort:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
+- Increase [[gls:TPIU]] baud rate :: the [[gls:SWO]] baud rate is controlled via the /SWOSCALER/ bitrange in [[gls:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
   /SWOSCALER/ can be calculated via [[cref:eq:prescaler]], and can be considered arbitrary.
-  Increasing the baud rate by lowering /SWOSCALER/ gives the [[ACRshort:TPIU]] more time to serialize a packet onto the [[ACRshort:SWO]] pin, thus inceasing the margin until the internal [[ACRshort:FIFO]] queue fills up prompts an overflow on the next packet.
+  Increasing the baud rate by lowering /SWOSCALER/ gives the [[gls:TPIU]] more time to serialize a packet onto the [[gls:SWO]] pin, thus inceasing the margin until the internal [[gls:FIFO]] queue fills up prompts an overflow on the next packet.
 
-  While the [[ACRshort:TPIU]] can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
+  While the [[gls:TPIU]] can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
   Linux, for example, can only communicate with a set of pre-defined baud rates as described in =termios.h= [[parencite:&linux:termios]].
   With a sufficiently low error rate, $\left\lvert1 - \frac{\text{Linux baud rate}}{\text{TPIU baud rate}}\right\rvert$, it may be possible to establish a stable communication with non-matched baud rates.
 
   The baud rate can be selected via =cortex_m_rtic_trace::configure= by appropriately configuring the passed =TraceConfiguration::tpiu_baud= structure field.
 
-- Asynchronously clock [[ACRshort:TPIU]] :: The [[ACRshort:TPIU]] can be clocked with the system clock or via an asynchronous clock, configured via the =TraceConfiguration::timestamp_clk_src= enum passed to =cortex_m_rtic_trace::configure=.
+- Asynchronously clock [[gls:TPIU]] :: The [[gls:TPIU]] can be clocked with the system clock or via an asynchronous clock, configured via the =TraceConfiguration::timestamp_clk_src= enum passed to =cortex_m_rtic_trace::configure=.
   If overflows are encountered when using the system clock, it is recommended to use a faster asynchronous clock instead.
-  The capabilites of this clock, how it is configured, and whether an asynchronous clock source is supported at all is [[ACRshort:MCU]]-specific.
+  The capabilites of this clock, how it is configured, and whether an asynchronous clock source is supported at all is [[gls:MCU]]-specific.
   In combination with the previous recommendation, this gives a lot more leeway when configuring the baud rate;
-  with a dedicated trace clock the baud rate can much more easily match the baud rates the host system can communicate with, without affecting the [[ACRshort:MCU]]'s system clock.
+  with a dedicated trace clock the baud rate can much more easily match the baud rates the host system can communicate with, without affecting the [[gls:MCU]]'s system clock.
 
   As the configuration field name implies, this clock is also used to increment the timestamp values --- specifically local timestamps.
   Note also [[textcite:&arm-rm C1.7.6]], under /SWOENA/, which the configuration field is equivalent to: "[When an asynchronous clock is used] the timestamp counter is held in reset while the output line is idle."
@@ -1939,9 +1941,9 @@ If overflows are encountered the below description of approaches can be consulte
 
 - Lower the system clock :: The frequency at which trace packets are generated is entirely bound to how often tasks are entered and exited and the frequency of the system clock.
   If the above recommendations have been applied and overflows are still encountered, a last resort before the traced application must be refactored is to lower the system clock frequency.
-  This frequency should as per the last recommendation be lower than that of the asynchronous clock frequency which the [[ACRshort:TPIU]] sources.
+  This frequency should as per the last recommendation be lower than that of the asynchronous clock frequency which the [[gls:TPIU]] sources.
 
-- Generate less events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[ACRshort:RTIC]] application to generate less events: that is, decrease the frequency at which tasks are entered and exited.
+- Generate less events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[gls:RTIC]] application to generate less events: that is, decrease the frequency at which tasks are entered and exited.
   The lowest hanging fruit of this approach is to simply disable the tracing of software tasks by omitting all instances of the =trace= macro.
 *** Future work
 This section comments on some choice topics of future work planned for RTIC Scope, most sections being referred to previously in this text and being filed as issues in the relevant repository.
@@ -1950,17 +1952,17 @@ as of writing 31 issues are open for RTIC Scope[fn:: Refer to [[https://github.c
 7 for =itm=[fn:: Refer to [[https://github.com/rtic-scope/itm/issues][https://github.com/rtic-scope/itm/issues]].];
 and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to tracing functionality).
 
-**** [[ACRshort:TPIU]] baud rate configuration
+**** \glsxtrfull{TPIU} baud rate configuration
 :PROPERTIES:
 :CUSTOM_ID: fut:swoscaler
 :END:
-The baud rate of the [[ACRshort:TPIU]] is configured via [[cref:lst:tpiu-baud-rate]] which implements [[cref:eq:prescaler]].
+The baud rate of the [[gls:TPIU]] is configured via [[cref:lst:tpiu-baud-rate]] which implements [[cref:eq:prescaler]].
 This implementation is error-prone due to integer division and because it does not verify the written prescaler value by reading it back.
 The implementation will also attempt a divide-by-zero if a baud rate of 0 is requested; in the best case, this leads to a panic.
 Currently, this behavior is not documented.
 
 #+NAME: lst:tpiu-baud-rate
-#+CAPTION: [[ACRshort:TPIU]] baud rate configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[ACRshort:TPIU]] configuration registers. This implementation is subject to integer division, divide-by-zero, and does not verify the written prescaler value; it is thus error-prone.
+#+CAPTION: \glsxtrfull{TPIU} baud rate configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[gls:TPIU]] configuration registers. This implementation is subject to integer division, divide-by-zero, and does not verify the written prescaler value; it is thus error-prone.
 #+begin_src rust
   impl TPIU {
       /// Sets the prescaler value for a wanted baud rate of the Serial
@@ -1977,7 +1979,7 @@ Currently, this behavior is not documented.
   }
 #+end_src
 
-For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value 137.88 to be written, but because this prescaler must be an integer 137 is written instead, configuring the [[ACRshort:TPIU]] to use a baud rate of approximately 115942 instead as per [[textcite:&arm-rm C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
+For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value 137.88 to be written, but because this prescaler must be an integer 137 is written instead, configuring the [[gls:TPIU]] to use a baud rate of approximately 115942 instead as per [[textcite:&arm-rm C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
 A sufficiently large error will induce communication problems.
 #+NAME: eq:baud-rate-error
 \begin{equation}
@@ -1986,7 +1988,7 @@ A sufficiently large error will induce communication problems.
 
 An issue that further documents the erroneous implementation and offers improvements is available at [[textcite:&issue:cortex-m:388]].
 
-Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically during compilation, but such a feature would require non-trivial changes to the embedded Rust eco-system because =cortex-m= currently has no idea about the clock configuration of the target device.[fn:: This would require changes to all [[acrshortpl:HAL]] to statically hold information about the device-specific clock hierarchy that can then be passed to and inspected by =cortex-m=.]
+Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically during compilation, but such a feature would require non-trivial changes to the embedded Rust eco-system because =cortex-m= currently has no idea about the clock configuration of the target device.[fn:: This would require changes to all [[glspl:HAL]] to statically hold information about the device-specific clock hierarchy that can then be passed to and inspected by =cortex-m=.]
 
 **** Trace stream ID configuration
 :PROPERTIES:
@@ -1997,9 +1999,9 @@ Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically 
 If a system supports multiple trace streams, the debugger must write a nonzero value to the ITM\textunderscore TCR.TraceBusID field.
 \textelp{} An example of a system with multiple trace streams is an ARMv7-M core with ETM trace stream.
 #+end_quote
-However, no documentation covers the use-case when [[ACRshort:ETM]] should be disabled and only the [[ACRshort:ITM]] trace stream is of interest.
-From brief communication with the ARM errata team, it seems that writing zero to this field is valid if the device does not support [[ACRshort:ETM]], but anecdotally (during RTIC Scope testing) it also seems valid when [[ACRshort:ETM]] packets are dropped (see [[cref:impl:rtic-trace:peripheral-config]]) on a device that does offer an [[ACRshort:ETM]], particularly the Atmel ATSAME51N20A.
-This relationship (validity of a zero trace bus ID when [[ACRshort:ETM]] packets are dropped) has not been verified.
+However, no documentation covers the use-case when [[gls:ETM]] should be disabled and only the [[gls:ITM]] trace stream is of interest.
+From brief communication with the ARM errata team, it seems that writing zero to this field is valid if the device does not support [[gls:ETM]], but anecdotally (during RTIC Scope testing) it also seems valid when [[gls:ETM]] packets are dropped (see [[cref:impl:rtic-trace:peripheral-config]]) on a device that does offer an [[gls:ETM]], particularly the Atmel ATSAME51N20A.
+This relationship (validity of a zero trace bus ID when [[gls:ETM]] packets are dropped) has not been verified.
 
 An issue covering the potential invalidity of a zero trace bus ID is available at [[textcite:&issue:cortex-m:392]].
 
@@ -2037,15 +2039,15 @@ It may be apt to upstream portions of its implementations to [[textcite:&cortex-
 Regardless of what the outcome of minimizing end-user overhead is, =cortex-m-rtic-trace= is predicted to be deprecated.
 A tracking issue for this eventuality is available; see [[textcite:&issue:cargo-rtic-scope:90]].
 
-**** Supporting other [[acrshortpl:RTOS]] than [[ACRshort:RTIC]]
-Version 0.3.1 of RTIC Scope targets and depends on (as the name implies) [[ACRshort:RTIC]] v1.0.0.
+**** Supporting other \glsxtrfullpl{RTOS} than \glsxtrfull{RTIC}
+Version 0.3.1 of RTIC Scope targets and depends on (as the name implies) [[gls:RTIC]] v1.0.0.
 This dependency is only required for the recovery step which generates the =recovery::SoftwareMap= and =recovery::HardwareMap= with some metadata required by the end-user (see [[cref:impl:cargo-rtic-scope:read-manifest]]).
 RTIC Scope could as well require that the end-user provide these maps by describing them in an external file passed via a theoretical =cargo rtic-scope trace --maps-file /path/to/extenal-map-description [...]= invocation.
-Such an approach would enable an end-user to apply =cargo-rtic-scope= on an application that is not written in [[ACRshort:RTIC]].
+Such an approach would enable an end-user to apply =cargo-rtic-scope= on an application that is not written in [[gls:RTIC]].
 Additionally, =cargo-rtic-scope= could then also be applied on an application that is not necessarily written in Rust if =--dont-touch-target= and =--trace-dir= are passed to the =trace=[fn:: =--trace-dir= would be required such that =cargo-rtic-scope= would not search through a crate that does not exist. =--dont-touch-target= is would be required because =cargo-rtic-scope= only knows how to build and flash a Rust application.] verb and provided that =cortex-m-rtic-trace= is substituted.
 This would make the toolset more general and drive development from more than a single, currently niche, front.
 
-No work has currently been done to make [[ACRshort:RTIC]] an optional run-time dependency of =cargo-rtic-scope=.
+No work has currently been done to make [[gls:RTIC]] an optional run-time dependency of =cargo-rtic-scope=.
 
 **** Publishing all crates to the crate registery
 In order to publish a crate all of its dependencies must first be published.
@@ -2085,8 +2087,8 @@ A tracking issue has been created that documents the effort to publish RTIC Scop
 :PROPERTIES:
 :CUSTOM_ID: fut:itm-tools
 :END:
-=itm-tools= [[parencite:&itm-tools]] is a toolset for analyzing [[ACRshort:ITM]] trace streams.
-As of writing, the tools decode the [[ACRshort:ITM]] packet standard and offer interpretation of exception traces, [[ACRshort:PC]] samples (via =pcsampl=), and instrumentation packet port demuxing (via =port-demux=).
+=itm-tools= [[parencite:&itm-tools]] is a toolset for analyzing [[gls:ITM]] trace streams.
+As of writing, the tools decode the [[gls:ITM]] packet standard and offer interpretation of exception traces, [[gls:PC]] samples (via =pcsampl=), and instrumentation packet port demuxing (via =port-demux=).
 Of certain interest is that =pcsampl= can answer the quetion of "where is my program spending most if its time?"
 An example invocation of =pcsampl= would yield [[cref:lst:pcsampl]], describing that the program spent almost 92% of its time sleeping during the time the target was traced.
 
@@ -2109,18 +2111,18 @@ An example invocation of =pcsampl= would yield [[cref:lst:pcsampl]], describing 
 In comparison to =itm-decode= provided as a result of this thesis, =itm-tools= does not: configure an optional serial device for direct reading, offer the option to maintain a monotonically increasing timestamp, optionally associates trace packets with such a timestamp, or trivially describes the timestamp quality.
 =itm-decode= does on the other hand not offer equivalents to =pcsampl= and =port-demux=.
 
-It would be beneficial to incorporate the features offered by =itm-tools= into =itm= (within which =itm-decode= is available) in order to collect [[ACRshort:ITM]] decoding and interpretation efforts in a singular crate.
+It would be beneficial to incorporate the features offered by =itm-tools= into =itm= (within which =itm-decode= is available) in order to collect [[gls:ITM]] decoding and interpretation efforts in a singular crate.
 For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] and [[textcite:&issue:itm:14]], respectively.
 
-**** Escaping the [[ACRshort:SWO]] transient noise
+**** Escaping the \glsxtrfull{SWO} transient noise
 :PROPERTIES:
 :CUSTOM_ID: fut:espace-swo-transient
 :END:
-Below is a list of possible methods of espacing the transient noise of the [[ACRshort:SWO]] pin described in [[cref:disc:swo-transient]].
+Below is a list of possible methods of espacing the transient noise of the [[gls:SWO]] pin described in [[cref:disc:swo-transient]].
 
 - Using the parallel trace port :: [[textcite:&arm-rm C1.10]] describes the optional feature of a "parallel trace port".
   This is a synchronous trace exfiltration method that uses one pin for the clock and at least one pin for data communication.
-  An optional "control pin" may also be supported by the [[ACRshort:MCU]], but its purpose has not been investigated.
+  An optional "control pin" may also be supported by the [[gls:MCU]], but its purpose has not been investigated.
 
   This approach may remove the noise entirely, but may depend on the order in which the pins are configured.
   It will also require more complex hardware between the target and host in order to adapt the parallel interface to a serial device which =cargo-rtic-scope= can read.
@@ -2129,12 +2131,12 @@ Below is a list of possible methods of espacing the transient noise of the [[ACR
 - Using sentinel synchronization packets :: [[textcite:&arm-rm D4.2.1]] defines a synchronization packet that "trace capture hardware can [use to] identify the alignment of packet bytes in the bitstream".
   If such a packet is emitted after pin configuration, the decoder may be able to implement support to drop read trace data until this packet is encountered.
   Due to the constitution of this packet (at least 47 zeros followed by a single 1 bit), the possibility of the transient noise generating such a packet may be sufficiently low to ensure a stable trace stream.
-  However, this possibility is difficult to find because the induces noise depends on the internal characteristics of the [[ACRshort:MCU]].
+  However, this possibility is difficult to find because the induces noise depends on the internal characteristics of the [[gls:MCU]].
   Refer to [[textcite:&issue:itm:11]] for the progress and applicability of this approach.
 
-- Storing trace data on-chip :: [[textcite:&arm-rm C1.10]] refers to a [[ACRshort:TPIU]]-alternative dubbed the [[acrfull:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
-  An attached debugger could theoretically read this data, sidestepping the [[ACRshort:TPIU]] (and thus any pin transients) completely.
-  =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the [[ACRshort:ETB]].
+- Storing trace data on-chip :: [[textcite:&arm-rm C1.10]] refers to a [[gls:TPIU]]-alternative dubbed the [[gls:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
+  An attached debugger could theoretically read this data, sidestepping the [[gls:TPIU]] (and thus any pin transients) completely.
+  =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the [[gls:ETB]].
   Refer to [[textcite:&issue:cargo-rtic-scope:128]] for the progress of this approach.
 
 ** Conclusion
@@ -2142,7 +2144,7 @@ Below is a list of possible methods of espacing the transient noise of the [[ACR
 :CUSTOM_ID: conclusion
 :END:
 The RTIC Scope project fulfills all requirements enumered in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]].
-While end-user overhead has been minimized as much as possible with the allotted development time overhead may still be considered significant depending on factors of [[ACRshort:HAL]] availability and complexity of the embedded system.
+While end-user overhead has been minimized as much as possible with the allotted development time overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
 ** Backmatter                                                       :ignore:
 [[printglossaries:]]
 [[printbibliography:]]
@@ -2150,6 +2152,6 @@ While end-user overhead has been minimized as much as possible with the allotted
 * Footnotes
 [fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
 
-[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[ACRshort:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] comments that a value of [[Acrfull:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[ACRshort:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
+[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[gls:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm B1-517]] comments that a value of [[gls:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[gls:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
 
 [fn:dwt-n] $n$ emphasized for reasons of readability and typesetting.
