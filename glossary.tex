@@ -4,7 +4,7 @@
   }
 \newglossaryentry{token}{
   name={token},
-  description={A component of Rust source code. A single token could for example be an identifier or a group of other tokens}
+  description={A component of Rust source code. A single token could for example be an identifier or a group of other tokens.}
   }
 \newglossaryentry{sample-rate}{
   name={sample rate},
@@ -12,70 +12,179 @@
   }
 \newglossaryentry{downstream}{
    name={downstream},
-  description={In software development the dependencies of code is often compared to that of a stream of water. A program commonly depends on libraries. This program is then downstream of the libraries; just as water flows downstream, code from these libraries flow downstream into the dependent program. Opposite of \gls{upstream}}
+  description={In software development the dependencies of code is often compared to that of a stream of water. A program commonly depends on libraries. This program is then downstream of the libraries; just as water flows downstream, code from these libraries flow downstream into the dependent program. Opposite of \gls{upstream}.}
   }
 \newglossaryentry{upstream}{
   name={upstream},
-  description={Opposite of \gls{downstream}: the libraries are upstream from the program}
+  description={Opposite of \gls{downstream}: the libraries are upstream from the program.}
   }
 \newglossaryentry{frontend}{
   name={frontend},
-  description={A piece of software that a user of the program in question interacts with. The frontend maintains a connection with a \gls{backend}. A frontend may also be referred to as a \gls{client}}
+  description={A piece of software that a user of the program in question interacts with. The frontend maintains a connection with a \gls{backend}. A frontend may also be referred to as a \gls{client}.}
 }
 \newglossaryentry{client}{
   name={client},
-  description={A \gls{frontend}}
+  description={A \gls{frontend}.}
 }
 \newglossaryentry{backend}{
   name={backend},
-  description={A piece of software that serves a \gls{frontend}. Also referred to as a \gls{daemon}}
+  description={A piece of software that serves a \gls{frontend}. Also referred to as a \gls{daemon}.}
 }
 \newglossaryentry{daemon}{
   name={daemon},
-  description={A program that runs in the background responsible for a task that does not have a defined execution time (runs continually). An example of a deamon is a web server which serves \glspl{client}. Sometimes also referred to as a \gls{backend}}
+  description={A program that runs in the background responsible for a task that does not have a defined execution time (runs continually). An example of a deamon is a web server which serves \glspl{client}. Sometimes also referred to as a \gls{backend}.}
 }
 \newglossaryentry{JSON}{
   name={JSON},
-  description={``A text syntax that facilitates structured data interchange between all programming languages'' \parencite{json}. \acrfull{JSONacr} is an interchange format that is both machine and human-readable}
+  description={``A text syntax that facilitates structured data interchange between all programming languages'' \parencite{json}. \acrfull{JSONacr} is an interchange format that is both machine and human-readable.}
 }
 \newacronym{JSONacr}{JSON}{{JavaScript Object Notation}}
 \newglossaryentry{cdylib}{
   name={cdylib crate},
-  description={A crate that specifies \texttt{crate\_type = ["cdylib"]} in \texttt{Cargo.toml}. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo which is not the case with non-cdylibs crates that instead target the less stable Rust ABI. The only way to directly generate a shared object file with cargo is by building a dylib or a cdylib}
+  description={A crate that specifies \texttt{crate\_type = ["cdylib"]} in \texttt{Cargo.toml}. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo which is not the case with non-cdylibs crates that instead target the less stable Rust ABI. The only way to directly generate a shared object file with cargo is by building a dylib or a cdylib.}
 }
 \newacronym{ABI}{ABI}{{Application Binary Interface}}
 \newglossaryentry{JTAG}{
   name={JTAG},
-  description={An industry standard that, among other features, offers the ability to program an MCU \parencite{jtag}}
+  description={An industry standard that, among other features, offers the ability to program an MCU \parencite{jtag}.}
 }
 \newglossaryentry{manglfn}{
   name={mangled function},
-  description={When Rust code is compiled its functions are mangled in order to allow two functions in different namespaces (e.g. different modules) have the same name. Aside from namespace information, mangling is also used to add argument and return type information to the function. This added information adds complexity when resolving the function in a shared object as a result of building a \gls{cdylib}. When mangling is disabled for a function, it's name can be directly resolved in the shared object}
+  description={When Rust code is compiled its functions are mangled in order to allow two functions in different namespaces (e.g. different modules) have the same name. Aside from namespace information, mangling is also used to add argument and return type information to the function. This added information adds complexity when resolving the function in a shared object as a result of building a \gls{cdylib}. When mangling is disabled for a function, it's name can be directly resolved in the shared object.}
   }
 \newglossaryentry{envvar}{
   name={environmental variable},
-  description={A string variable that exists in the environment that programs execute. A change to an environmental variable can change how programs are executed and can be seen as a complement to program argument options}
+  description={A string variable that exists in the environment that programs execute. A change to an environmental variable can change how programs are executed and can be seen as a complement to program argument options.}
   }
 \newglossaryentry{stdout}{
   name={\texttt{stdout}},
-  description={The standard output of the running program. For example, a ``Hello, World!''-program will write ``Hello, World'' to the standard output}
+  description={The standard output of the running program. For example, a ``Hello, World!''-program will write ``Hello, World'' to the standard output.}
   }
 \newglossaryentry{sigint}{
   name={SIGINT handler},
-  description={A function that executes when the program receives a SIGINT signal. SIGINT is the interrupt signal. On reception, the program should teminate}
+  description={A function that executes when the program receives a SIGINT signal. SIGINT is the interrupt signal. On reception, the program should teminate.}
 }
 \newglossaryentry{signal}{
   name={signal},
-  description={A standardized message sent to a running program by the operating system meant to trigger specific behavior. Some signals can be handled by the program, such as SIGINT (``interrupt'') and SIGHUP (``hang up'')},
+  description={A standardized message sent to a running program by the operating system meant to trigger specific behavior. Some signals can be handled by the program, such as SIGINT (``interrupt'') and SIGHUP (``hang up'').},
 }
 \newglossaryentry{thread}{
   name={thread},
-  description={A unit of concurrency available in rich operating systems used to execute multiple functions at the same time}
+  description={A unit of concurrency available in rich operating systems used to execute multiple functions at the same time.}
   }
 \newglossaryentry{task}{
   name={task},
-  description={An \acrshort{RTIC} task. Refer to \cref{rtic}}
-  }
+  description={An \acrshort{RTIC} task. Refer to \cref{rtic}.}
+}
+\newglossaryentry{hardware-task}{
+  name={hardware task},
+  description={A \gls{task} scheduled by hardware. Bound to an \gls{interrupt}.}
+}
+\newglossaryentry{software-task}{
+  name={software task},
+  description={A \gls{task} scheduled by software. Not bound to an \gls{interrupt}.}
+}
+\newglossaryentry{interrupt}{
+  name={interrupt},
+  description={A hardware resource, a request to which can be requested and subsequently scheduled by hardware, upon which a \gls{hardware-task} executes. An interrupt is the most efficient method for an \gls{MCU} to reach to external stimuli (e.g., by pressing a button).}
+}
+\newglossaryentry{probe}{
+  name={probe},
+  description={Dedicated debugging hardware. Acts as the interface bridge between the host system and the \gls{MCU}.}
+}
+\newglossaryentry{task-dispatcher}{
+  name={task dispatcher},
+  description={\gls{software-task} executor abstracted upon an \gls{interrupt} handler and thus effectively a \gls{hardware-task} hidden by the user. The task dispacher keeps tabs on when \glspl{software-task} should be executed.}
+}
+\newglossaryentry{tracing}{
+  name={tracing},
+  description={The act of acquiring continuous insight into the system, with various levels of granularity. Tracing can for example yield information about what is being executed, when, for how long, with what data, and using what intructions.}
+}
+\newglossaryentry{data-tracing}{
+  name={data tracing},
+  description={\Gls{tracing}, specifically regarding what data is being computed in the system.},
+}
+\newglossaryentry{exception-tracing}{
+  name={exception tracing},
+  description={\Gls{tracing}, specifically regarding what \gls{exception} are being handled.},
+}
+\newglossaryentry{exception}{
+  name={exception},
+  description={\Gls{interrupt}.},
+}
+\newglossaryentry{hardare-event-packet}{
+  name={hardware event packet},
+  description={A \gls{trace-packet} describing a hardware event, such as memory being written to or an \gls{interrupt} handler being executed.},
+}
+\newglossaryentry{watch-address}{
+  name={watch-address},
+  description={Memory address which the \gls{DWT} monitors for changes. When the memory at this address is written to, a \gls{hardware-event-packet} is generated.}
+}
+\newglossaryentry{system-clock}{
+  name={system clock},
+  description={The clock which drives the system. The frequency of this clock is the frequency at which instructions of the \gls{user-application} are executed.}
+}
+\newglossaryentry{user-application}{
+  name={user-application},
+  description={\Gls{RTIC} application. The \gls{crate} program that is flashed and executed on the \gls{MCU}.}
+}
+\newglossaryentry{baud-rate}{
+  name={baud rate},
+  description={The number of signal changes that occur within a second.}
+}
+
+\newglossaryentry{crate}{
+  name={crate},
+  description={A Rust unit of compilation and linking. A crate usually contains libraries and programs written in Rust.}
+}
+\newglossaryentry{enum}{
+  name={enum},
+  description={An enumerated type.}
+}
+\newglossaryentry{struct}{
+  name={struct},
+  description={A product of other types.}
+}
+\newglossaryentry{function}{
+  name={function},
+  description={A block of statements executed iteratively optionally given a set of parameters. Optionally returns a type at the end of execution.}
+}
+\newglossaryentry{macro}{
+  name={macro},
+  description={A declarative Rust functionality extension. Either \gls{function}-like, or modifies compiled code by operating on \glspl{token} when applied.}
+}
+\newglossaryentry{manifest}{
+  name={crate manifest},
+  description={The \gls{crate}'s \texttt{Cargo.toml} file.}
+}
+\newglossaryentry{feature}{
+  name={crate feature},
+  description={An optional feature-set of a \gls{crate}.}
+}
+\newglossaryentry{trait}{
+  name={trait},
+  description={An abstract interface types can implement. A feature that enables code base modularity and composability.}
+}
+\newglossaryentry{trace-stream}{
+  name={trace stream},
+  description={A continuous stream of \glspl{trace-packet}.}
+}
+\newglossaryentry{trace-packet}{
+  name={trace packet},
+  description={A debug \gls{ITM} or \gls{DWT} protocol packet. Refer to \textcite[Part~D4]{arm-rm}.}
+}
+\newglossaryentry{hardware-event-packet}{
+  name={hardware event packet},
+  description={\Gls{trace-packet}, specifically one from the \gls{DWT}.},
+}
+\newglossaryentry{safe}{
+  name={safe},
+  description={Rust code that is not \gls{unsafe}.}
+}
+\newglossaryentry{unsafe}{
+  name={unsafe},
+  description={Context in which code can potentially violate the memory-safety rules of Rust.}
+}
 
 \newabbreviation{PC} {PC} {{program counter}}
 \newabbreviation{CPU} {CPU} {{central processing unit}}

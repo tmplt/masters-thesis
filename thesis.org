@@ -241,7 +241,7 @@ These trace facilities allows for an event-based monitoring of
 - interrupt handler enters and exits;
 - Read and write access to in-memory address spaces; and
 - [[gls:PC]] samples, among other features.
-The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the /trace stream/.
+The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the [[gls:trace-stream]].
 These facilities are not disjoint (if they were, no insight into the traced system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
@@ -276,11 +276,11 @@ This introductory section covers the software components that have realized RTIC
 :PROPERTIES:
 :CUSTOM_ID: rust
 :END:
-Rust is a system programming language that guarantees defined run-time behavior and the absence of mutable aliasing as long as code is written in a /safe/ context.
+Rust is a system programming language that guarantees defined run-time behavior and the absence of mutable aliasing as long as code is written in a [[gls:safe]] context.
 Throughout this text the following Rust terminology is used:
-/crate/, /enum/, /structure/, /function/, /macro/, /manifest/, /feature/, and /trait/.
-It is henceforth presumed that the reader are aware of the definitions of these terms.
-For a description of this terminology, and the Rust programming language and eco-system in general, refer to [[textcite:&rust-lang]].
+[[gls:crate]], [[gls:enum]], [[gls:struct]], [[gls:function]], [[gls:macro]], [[gls:manifest]], [[gls:feature]], and [[gls:trait]].
+For sake of decreasing typesetting noise, the relevant glossary entries for these fundamental terms will not be referred to again henceforth.
+For a more detailed description of this terminology, and the Rust programming language and eco-system in general, refer to [[textcite:&rust-lang]].
 
 For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
 
@@ -301,7 +301,7 @@ In the embedded Rust ecosystems, these are two kinds of PACs:
 # svd2rust
 A common tool to generate PACs is =svd2rust= [[parencite:&svd2rust]].
 
-An important component of device-specific [[glspl:PAC]] for RTIC Scope is the /interrupt enum/.
+An important component of device-specific [[glspl:PAC]] for RTIC Scope is the interrupt enum.
 An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
 Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enum is utilized.
 #+NAME: lst:pac-interrupt-example
@@ -344,11 +344,11 @@ It is developed at Luleå Technical University based on the extensively studied 
 # Oh yeah, and Rust
 [[gls:RTIC]] is written in Rust which removes additional developer overhead (see [[cref:rust]]).
 
-An [[gls:RTIC]] application is implemented by statically declaring a set of atomic /tasks/ which are executed and scheduled by help of Cortex-M hardware features.
-This section summarizes the two different task types --- /hardware tasks/ and /software tasks/ --- that together constitute an [[gls:RTIC]] application.
+An [[gls:RTIC]] application is implemented by statically declaring a set of atomic [[glspl:task]] which are executed and scheduled by help of Cortex-M hardware features.
+This section summarizes the two different task types --- [[glspl:hardware-task]] and [[glspl:software-task]] --- that together constitute an [[gls:RTIC]] application.
 For more details on [[gls:RTIC]] and how it is implemented, refer to [[textcite:&rtic]] and [[textcite:&tjader2021rtic]].
 
-Hardware tasks are regular Rust functions that are bound to a hardware /interrupt/.
+Hardware tasks are regular Rust functions that are bound to an [[gls:interrupt]].
 When this interrupt is made pending in hardware, and no interrupt handler of higher priority is currently exeuting, the task function executes.
 An example hardware task is declared via [[cref:rtic-hw-task-example]].
 With this declaration, =app::foo= will be executed when =EXTI0= is pending.
@@ -366,7 +366,7 @@ When =app::foo= returns, the interrupt has been handled and =EXTI0= is no longer
 #+end_src
 
 Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
-For this reason, the interrupt used to dispatch software tasks termed a /task dispatcher/.
+For this reason, the interrupt used to dispatch software tasks termed a [[gls:task-dispatcher]].
 An example of two software tasks are declared via [[cref:rtic-sw-task-example]].
 Multiple task dispatchers can be declared.
 It is not possible to declare which tasks a task dispatcher should handle; this is done automatically.
@@ -391,7 +391,7 @@ Example usage of a software task may be to send a response over a line of commun
 :PROPERTIES:
 :CUSTOM_ID: background:probes
 :END:
-Hardware debuggers, also known as /probes/, are dedicated hardware that provide a debugging interface between the host and target.
+Hardware debuggers, also known as [[glspl:probe]], are dedicated hardware that provide a debugging interface between the host and target.
 In practise, the probe is its own embedded system, used to program and debug the embedded system that is considered the target.
 A probe usually provides a [[gls:USB]] interface for the host-side and a [[gls:SWD]] and/or [[gls:JTAG]] interface for the target.
 An embedded system may provide its own probe, usually the case for development kits, or expose headers on which to attach a probe for programming and debugging.
@@ -408,7 +408,7 @@ Debugging an embedded system is on the other hand non-trivial: the embedded syst
 \missingfigure{Draw a comparison between conventional debugging and embedded debugging.}
 
 # We want to be able to debug in real-time (read: trace), but also record it.
-An important aspect of debugging is the act of debugging in real-time, often referred to as the act of /tracing/.
+An important aspect of debugging is the act of debugging in real-time, often referred to as the act of [[gls:tracing]].
 By tracing an embedded system it is possible to verify its internal operations continuously as long as a debugger is attached.
 Another important aspect of debugging are post-mortem analyses: being able to analyse a system's run-time behavior before it ended up in an invalid or unexpected state after the fact.
 Port-mortem analyses are realized by recording a trace from the attached debugger.
@@ -421,7 +421,7 @@ Enabling and correctly configuring these facilites to generate a trace stream an
 
 # The emergence of RTIC, and its lack of debug tools.
 RTIC is a novel RTOS which offers improvements over conventional RTOSs [[parencite:&tjader2021rtic 23]].
-The motivation behind RTIC Scope is thus to offer a /batteries included/[fn:: where details regarding trace stream generation and decoding is abstracted, and where no additional work must be done to utilize the tool.] toolset that enables instant insight into an RTIC application.
+The motivation behind RTIC Scope is thus to offer a batteries included[fn:: where details regarding trace stream generation and decoding is abstracted, and where no additional work must be done to utilize the tool.] toolset that enables instant insight into an RTIC application.
 Such a toolset would make it easier to verify the implementation of an RTIC application.
 
 *** Problem definition
@@ -430,7 +430,7 @@ Such a toolset would make it easier to verify the implementation of an RTIC appl
 :END:
 This thesis covers the development of an embedded systems analysis toolset, RTIC Scope, that enables an RTIC application developer to gain non-invasive insight into the run-time of said application by exploiting the trace stream generated and exfiltrated by the debug facilities (see [[#debug-periphs]]) made available by the ARMv7-M standard, which RTIC supports by targeting Cortex-M platforms.
 
-The set of /requirements/ RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] be able to
+The set of requirements RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] be able to
 1. <<req:itm-gen>> enable trace stream generation of hardware and software tasks (as defined by RTIC), and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
 2. <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
 3. <<req:decode>> decode the trace stream;
@@ -447,12 +447,12 @@ Delimitations to the above requirements apply, see [[#delimitations]].
 :CUSTOM_ID: delimitations
 :END:
 In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
-These /delimitations/[fn:: Uses the key words *MUST* and *SHOULD NOT* which are to be interpreted as described in [[textcite:&rfc2119]].], which are related to the requirements enumerated in [[#requirements]], are as follows:
+These delimitations[fn:: Uses the key words *MUST* and *SHOULD NOT* which are to be interpreted as described in [[textcite:&rfc2119]].], which are related to the requirements enumerated in [[#requirements]], are as follows:
 1. Requirement [[req:itm-gen]]: RTIC Scope *MUST* apply the device mutations that are common to all ARM Cortex-M targets in order to enable trace stream generation and exfiltration. RTIC Scope *SHOULD NOT* apply device-specific mutations.
 2. Requirement [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope *MUST* fail or warn the end-user if it is unable to correctly decode the read data stream.
 3. Requirement [[req:rtic]]: RTIC Scope *MUST* support RTIC version 1.0.0, see [[textcite:&rtic]].
    RTIC Scope *MUST* recover metadata necessary to report the timestamped state changes of hardware and software tasks, as defined by RTIC.
-4. Requirement [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the =cargo= subcommand /backend/ to the reference /frontend/. The protocol *SHOULD NOT* enable two-way communication.
+4. Requirement [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the =cargo= subcommand [[gls:backend]] to the reference [[gls:frontend]]. The protocol *SHOULD NOT* enable two-way communication.
 
 Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
 
@@ -461,7 +461,7 @@ Following the above delimitations allows this thesis to be finished within an ac
 :CUSTOM_ID: contribs
 :END:
 The development of RTIC Scope has yielded a number of [[gls:downstream]] contributions, namely a collection of crates:
-- =cargo-rtic-scope= :: A =cargo= subcommand acting as the RTIC Scope backend (or host-side /daemon/) which fulfill Requirements [[req:input]]--[[req:protocol]] and [[req:record]]--[[req:cargo]].
+- =cargo-rtic-scope= :: A =cargo= subcommand acting as the RTIC Scope [[gls:backend]] (i.e. host-side [[gls:daemon]]) which fulfill Requirements [[req:input]]--[[req:protocol]] and [[req:record]]--[[req:cargo]].
   See [[cref:impl:cargo-rtic-scope]] and [[textcite:&rtic-scope:cargo-rtic-scope]].
 - =rtic-scope-frontend-dummy= :: A reference implementation of a RTIC Scope frontend, which fulfill Requirement [[req:dummy]].
   See [[cref:impl:rtic-scope-frontend-dummy]] and [[textcite:&rtic-scope:dummy]].
@@ -594,10 +594,10 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 **** \glsxtrfull{DWT}
 # What does the DWT do and how do we use it?
 The DWT peripheral concerns itself with hardware events and respond to these accordingly depending on the applied configuration.
-For the purpose of RTIC Scope the DWT is configured to emit /hardware event packets/ on two types of events: when
-- a configured range of memory is accessed (known as /data tracing/); and
-- whenever the processor enters, exits, and returns to an exception handler (known as /exception tracing/).
-Within this text the range of memory used for data tracing is referred to as a /watch address/.
+For the purpose of RTIC Scope the [[gls:DWT]] is configured to emit [[glspl:hardware-event-packet]] on two types of events: when
+- a configured range of memory is accessed (known as [[gls:data-tracing]]); and
+- whenever the processor enters, exits, and returns to an exception handler (known as [[gls:exception-tracing]]).
+Within this text the range of memory used for data tracing is referred to as a [[gls:watch-address]].
 
 Refer to [[textcite:&arm-rm Section C1.8]] for more information on the DWT unit.
 **** \glsxtrfull{ITM}
@@ -612,18 +612,18 @@ The [[gls:ITM]] unit is of an auxilliary nature; it has three functions:
 
 # Summarize the timestamp sources
 Timestamp packets are sourced from a reference clock.
-The reference clock is either the system clock, an asynchronous [[gls:TPIU]] reference clock, or a /global timestamp clock/.
+The reference clock is either the [[gls:system-clock]], an asynchronous [[gls:TPIU]] reference clock, or a global timestamp clock[fn:: See [[cref:fut:review-timestamp-relation]].].
 The frequencies and behavior of these reference clocks and how the target clock hierarchy is configured in general is wholly specific to each target and will thus not be covered in further detail.
 
 For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm p. C1-710]].
 **** \glsxtrfull{TPIU}
 # Summarize TPIU functionality
-The TPIU provides external visibility of the trace packet stream by serializing them either in /parallel/ or /asynchronously/.
+The TPIU provides external visibility of the trace packet stream by serializing them either in parallel or asynchronously.
 Parallel serialization utilizes a number of data pins and one pin for the clock signal.
 Asynchronous serialization utilizes a single pin for data communication with no dedicated clock signal.
-In order to communicate over an asynchronous serialization channel the /baud rate/ must be known on both ends.
+In order to communicate over an asynchronous serialization channel the [[gls:baud-rate]] must be known on both ends.
 
-When asynchronous serial is used, a choice of two protocols can be chosen: /Manchester/ or /NRZ/ encoding.
+When asynchronous serial is used, a choice of two protocols can be chosen: Manchester or NRZ encoding[fn:: Definition of these encoding protocols are not important in the context of this thesis. NRZ encoding is used in experiments referred to in this text.].
 
 # Embedded Trace Buffer (ETB), SWO, or parallel trace port
 
