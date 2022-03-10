@@ -2037,6 +2037,7 @@ It may be apt to upstream portions of its implementations to [[textcite:&cortex-
 
 Regardless of what the outcome of minimizing end-user overhead is, =cortex-m-rtic-trace= is predicted to be deprecated.
 A tracking issue for this eventuality is available; see [[textcite:&issue:cargo-rtic-scope:90]].
+See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero end-user overhead.
 
 **** Supporting other \glsxtrfullpl{RTOS} than \glsxtrfull{RTIC}
 Version 0.3.1 of RTIC Scope targets and depends on (as the name implies) [[gls:RTIC]] v1.0.0.
