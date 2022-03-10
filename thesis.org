@@ -80,6 +80,7 @@
 | stdout      | \texttt{stdout}         | TODO        |
 | sigint      | \texttt{SIGINT} handler | TODO        |
 | thread      | thread                  | TODO        |
+| task        | task                    | TODO        |
 
 
 
@@ -279,7 +280,7 @@ Here be an abstract...
 #+end_export
 
 * *The Paper*                                                        :ignore:
-** TODO Introduction
+** Introduction
 :PROPERTIES:
 :CUSTOM_ID: introduction
 :END:
@@ -337,9 +338,11 @@ In summary it is easy to put an embedded system in an incorrect or unknown state
 In order to lighten the implementation burden one may employ [[Acrfull:RTIC]], (see [[cref:rtic]]).
 
 # Project aim
-The aim of this thesis is thus to employ and extend upon RTIC with a toolset, aptly named RTIC Scope, to trace /tasks/ by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
-RTIC Scope will aim for minimal end-user overhead in order to apply the toolset, and lighten the burden when verifying the implementation of an embedded system.
-The functionality and end-user overhead of the toolset will then be evaluated (see [[cref:discussion]]).
+The aim of this thesis is thus to employ and extend upon [[ACRshort:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their executions off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
+RTIC Scope will aim for minimal end-user overhead in order to apply the toolset, and allow the replay of traces post-mortem.
+
+# Thesis summary
+This thesis covers the theory behind relevant ARM peripherals and protocols upon which RTIC Scope relies, a close-to exhaustive enumerations of the contributions made during the project and a detailed description of its implementation, along with discussions on approaches taken and topics of interests regarding the future work that can be done to improve upon the toolset.
 
 *** Background
 This introductory section covers the software components that have realized RTIC Scope.
