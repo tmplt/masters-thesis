@@ -467,7 +467,7 @@ The development of RTIC Scope has yielded a number of [[gls:downstream]] contrib
 - =rtic-scope-frontend-dummy= :: A reference implementation of a RTIC Scope frontend, which fulfill Requirement [[req:dummy]].
   See [[cref:impl:rtic-scope-frontend-dummy]] and [[textcite:&rtic-scope:dummy]].
 - =rtic-scope-api= :: The communication protocol that =cargo-rtic-scope= uses to report RTIC task events to =rtic-scope-frontend-dummy=, as described by Requirement [[req:protocol]].
-  See [[cref:impl:api]] and [[textcite:&rtic-scope:api]].
+  See [[textcite:&rtic-scope:api]].
 - =cortex-m-rtic-trace= :: An auxilliary target-side crate that properly configures the device for trace stream generation and exfiltration, which fulfills Requirement [[req:itm-gen]].
   See [[cref:impl:rtic-trace]] and [[textcite:&rtic-scope:rtic-trace]].
 - =itm= :: A library crate for decoding the trace stream exfiltrated from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
@@ -1369,7 +1369,7 @@ See [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 :END:
 The host-side of RTIC Scope is divided into two parts: the backend, =cargo-rtic-scope=;
 and the frontends, of which =rtic-scope-frontend-dummy= is provided within the scope of this thesis, fulfilling Requirement [[req:dummy]] and also acting as the frontend reference implementation (see [[cref:impl:rtic-scope-frontend-dummy]]).
-Frontends are separate processes that receive JSON messages from the backend over a local socket connection (see [[cref:impl:api]]).
+Frontends are separate processes that receive JSON messages from the backend over a local socket connection.
 This section covers how frontends are specified, found in the environment, and executed.
 
 The set of frontends to spawn is specified with the =--frontend= option before the =<verb>= in [[cref:lst:spawn-frontend]].
@@ -1522,7 +1522,7 @@ This is done in a number of steps in the imaginatively named =run_loop= function
 
 =handle_packet= handles a single =TimestampedTracePacket= (henceforth referred to as a /packet chunk/).
 This is done several steps:
-1. first, the packet chunk is converted to an =api::EventChunk= (see [[cref:impl:api]]) via =TraceMetadata::build_event_chunk= (see below).
+1. first, the packet chunk is converted to an =api::EventChunk= via =TraceMetadata::build_event_chunk= (see below).
 2. Any unmappable, unknown, or invalid packets ITM packets in the chunk are echoed as warnings to the end-user with an apt message.
 3. Chunks are /drained/ to all /sinks/ (the replay file and all spawned frontends).
    If a drain fails for any sink, it is marked as broken and an error is echoed to the end-user.
