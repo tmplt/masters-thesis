@@ -34,6 +34,7 @@
 #+latex_header: \usepackage{todonotes}
 #+latex_header: \usepackage[capitalize]{cleveref}
 #+latex_header: \usepackage{csquotes}
+#+latex_header: \usepackage{svg}
 #+LATEX_HEADER: \makeglossaries
 
 # NOTE auto linebreaks / : - and _ inside \textttBreak. Adapted from <https://tex.stackexchange.com/a/219497>.
@@ -160,6 +161,10 @@
             (strike-through . "\\sout{%s}")
             (underline . "\\uline{%s}")
             (verbatim . protectedtextttbreak)))
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages '((latex . t)
+                                 (python . t)))
   #+end_src
 #+RESULTS:
 
@@ -1885,14 +1890,54 @@ If this noise it not accounted for and host-side trace recording starts as the [
 Ultimately, task state changes are likely to be lost and the error induced to the decoder may not necessarily be transient.
 This behavior is intrinsically [[gls:MCU]]-specific: there is unlikely a common model of this noise that can be used to filter the bytes host-side in software.
 
-The ATSAME51N20A is one example of an [[gls:MCU]] that displays this noise, seen in Fig. ???, as a consequence of the configuration done to pin PC27 in [[cref:lst:atsame51n20a-swo-conf]].
-\missingfigure{Display the noise seen when configuring SWO on the ATSAM}
+The ATSAME51N20A is one example of an [[gls:MCU]] that displays this noise, seen in [[cref:fig:swo-transient]], as a consequence of the configuration done to pin PC27 in [[cref:lst:atsame51n20a-swo-conf]].
+
+#+NAME: lst:swo-transient-plot
+#+begin_src python :results file :exports results
+  import pandas as pd
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+
+  rc_fonts = {
+      "font.family": "serif",
+      "font.size": 12,
+      "text.usetex": True,
+      'text.latex.preview': True,
+      'text.latex.preamble': [
+          r"""
+          \usepackage{kpfonts}[maths]
+          \usepackage{libertine}
+          \usepackage{inconsolata}
+          """],
+  }
+  mpl.rcParams.update(rc_fonts)
+
+  df_trans = pd.read_csv('data/swo-transient.txt', sep=' ', skiprows=4, index_col=0)
+  df_ground = pd.read_csv('data/swo-transient-grounded.txt', sep=' ', skiprows=4, index_col=0)
+  plt.plot(df_ground, label='Signal (probe grounded)')
+  plt.plot(df_trans, label='Signal')
+  plt.legend()
+  plt.ylabel('Signal voltage [V]')
+  plt.xlabel('Time [s]')
+
+  plt.savefig('fig.svg')
+  return 'fig.svg'
+#+end_src
+
+#+NAME: fig:swo-transient
+#+CAPTION: Transient seen on the [[Gls:SWO]] pin after the configuration in [[cref:lst:atsame51n20a-swo-conf]] has been applied. Compared with grounded equivalent. When logically interpreted, the signal can yield a malformed [[gls:trace-packet]] where there is none.
+#+RESULTS: lst:swo-transient-plot
+[[file:fig.svg]]
 
 #+NAME: lst:atsame51n20a-swo-conf
-#+CAPTION: Configuration of the PC27 pin for the ATSAME51N20A [[gls:MCU]] to act as the [[gls:SWO]] pin. This configuration induces transient noise on the pin, seen in Fig. ???.
+#+CAPTION: Configuration of the PC27 pin for the ATSAME51N20A [[gls:MCU]] to act as the [[gls:SWO]] pin. This configuration induces transient noise on the pin, seen in [[cref:fig:swo-transient]]. Remainder of the [[gls:RTIC]] application omitted for brevity.
 #+begin_src rust
   #[init]
   fn init(mut ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics()) {
+      use atsamd_hal as hal;
+      use hal::thumbv7em::clock::GenericClockController;
+      use hal::gpio::v2::pin::{Alternate, M};
+
       // configure trace clock
       let mut gcc = GenericClockController::with_internal_32kosc(
           ctx.device.GCLK,
