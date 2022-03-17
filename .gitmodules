@@ -1,0 +1,3 @@
+[submodule "rtic-scope-atsame-example"]
+	path = rtic-scope-atsame-example
+	url = https://github.com/rtic-scope/atsame-example.git

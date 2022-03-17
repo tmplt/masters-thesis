@@ -35,6 +35,7 @@
 #+latex_header: \usepackage[capitalize]{cleveref}
 #+latex_header: \usepackage{csquotes}
 #+latex_header: \usepackage{svg}
+#+latex_header: \usepackage{caption}
 #+LATEX_HEADER: \makeglossaries
 
 # NOTE auto linebreaks / : - and _ inside \textttBreak. Adapted from <https://tex.stackexchange.com/a/219497>.
@@ -1711,45 +1712,29 @@ When replaying a file, =cargo-rtic-scope= will terminate when the replay file en
 :CUSTOM_ID: results
 :END:
 From [[cref:impl]] it follows that all requirements enumerated in [[cref:requirements]] are fulfilled.
-This project has yielded a collection of five crates; four of which constitute the RTIC Scope project, the last crate a (much more; i.e. not specific to RTIC Scope) generally applicable trace stream decoding library.
+This project has yielded a collection of five crates; four of which constitute the RTIC Scope project, the last crate a (much more; i.e. not specific to RTIC Scope) generally applicable [[gls:trace-stream]] decoding library.
 These crates are described in [[cref:contribs]].
+This section covers the application of RTIC Scope to a trivial [[gls:RTIC]] application executing on a Microchip ATSAME51N20A [[gls:MCU]].
 
-As mentioned in [[cref:introduction]] the aim of RTIC Scope is to offer instant insight into the embedded system under test by minimizing end-user overhead.
-While significant development time as been dedicated to this aim the overhead may not necessarily be considered minimal.
-# TODO talk about the remaining overhead?
+We consider the RTIC Scope application example from [[textcite:&rtic-scope:atsame-example]]:
+After configuring the device-specific clocks to source [[gls:ITM]] and [[gls:TPIU]], the application configures [[gls:tracing]] via =cortex_m_rtic_trace::configure= and pends a [[gls:hardware-task]], =app::hardware=.
+When this task executes it spawns a [[gls:software-task]], =app::software=, with higher priority and is thus preempted.
+=app::software= exits after 100 ms and =app::hardware= resumes execution after which it also exits.
+The source of this application can be seen in its entirety in [[cref:lst:app-atsame-example-src-main]].
+Note
+- the breakpoint at line 49 which is used to escape the transient of the [[gls:SWO]] pin covered in [[cref:disc:swo-transient]];
+- the configuration of the [[gls:MCU]]-specific trace clock on lines 32--40; and
+- the use of the =cortex_m_rtic_trace::trace= [[gls:macro]] on the [[gls:software-task]].
 
-*** Using RTIC Scope
-From an end-user perspective RTIC Scope offers a "batteries-included" toolset that enables great insight into a target RTIC applications,
-provided that a small set of limitations are adhered to and specific metadata is added to the application crate in question.
-To install RTIC Scope, an end-user executes
-#+begin_src shell
-  $ cargo install cargo-rtic-scope
-  $ cargo install rtic-scope-frontend-dummy
-#+end_src
-and adds the following metadata to their RTIC application's =Cargo.toml=:
-#+begin_src toml
-  [package.metadata.rtic-scope]
-  # necessary information for RTIC metadata recovery
-  pac_name = "stm32f4"
-  pac_features = ["stm32f401"]
-  pac_version = "0.13"
-  interrupt_path = "stm32f4::stm32f401::Interrupt"
+As mentioned in [[cref:impl:cargo-rtic-scope:read-manifest]] trace and [[gls:MCU]] metadata must be provided in the crate's =Cargo.toml=.
+This provided metadata can be seen in [[cref:lst:app-atsame-example-manifest]].
 
-  # ITM/DWT/TPIU parameters
-  tpiu_freq = 16000000
-  tpiu_baud = 115200
-  dwt_enter_id = 1
-  dwt_exit_id = 2
-  lts_prescaler = 1
-
-  # Whether it is expected that the target generates packets that do not adhere to the ITM standard.
-  # For debugging purposes.
-  expect_malformed = true
-#+end_src
-
-# TODO document cortex-m-rtic-trace usage
-**** TODO Tracing the ~atsame51n~
-**** TODO Tracing the ~stm32f401retx~
+To apply RTIC Scope to an existing [[gls:RTIC]] application, the following overhead is thus required:
+- configuration of the trace clock, which is [[gls:MCU]]-specific;
+- configuration of tracing via =cortex_m_rtic_trace::configure= and allocating two [[gls:DWT]] comparators for [[gls:software-task]] tracing;
+- application of the =cortex_m_rtic_trace::trace= macro on [[glspl:software-task]] of interest;
+- addition of trace and [[gls:MCU]] metadata to the crate's =Cargo.toml=; and
+- a method to escape the [[gls:SWO]] pin transient.
 
 ** Discussion
 :PROPERTIES:
@@ -2319,7 +2304,82 @@ While end-user overhead has been minimized as much as possible with the allotted
 ** Backmatter                                                       :ignore:
 [[printglossaries:]]
 [[printbibliography:]]
+** Appendices                                                       :ignore:
+#+begin_export latex
+\appendix
+\addappheadtotoc
+#+end_export
+*** The source code of a trivial [[gls:RTIC]] application, traced with RTIC Scope, and the trace result
+This appendix contains the source code of interest in [[textcite:&rtic-scope:atsame-example]] that relates to the application of RTIC Scope, namely
+- =src/main.rs= :: in [[cref:lst:app-atsame-example-src-main]]; and
+- =Cargo.toml= :: in [[cref:lst:app-atsame-example-manifest]],
+but also the trace results, namely
+- [[cref:lst:app-atsame-example-trace-itm]] :: when tracing with =itm= from [[textcite:&itm]];
+- [[cref:lst:app-atsame-example-trace-scope]] :: when recording a trace with RTIC Scope;
+- [[cref:lst:app-atsame-example-trace-scope-replay-list]] :: when listing the recorded traces; and
+- [[cref:lst:app-atsame-example-trace-scope-replay]] :: when replaying the recorded trace.
 
+
+#+begin_export latex
+\inputminted{rust}{rtic-scope-atsame-example/src/main.rs}
+\captionof{listing}{Trivial \glsxtrfull{RTIC} application configured for tracing via RTIC Scope (lines 52--68), for execution on the Microship ATSAME51N20A. The spawned \gls{software-task}, \texttt{app::software}, preempts the \gls{hardware-task}, \texttt{app::hardware}, and delays further execution for 100 ms. Note the \texttt{trace} \gls{macro} on \texttt{app::software}. \label{lst:app-atsame-example-src-main}}
+#+end_export
+
+#+begin_export latex
+\inputminted{toml}{rtic-scope-atsame-example/Cargo.toml}
+\captionof{listing}{Crate manifest for the \glsxtrfull{RTIC} application in \cref{lst:app-atsame-example-src-main}. Lines 7--17 declare the metadata required by RTIC Scope. \label{lst:app-atsame-example-manifest}}
+#+end_export
+
+#+NAME: lst:app-atsame-example-trace-itm
+#+CAPTION: Trace recorded from the executed \glsxtrfull{RTIC} application in \cref{lst:app-atsame-example-src-main} via ~itm-decode~ from [[textcite:&itm]].
+#+begin_src text
+  $ itm-decode /path/to/dev/tty --itm-freq 1000000
+  ExceptionTrace { exception: Interrupt { irqn: 12 }, action: Entered }
+  ExceptionTrace { exception: Interrupt { irqn: 13 }, action: Entered }
+  LocalTimestamp1 { ts: 24, data_relation: Sync }
+  DataTraceValue { comparator: 1, access_type: Write, value: [0] }
+  LocalTimestamp1 { ts: 45, data_relation: Sync }
+  DataTraceValue { comparator: 2, access_type: Write, value: [0] }
+  ExceptionTrace { exception: Interrupt { irqn: 13 }, action: Exited }
+  LocalTimestamp2 { ts: 5 }
+  ExceptionTrace { exception: Interrupt { irqn: 12 }, action: Returned }
+  ExceptionTrace { exception: Interrupt { irqn: 12 }, action: Exited }
+  LocalTimestamp2 { ts: 2 }
+  ExceptionTrace { exception: ThreadMode, action: Returned }
+#+end_src
+
+#+NAME: lst:app-atsame-example-trace-scope
+#+CAPTION: Trace recorded from the executed \glsxtrfull{RTIC} application in \cref{lst:app-atsame-example-src-main} via RTIC Scope. The target is traced for ten seconds. ~rtic-scope-frontend-dummy~ is used as the \gls{frontend}.
+#+begin_src text
+  $ cargo rtic-scope trace --serial /path/to/dev/tty --dont-touch-target
+      Building RTIC target application...
+    Recovering metadata for rtic-scope-atsame-example (/path/to/rtic-scope-atsame-example/src/main.rs)...
+     Recovered 2 task(s) from rtic-scope-atsame-example: 1 hard, 1 soft.
+      Frontend dummy: @2000 ns (+2000 ns) [good]: [Task { name: "app::hardware", action: Entered }]
+      Frontend dummy: @5750 ns (+3750 ns) [good]: [Task { name: "app::software", action: Entered }]
+      Frontend dummy: @6167 ns (+417 ns) [good]: [Task { name: "app::software", action: Exited }]
+      Frontend dummy: @6334 ns (+167 ns) [good]: [Task { name: "app::hardware", action: Returned }, Task { name: "app::hardware", action: Exited }]
+        Traced rtic-scope-atsame-example: 10 packets processed in 10s (~1.0 packets/s; 0 malformed, 0 non-mappable); 2/2 sinks operational.
+#+end_src
+
+#+NAME: lst:app-atsame-example-trace-scope-replay-list
+#+CAPTION: Listing of recorded traces after the execution of [[cref:lst:app-atsame-example-trace-scope]]. Only a single trace is available for replay, its index 0.
+#+begin_src text
+  $ cargo rtic-scope replay --list
+  idx     trace file
+  0       /path/to/rtic-scope-atsame-example/target/rtic-traces/rtic-scope-atsame-example-gf7dd449-dirty-2022-03-21T11:16:31.trace
+#+end_src
+
+#+NAME: lst:app-atsame-example-trace-scope-replay
+#+CAPTION: Replay of the trace file of index zero listed in [[cref:lst:app-atsame-example-trace-scope-replay-list]] and recorded by executing [[cref:lst:app-atsame-example-trace-scope]]. ~rtic-scope-frontend-dummy~ is used as the \gls{frontend}.
+#+begin_src text
+  $ cargo rtic-scope replay 0
+      Frontend dummy: @2000 ns (+2000 ns) [good]: [Task { name: "app::hardware", action: Entered }]
+      Frontend dummy: @5750 ns (+3750 ns) [good]: [Task { name: "app::software", action: Entered }]
+      Frontend dummy: @6167 ns (+417 ns) [good]: [Task { name: "app::software", action: Exited }]
+      Frontend dummy: @6334 ns (+167 ns) [good]: [Task { name: "app::hardware", action: Returned }, Task { name: "app::hardware", action: Exited }]
+      Replayed rtic-scope-atsame-example: 10 packets processed in 0s (~inf packets/s; 0 malformed, 0 non-mappable); 1/1 sinks operational.
+#+end_src
 * Footnotes
 [fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
 
