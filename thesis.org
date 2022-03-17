@@ -165,6 +165,11 @@
     (org-babel-do-load-languages
      'org-babel-load-languages '((latex . t)
                                  (python . t)))
+
+    ;; Dont require confirmation when babel-ing latex or python code in this document
+    (defun my-org-confirm-babel-eval (lang body)
+      (not (member lang '("latex" "python"))))
+    (setq org-confirm-babel-evaluate 'my-org-confirm-babel-eval)
   #+end_src
 #+RESULTS:
 
