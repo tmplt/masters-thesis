@@ -1736,6 +1736,8 @@ To apply RTIC Scope to an existing [[gls:RTIC]] application, the following overh
 - addition of trace and [[gls:MCU]] metadata to the crate's =Cargo.toml=; and
 - a method to escape the [[gls:SWO]] pin transient.
 
+# TODO check if the ATSAME actually spends 100ms in app::software by toggling a pin.
+
 ** Discussion
 :PROPERTIES:
 :CUSTOM_ID: discussion
