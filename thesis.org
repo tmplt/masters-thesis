@@ -584,25 +584,21 @@ The [[gls:ITM]] muxes packets emitted by the [[gls:DWT]] and generates timestamp
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
 #+BEGIN_src latex
-  \begin{figure}[htbp]
-  \centering
-  \begin{tikzpicture}[node distance = 3cm, auto]
+    \begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}[node distance = 3cm, auto]
 
-    \node[block] (dwt) {DWT};
-    \node[block, right of=dwt] (itm) {ITM};
-    \node[block, right of=itm] (tpiu) {TPIU};
+      \node[block] (dwt) {DWT};
+      \node[block, right of=dwt] (itm) {ITM};
+      \node[block, right of=itm] (tpiu) {TPIU};
 
-    \path[->]
-    (dwt) edge (itm)
-    (itm) edge (tpiu);
-  \end{tikzpicture}
-  \label{fig:debug-relations}
-  \caption{Relationship between ARMv7-M debug peripherals used in RTIC Scope.}
-  \end{figure}
+      \path[->]
+      (dwt) edge (itm)
+      (itm) edge (tpiu);
+    \end{tikzpicture}
+    \caption{Downstream relationship between ARMv7-M debug peripherals used in RTIC Scope.\label{fig:debug-relations}}
+    \end{figure}
 #+END_src
-
-# #+NAME: fig:debug-relations
-# #+CAPTION: Relationship between ARMv7-M debug peripherals. Copied from [[textcite:&arm-rm Figure C1-1]]. Utilization of the \glsxtrfull{ETM} peripheral is outside of the scope of this thesis; it's functions are disabled in the context of RTIC Scope v0.3.1.
 
 **** \glsxtrfull{DWT}
 # What does the DWT do and how do we use it?
