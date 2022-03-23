@@ -583,8 +583,6 @@ The [[gls:DWT]] and [[gls:ITM]] peripherals are sources of [[gls:ITM]] protocol 
 The [[gls:ITM]] muxes packets emitted by the [[gls:DWT]] and generates timestamp packets in order to establish a timeline of events that occured on the traced target.
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
-# TODO properly do the below
-
 #+BEGIN_src latex
   \begin{figure}[htbp]
   \centering
