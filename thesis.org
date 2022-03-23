@@ -626,6 +626,9 @@ The frequencies and behavior of these reference clocks and how the target clock 
 
 For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm p. C1-710]].
 **** \glsxtrfull{TPIU}
+:PROPERTIES:
+:CUSTOM_ID: theory:tpiu
+:END:
 # Summarize TPIU functionality
 The TPIU provides external visibility of the trace packet stream by serializing them either in parallel or asynchronously.
 Parallel serialization utilizes a number of data pins and one pin for the clock signal.
@@ -801,7 +804,40 @@ That is, how
 5. this resolved trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
 
-As mentioned in [[cref:delimitations]], this chapter covers v0.3.1 of RTIC Scope.
+As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
+
+A graphical representation of how data flows during trace recording can be seen in
+
+#+BEGIN_src latex
+  \begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[node distance = 1cm, auto]
+
+    \node[block] (tpiu) {TPIU, \\ \cref{theory:tpiu}};
+    \node[block, below=of tpiu] (serial-dev) {serial device};
+    \node[block, below=of serial-dev] (itm-crate) {\texttt{itm} crate, \\ \cref{impl:itm}};
+    \node[block, below=of itm-crate] (recovery) {\texttt{cargo-rtic-scope} \\ recovery procedure, \cref{impl:cargo-rtic-scope:generating-metadata-maps}; \\ trace recording procedure, \cref{impl:cargo-rtic-scope:trace-target}};
+    \node[block, left=of itm-crate] (src) {\gls{RTIC} application \\ source file, \cref{impl:cargo-rtic-scope:building-rtic-app}};
+    \node[block, right=of itm-crate] (manifest) {\gls{RTIC} application \\ crate manifest metadata, \\ \cref{impl:cargo-rtic-scope:read-manifest}};
+
+    \node[below=1.8cm of recovery] (frontends) {$\cdots$};
+    \node[block, left=1cm of frontends] (frontend1) {$1$st frontend};
+    \node[block, right=1cm of frontends] (frontendn) {$n$th frontend};
+
+    \path[->]
+    (tpiu) edge node {\gls{SWO}} (serial-dev)
+    (serial-dev) edge node {byte stream; \\ \cref{theory:itm-proto}} (itm-crate)
+    (itm-crate) edge node {\texttt{itm} structures} (recovery)
+    (src) edge (recovery.west)
+    (manifest) edge (recovery.east);
+
+    \path[->, every node/.style={sloped}]
+    (recovery) edge node {\gls{JSON}} (frontend1.north)
+    (recovery) edge node {\gls{JSON}} (frontendn.north);
+  \end{tikzpicture}
+  \caption{Downstream data flow during trace recording in RTIC Scope.\label{fig:rtic-scope-data-flow-record}}
+  \end{figure}
+#+END_src
 
 \missingfigure{Draw the data flow in RTIC Scope: DWT to ITM to TPIU to cargo-rtic-scope and the itm crate, to replay file and frontends.}
 
