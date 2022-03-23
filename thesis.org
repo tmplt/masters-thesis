@@ -1736,6 +1736,9 @@ To apply RTIC Scope to an existing [[gls:RTIC]] application, the following overh
 - addition of trace and [[gls:MCU]] metadata to the crate's =Cargo.toml=; and
 - a method to escape the [[gls:SWO]] pin transient.
 
+With this overhead performed, we trace [[textcite:&rtic-scope:atsame-example]] via [[cref:lst:app-atsame-example-trace-scope]].
+The recorded traces are then listed via [[cref:lst:app-atsame-example-trace-scope-replay-list]] and replayed via [[cref:lst:app-atsame-example-trace-scope-replay]].
+
 # TODO check if the ATSAME actually spends 100ms in app::software by toggling a pin.
 
 ** Discussion
@@ -2193,105 +2196,7 @@ Refer to [[textcite:&issue:itm:12]] regarding the progress on this issue.
 **** Graphically representing traces
 During experimentation with the Microchip ATSAME51N20A [[gls:MCU]] the want to graphically represent a trace result arose.
 Subsequently an ad-hoc fork of =rtic-scope-frontend-dummy= --- =feat/auto-plot= from [[textcite:&rtic-scope:dummy-auto-plot]], =src/main.rs= of chief interest --- was created that converts the trace to a [[gls:CSV]] representation and then plots it.
-When the [[gls:RTIC]] application in [[cref:lst:auto-plotted-rtic]] has been traced and then replayed the dummy produces the plot in [[cref:fig:graphical-trace-plot]].
-
-#+NAME: lst:auto-plotted-rtic
-#+CAPTION: [[gls:RTIC]] application traced with RTIC Scope and plotted in [[cref:fig:graphical-trace-plot]]. ~app::hardware~ is preempted by the spawned ~app::software~. No resources declared. Included types omitted for brevity.
-#+begin_src rust
-    #[rtic::app(device = atsamd_hal::target_device, peripherals = true, dispatchers = [EIC_EXTINT_1])]
-    mod app {
-        // ..
-
-        #[init]
-        fn init(mut ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics()) {
-            // configure trace clock
-            let mut gcc = {
-                // ..
-            };
-            let gclk0 = gcc.gclk0();
-            let trace_clk = gcc.cm4_trace(&gclk0).unwrap();
-
-            let freq = trace_clk.freq().0;
-
-            // configure SWO pin
-            let pins = hal::gpio::v2::Pins::new(ctx.device.PORT);
-            let _pc27 = pins.pc27.into_mode::<Alternate<M>>();
-
-            // Above pin configuration yields transient noise on the pin.
-            // We start RTIC Scope before continuing.
-            cortex_m::asm::bkpt();
-
-            // configure tracing
-            cortex_m_rtic_trace::configure(
-                &mut ctx.core.DCB,
-                &mut ctx.core.TPIU,
-                &mut ctx.core.DWT,
-                &mut ctx.core.ITM,
-                1, // task enter DWT comparator ID
-                2, // task exit DWT comparator ID
-                &TraceConfiguration {
-                    delta_timestamps: LocalTimestampOptions::Enabled,
-                    absolute_timestamps: GlobalTimestampOptions::Disabled,
-                    timestamp_clk_src: TimestampClkSrc::AsyncTPIU,
-                    tpiu_freq: freq,    // Hz
-                    tpiu_baud: 1000000, // B/s
-                    protocol: TraceProtocol::AsyncSWONRZ,
-                },
-            )
-            .unwrap();
-
-            rtic::pend(Interrupt::EIC_EXTINT_0);
-
-            (SharedResources {}, LocalResources {}, init::Monotonics())
-        }
-
-        #[task(binds = EIC_EXTINT_0, priority = 1)]
-        fn hardware(_: hardware::Context) {
-            software::spawn().unwrap();
-        }
-
-        #[trace]
-        #[task(priority = 2)]
-        fn software(_: software::Context) {
-        }
-    }
-#+end_src
-
-#+NAME: lst:graphical-trace-plot
-#+begin_src python :results file :exports results
-  # task, start (µs), finish (µs)
-  trace = u"""app::hardware,2084,8252
-  app::software,3584,4001"""
-
-  import pandas as pd
-  import io
-  import matplotlib.pyplot as plt
-
-  df = pd.read_csv(io.StringIO(trace), header=None, names=['Task', 'Start', 'End'])
-  df['Diff'] = df.End - df.Start
-
-  fig, ax = plt.subplots(figsize=(6,3))
-
-  labels = []
-  for i, task in enumerate(df.groupby('Task')):
-      labels.append(task[0])
-      data = task[1][["Start", "Diff"]]
-      ax.broken_barh(data.values, (i - 0.4, 0.8))
-
-  ax.set_yticks(range(len(labels)))
-  ax.set_yticklabels(labels)
-  ax.set_xlabel('time [ns]')
-  ax.set_ylabel('RTIC task')
-  plt.tight_layout()
-  plt.grid(visible=True, which='both', axis='x')
-  plt.savefig('fig.pdf')
-  return 'fig.pdf'
-#+end_src
-
-#+NAME: fig:graphical-trace-plot
-#+CAPTION: Graphical representation of the trace yielded by ~feat/auto-plot~ for [[cref:lst:auto-plotted-rtic]]. ~app::software~ preempts ~app::hardware~ after approximately 3500 ns. At 4000 ns ~app::hardware~ resumes execution. Task context switch overhead not plotted.
-#+RESULTS: lst:graphical-trace-plot
-[[file:fig.pdf]]
+When the [[gls:RTIC]] application in [[cref:lst:app-atsame-example-src-main]] has been traced and then replayed the dummy produces the plot in [[cref:fig:auto-plot-example]].
 
 From this proof of concept it is immidiately clear that a graphical representation of a recorded trace holds great value for system insight;
 further work to this end is warranted.
@@ -2321,6 +2226,8 @@ but also the trace results, namely
 - [[cref:lst:app-atsame-example-trace-scope-replay-list]] :: when listing the recorded traces; and
 - [[cref:lst:app-atsame-example-trace-scope-replay]] :: when replaying the recorded trace.
 
+The output of an experimental fork of =rtic-scope-frontend-dummy=, =feat/auto-plot= from [[textcite:&rtic-scope:dummy-auto-plot]], is also provided that graphically plots the trace replayed in [[cref:lst:app-atsame-example-trace-scope-replay]].
+Refer to [[cref:fig:auto-plot-example]].
 
 #+begin_export latex
 \inputminted{rust}{rtic-scope-atsame-example/src/main.rs}
@@ -2382,6 +2289,10 @@ but also the trace results, namely
       Frontend dummy: @6334 ns (+167 ns) [good]: [Task { name: "app::hardware", action: Returned }, Task { name: "app::hardware", action: Exited }]
       Replayed rtic-scope-atsame-example: 10 packets processed in 0s (~inf packets/s; 0 malformed, 0 non-mappable); 1/1 sinks operational.
 #+end_src
+
+#+NAME: fig:auto-plot-example
+#+CAPTION: Graphical representation of the trace yielded by [[textcite:&rtic-scope:dummy-auto-plot]], equivalent to [[cref:lst:app-atsame-example-trace-scope-replay]]. ~app::software~ preempts ~app::hardware~ after approximately 5600 ns. At approximately 6100 ns ~app::hardware~ resumes execution. Task context switch overhead not plotted.
+[[file:svgs/auto-plot-example.svg]]
 * Footnotes
 [fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
 
