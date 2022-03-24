@@ -811,29 +811,50 @@ A graphical representation of how data flows during trace recording can be seen 
 #+BEGIN_src latex
   \begin{figure}[htbp]
   \centering
-  \begin{tikzpicture}[node distance = 1cm, auto]
+  \begin{tikzpicture}[node distance = 2cm, auto]
 
-    \node[block] (tpiu) {TPIU, \\ \cref{theory:tpiu}};
-    \node[block, below=of tpiu] (serial-dev) {serial device};
+    %% record stack
+    \node[block] (tpiu) {\gls{TPIU}, \\ \cref{theory:tpiu}; \\ c.f. \cref{fig:debug-relations}};
+    \node[block, below=of tpiu] (serial-dev) {serial device, \\ \cref{theory:serial-device}};
+    \path[->] (tpiu) edge node {\gls{SWO}} (serial-dev);
     \node[block, below=of serial-dev] (itm-crate) {\texttt{itm} crate, \\ \cref{impl:itm}};
-    \node[block, below=of itm-crate] (recovery) {\texttt{cargo-rtic-scope} \\ recovery procedure, \cref{impl:cargo-rtic-scope:generating-metadata-maps}; \\ trace recording procedure, \cref{impl:cargo-rtic-scope:trace-target}};
-    \node[block, left=of itm-crate] (src) {\gls{RTIC} application \\ source file, \cref{impl:cargo-rtic-scope:building-rtic-app}};
-    \node[block, right=of itm-crate] (manifest) {\gls{RTIC} application \\ crate manifest metadata, \\ \cref{impl:cargo-rtic-scope:read-manifest}};
+    \path[->] (serial-dev) edge node {byte stream; \\ \cref{theory:itm-proto}} (itm-crate);
+    \node[block, below left=of tpiu] (rtic-app-crate) {\gls{RTIC} application \\ crate};
+    \node[block, below=of rtic-app-crate] (recovery-procedure) {recovery \\ procedure};
+    \path[->] (rtic-app-crate) edge node {crate manifest; \\ \gls{RTIC} application \\ declaration} (recovery-procedure);
+    \node[block, below=of recovery-procedure] (record-source) {trace record \\ source};
+    \path[->] (itm-crate) edge node {\texttt{itm} structures} (record-source);
+    \path[->] (recovery-procedure) edge node {recovery maps; \\ trace metadata} (record-source);
 
-    \node[below=1.8cm of recovery] (frontends) {$\cdots$};
-    \node[block, left=1cm of frontends] (frontend1) {$1$st frontend};
-    \node[block, right=1cm of frontends] (frontendn) {$n$th frontend};
+    %% replay stack
+    \node[block, below right=of tpiu] (replay-file) {replay file};
+    \node[block, below=of replay-file] (replay-source) {trace replay \\ source};
+    \path[->] (replay-file) edge node {trace metadata; \\ recovery maps; \\ \texttt{itm} structures} (replay-source);
+    \draw[->] (itm-crate.south) |- (record-source.east);
 
-    \path[->]
-    (tpiu) edge node {\gls{SWO}} (serial-dev)
-    (serial-dev) edge node {byte stream; \\ \cref{theory:itm-proto}} (itm-crate)
-    (itm-crate) edge node {\texttt{itm} structures} (recovery)
-    (src) edge (recovery.west)
-    (manifest) edge (recovery.east);
+    %% trace source anchor
+    \node[below=3cm of itm-crate] (mux) {};
+    \draw[-] (record-source.south) |- (mux.center);
+    \draw[-] (replay-source.south) |- (mux.center);
 
-    \path[->, every node/.style={sloped}]
-    (recovery) edge node {\gls{JSON}} (frontend1.north)
-    (recovery) edge node {\gls{JSON}} (frontendn.north);
+    %% run_loop
+    \node[block, below=4cm of itm-crate] (run-loop) {\texttt{cargo-rtic-scope} \\ run loop};
+    \path[->] (mux.center) edge (run-loop);
+
+    %% frontend anchors
+    \node[below=1cm of run-loop] (mux-frontend) {};
+    \path[-] (run-loop) edge (mux-frontend.center);
+    \node[below=1cm of mux-frontend] (frontend-anchor) {};
+
+    %% frontends
+    \node[block, left=0.5cm of frontend-anchor.center] (frontend2) {$2$nd frontend};
+    \node[block, right=0.5cm of frontend-anchor.center] (frontends) {$n-1$th \\ frontend};
+    \node[block, left=3.5cm of frontend-anchor.center] (frontend1) {$1$th frontend};
+    \node[block, right=3.5cm of frontend-anchor.center] (frontendn) {$n$th frontend};
+    \draw[->] (mux-frontend.center) -| (frontend1.north);
+    \draw[->] (mux-frontend.center) -| (frontend2.north);
+    \draw[->] (mux-frontend.center) -| (frontends.north);
+    \draw[->] (mux-frontend.center) -| (frontendn.north);
   \end{tikzpicture}
   \caption{Downstream data flow during trace recording in RTIC Scope.\label{fig:rtic-scope-data-flow-record}}
   \end{figure}
