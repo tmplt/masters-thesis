@@ -814,7 +814,7 @@ A graphical representation of how data flows during trace recording can be seen 
   \begin{tikzpicture}[node distance = 2cm, auto]
 
     %% record stack
-    \node[block] (tpiu) {\gls{TPIU}, \\ \cref{theory:tpiu}; \\ c.f. \cref{fig:debug-relations}};
+    \node[block] (tpiu) {\gls{TPIU}, \\ \cref{theory:tpiu}; \\ from~\cref{fig:debug-relations}};
     \node[block, below=of tpiu] (serial-dev) {serial device, \\ \cref{theory:serial-device}};
     \path[->] (tpiu) edge node {\gls{SWO}} (serial-dev);
     \node[block, below=of serial-dev] (itm-crate) {\texttt{itm} crate, \\ \cref{impl:itm}};
@@ -823,40 +823,49 @@ A graphical representation of how data flows during trace recording can be seen 
     \node[block, below=of rtic-app-crate] (recovery-procedure) {recovery \\ procedure};
     \path[->] (rtic-app-crate) edge node {crate manifest; \\ \gls{RTIC} application \\ declaration} (recovery-procedure);
     \node[block, below=of recovery-procedure] (record-source) {trace record \\ source};
-    \path[->] (itm-crate) edge node {\texttt{itm} structures} (record-source);
     \path[->] (recovery-procedure) edge node {recovery maps; \\ trace metadata} (record-source);
 
     %% replay stack
     \node[block, below right=of tpiu] (replay-file) {replay file};
     \node[block, below=of replay-file] (replay-source) {trace replay \\ source};
-    \path[->] (replay-file) edge node {trace metadata; \\ recovery maps; \\ \texttt{itm} structures} (replay-source);
-    \draw[->] (itm-crate.south) |- (record-source.east);
+    \path[->,dashed] (replay-file) edge node {trace metadata; \\ recovery maps; \\ \texttt{itm} structures} (replay-source);
+    \draw[->] (itm-crate.south) |- (record-source.east) node [near start] {\texttt{itm} structures};
 
     %% trace source anchor
     \node[below=3cm of itm-crate] (mux) {};
-    \draw[-] (record-source.south) |- (mux.center);
-    \draw[-] (replay-source.south) |- (mux.center);
 
     %% run_loop
-    \node[block, below=4cm of itm-crate] (run-loop) {\texttt{cargo-rtic-scope} \\ run loop};
-    \path[->] (mux.center) edge (run-loop);
+    \node[block, below=3cm of itm-crate] (run-loop) {\texttt{cargo-rtic-scope} \\ run loop};
+    \draw[-] (record-source.south) |- (run-loop.west);
+    \draw[->,dashed] (replay-source.south) |- (run-loop.east);
 
     %% frontend anchors
     \node[below=1cm of run-loop] (mux-frontend) {};
-    \path[-] (run-loop) edge (mux-frontend.center);
+    \path[-,dashdotted] (run-loop) edge (mux-frontend.center);
     \node[below=1cm of mux-frontend] (frontend-anchor) {};
+
+    %% record feedback
+    \node[below=0.5cm of run-loop.south east] (feedback1) {};
+    \node[right=1.5cm of replay-file] (replay-anchor) {};
+    \draw[-] ($(run-loop.south)!0.5!(run-loop.south east)$) |- (feedback1.center);
+    \draw[-] (feedback1.center) -| (replay-anchor.center);
+    \draw[->] (replay-anchor.center) -- (replay-file.east);
 
     %% frontends
     \node[block, left=0.5cm of frontend-anchor.center] (frontend2) {$2$nd frontend};
     \node[block, right=0.5cm of frontend-anchor.center] (frontends) {$n-1$th \\ frontend};
     \node[block, left=3.5cm of frontend-anchor.center] (frontend1) {$1$th frontend};
     \node[block, right=3.5cm of frontend-anchor.center] (frontendn) {$n$th frontend};
-    \draw[->] (mux-frontend.center) -| (frontend1.north);
-    \draw[->] (mux-frontend.center) -| (frontend2.north);
-    \draw[->] (mux-frontend.center) -| (frontends.north);
-    \draw[->] (mux-frontend.center) -| (frontendn.north);
+    \draw[->,dashdotted] (mux-frontend.center) -| (frontend1.north);
+    \draw[->,dashdotted] (mux-frontend.center) -| (frontend2.north);
+    \draw[->,dashdotted] (mux-frontend.center) -| (frontends.north);
+    \draw[->,dashdotted] (mux-frontend.center) -| (frontendn.north);
   \end{tikzpicture}
-  \caption{Downstream data flow during trace recording in RTIC Scope.\label{fig:rtic-scope-data-flow-record}}
+  \caption{ \label{fig:rtic-scope-data-flow-record} Downstream data in RTIC Scope.
+    Data flow drawn with solid lines (\protect\tikz[baseline]{\protect\draw[-] (0,.5ex)--++(1,0) ;}) are operational during trace recording;
+    dashed lines (\protect\tikz[baseline]{\protect\draw[-,dashed] (0,.5ex)--++(1,0) ;}) during trace replay; and
+    dash-dotted lines (\protect\tikz[baseline]{\protect\draw[-,dashdotted] (0,.5ex)--++(1,0) ;}) during both trace recording and replay.
+    During recording the trace is saved to a replay file.}
   \end{figure}
 #+END_src
 
