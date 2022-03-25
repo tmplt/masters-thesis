@@ -815,6 +815,8 @@ A graphical representation of how and what data flows within RTIC Scope, refer t
 
     %% record stack
     \node[block] (tpiu) {\gls{TPIU}, \\ \cref{theory:tpiu}; \\ from~\cref{fig:debug-relations}};
+    \node[above=0.5cm of tpiu] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}, \\ \cref{impl:rtic-trace}};
+    \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=(target.north east), \p2=($(tpiu.south east)+(0.3,-0.3)$) in (target.north west) rectangle (\x1,\y2);
     \node[block, below=of tpiu] (serial-dev) {serial device, \\ \cref{theory:serial-device}};
     \path[->] (tpiu) edge node {\gls{SWO}} (serial-dev);
     \node[block, below=of serial-dev] (itm-crate) {\texttt{itm} crate, \\ \cref{impl:itm}};
@@ -857,8 +859,8 @@ A graphical representation of how and what data flows within RTIC Scope, refer t
     \node[block, left=3.5cm of frontend-anchor.center] (frontend1) {$1$th frontend, \\ \cref{impl:rtic-scope-frontend-dummy}};
     \node[block, right=3.5cm of frontend-anchor.center] (frontendn) {$n$th frontend};
     \draw[->,dashdotted] (mux-frontend.center) -| (frontend1.north);
-    \draw[->,dashdotted] (mux-frontend.center) -| (frontend2.north);
-    \draw[->,dashdotted] (mux-frontend.center) -| (frontends.north);
+    \draw[->,dashdotted] ($(frontend2.north)+(0,0.75cm)$) -- (frontend2.north);
+    \draw[->,dashdotted] ($(frontends.north)+(0,0.75cm)$) -- (frontends.north);
     \draw[->,dashdotted] (mux-frontend.center) -| (frontendn.north);
     \draw[thin,fill=gray,fill opacity=0.2] ($(frontend2.north west)+(-0.3,0.3)$) rectangle ($(frontendn.south east)+(0.3,-0.3)$);
   \end{tikzpicture}
