@@ -860,12 +860,15 @@ A graphical representation of how and what data flows within RTIC Scope, refer t
     \draw[->,dashdotted] (mux-frontend.center) -| (frontend2.north);
     \draw[->,dashdotted] (mux-frontend.center) -| (frontends.north);
     \draw[->,dashdotted] (mux-frontend.center) -| (frontendn.north);
+    \draw[thin,fill=gray,fill opacity=0.2] ($(frontend2.north west)+(-0.3,0.3)$) rectangle ($(frontendn.south east)+(0.3,-0.3)$);
   \end{tikzpicture}
   \caption{ \label{fig:rtic-scope-data-flow} Downstream data flow in RTIC Scope.
     Data flow drawn with solid lines (\protect\tikz[baseline]{\protect\draw[-] (0,.5ex)--++(1,0) ;}) are operational during trace recording;
     dashed lines (\protect\tikz[baseline]{\protect\draw[-,dashed] (0,.5ex)--++(1,0) ;}) during trace replay; and
     dash-dotted lines (\protect\tikz[baseline]{\protect\draw[-,dashdotted] (0,.5ex)--++(1,0) ;}) during both trace recording and replay.
-    During recording the trace is saved to a replay file.}
+    During recording the trace is saved to a replay file.
+    $n \geq 1$: grayed-out frontends (\protect\tikz[baseline]{\protect\draw[thin,fill=gray,fill opacity=0.2] (0,1ex) rectangle (1,0) ;}) are optional.
+  }
   \end{figure}
 #+END_src
 
