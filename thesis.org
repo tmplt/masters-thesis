@@ -819,15 +819,15 @@ A graphical representation of how and what data flows within RTIC Scope, refer t
     \path[->] (tpiu) edge node {\gls{SWO}} (serial-dev);
     \node[block, below=of serial-dev] (itm-crate) {\texttt{itm} crate, \\ \cref{impl:itm}};
     \path[->] (serial-dev) edge node {byte stream; \\ \cref{theory:itm-proto}} (itm-crate);
-    \node[block, below left=of tpiu] (rtic-app-crate) {\gls{RTIC} application \\ crate};
-    \node[block, below=of rtic-app-crate] (recovery-procedure) {recovery \\ procedure};
+    \node[block, below left=of tpiu] (rtic-app-crate) {\gls{RTIC} application crate, \\ \crefrange{impl:cargo-rtic-scope:building-rtic-app}{impl:cargo-rtic-scope:read-manifest}};
+    \node[block, below=of rtic-app-crate] (recovery-procedure) {recovery procedure, \\ \cref{impl:cargo-rtic-scope:generating-metadata-maps}};
     \path[->] (rtic-app-crate) edge node {crate manifest; \\ \gls{RTIC} application \\ declaration} (recovery-procedure);
-    \node[block, below=of recovery-procedure] (record-source) {trace record \\ source};
+    \node[block, below=of recovery-procedure] (record-source) {trace record source, \\ \cref{impl:cargo-rtic-scope:reading-the-trace-stream}};
     \path[->] (recovery-procedure) edge node {recovery maps; \\ trace metadata} (record-source);
 
     %% replay stack
-    \node[block, below right=of tpiu] (replay-file) {replay file};
-    \node[block, below=of replay-file] (replay-source) {trace replay \\ source};
+    \node[block, below right=of tpiu] (replay-file) {replay file, \\ \cref{impl:cargo-rtic-scope:create-trace-file}};
+    \node[block, below=of replay-file] (replay-source) {trace replay source, \\ \cref{impl:cargo-rtic-scope:replay}};
     \path[->,dashed] (replay-file) edge node {trace metadata; \\ recovery maps; \\ \texttt{itm} structures} (replay-source);
     \draw[->] (itm-crate.south) |- (record-source.east) node [near start] {\texttt{itm} structures};
 
@@ -835,13 +835,13 @@ A graphical representation of how and what data flows within RTIC Scope, refer t
     \node[below=3cm of itm-crate] (mux) {};
 
     %% run_loop
-    \node[block, below=3cm of itm-crate] (run-loop) {\texttt{cargo-rtic-scope} \\ run loop};
+    \node[block, below=3cm of itm-crate] (run-loop) {\texttt{cargo-rtic-scope}: \\ \cref{impl:cargo-rtic-scope:spawning-frontends}, \\ \cref{impl:cargo-rtic-scope:flush-metadata}, and \\ \cref{impl:cargo-rtic-scope:trace-target}};
     \draw[-] (record-source.south) |- (run-loop.west);
     \draw[->,dashed] (replay-source.south) |- (run-loop.east);
 
     %% frontend anchors
     \node[below=1cm of run-loop] (mux-frontend) {};
-    \path[-,dashdotted] (run-loop) edge (mux-frontend.center);
+    \path[-,dashdotted] (run-loop) edge node [left] {\gls{JSON}} (mux-frontend.center);
     \node[below=1cm of mux-frontend] (frontend-anchor) {};
 
     %% record feedback
@@ -854,7 +854,7 @@ A graphical representation of how and what data flows within RTIC Scope, refer t
     %% frontends
     \node[block, left=0.5cm of frontend-anchor.center] (frontend2) {$2$nd frontend};
     \node[block, right=0.5cm of frontend-anchor.center] (frontends) {$n-1$th \\ frontend};
-    \node[block, left=3.5cm of frontend-anchor.center] (frontend1) {$1$th frontend};
+    \node[block, left=3.5cm of frontend-anchor.center] (frontend1) {$1$th frontend, \\ \cref{impl:rtic-scope-frontend-dummy}};
     \node[block, right=3.5cm of frontend-anchor.center] (frontendn) {$n$th frontend};
     \draw[->,dashdotted] (mux-frontend.center) -| (frontend1.north);
     \draw[->,dashdotted] (mux-frontend.center) -| (frontend2.north);
@@ -1036,7 +1036,7 @@ A traced software task then writes its unique ID to two watch addresses that sig
 :CUSTOM_ID: impl:cargo-rtic-scope
 :END:
 =cargo-rtic-scope= is a host-side daemon that fulfills [[crefrange:req:input,req:protocol]] and [[crefrange:req:record,req:cargo]].
-It is run like a =cargo= subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where =<verb>= is either =trace= or =replay=.
+It is run as a =cargo= subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where =<verb>= is either =trace= or =replay=.
 As the verbs imply, =trace= is used to trace the execution of an RTIC application on the target and =replay= is used to replay a trace for post-mortem analysis.
 #+NAME: lst:cargo-rtic-scope:summary
 #+CAPTION: Summary of ~cargo-rtic-scope~ invocation.
