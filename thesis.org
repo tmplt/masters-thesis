@@ -794,19 +794,19 @@ An additional decoding step is then applied to trace software tasks.
 :PROPERTIES:
 :CUSTOM_ID: impl
 :END:
-This chapter covers the implementation of =cargo-rtic-scope=, =cortex-m-rtic-trace=, and =rtic-scope-frontend-dummy= of RTIC Scope and the implementation of =itm=.
-The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied.
+This chapter covers the implementation of =cortex-m-rtic-trace=, =cargo-rtic-scope=, =rtic-scope-api=, and =rtic-scope-frontend-dummy= of RTIC Scope and the implementation of =itm=.
+The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied and how the trace data flows.
 That is, how
 1. =cortex-m-rtic-trace= is applied on the target-side and what it does;
 2. =cargo-rtic-scope= recovers metadata from the RTIC application and how it reads the raw trace stream from the source;
 3. =itm= decodes this stream into manageable Rust structures;
 4. =cargo-rtic-scope= recovers RTIC metadata for the decoded trace stream;
-5. this resolved (or previously recorded) trace stream is forwarded to frontends; and
+5. this resolved (or previously recorded) trace stream is forwarded to frontends as =rtic-scope-api= structures; and
 6. how a frontend handles a trace stream.
 
-As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
+A graphical representation this data flow can be seen in [[cref:fig:rtic-scope-data-flow]].
 
-A graphical representation of how and what data flows within RTIC Scope, refer to [[cref:fig:rtic-scope-data-flow]].
+As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
 
 #+BEGIN_src latex
   \begin{figure}[htbp]
@@ -842,8 +842,8 @@ A graphical representation of how and what data flows within RTIC Scope, refer t
     \draw[->,dashed] (replay-source.south) |- (run-loop.east);
 
     %% frontend anchors
-    \node[below=1cm of run-loop] (mux-frontend) {};
-    \path[-,dashdotted] (run-loop) edge node [left] {\gls{JSON}} (mux-frontend.center);
+    \node[below=1.5cm of run-loop] (mux-frontend) {};
+    \path[-,dashdotted] (run-loop) edge node [left] {\gls{JSON} of \texttt{rtic-scope-api} \\ structures, \cref{impl:cargo-rtic-scope:trace-target}} (mux-frontend.center);
     \node[below=1cm of mux-frontend] (frontend-anchor) {};
 
     %% record feedback
