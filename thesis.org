@@ -801,12 +801,12 @@ That is, how
 2. =cargo-rtic-scope= recovers metadata from the RTIC application and how it reads the raw trace stream from the source;
 3. =itm= decodes this stream into manageable Rust structures;
 4. =cargo-rtic-scope= recovers RTIC metadata for the decoded trace stream;
-5. this resolved trace stream is forwarded to frontends; and
+5. this resolved (or previously recorded) trace stream is forwarded to frontends; and
 6. how a frontend handles a trace stream.
 
 As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
 
-A graphical representation of how data flows during trace recording can be seen in
+A graphical representation of how and what data flows within RTIC Scope, refer to [[cref:fig:rtic-scope-data-flow]].
 
 #+BEGIN_src latex
   \begin{figure}[htbp]
@@ -861,15 +861,13 @@ A graphical representation of how data flows during trace recording can be seen 
     \draw[->,dashdotted] (mux-frontend.center) -| (frontends.north);
     \draw[->,dashdotted] (mux-frontend.center) -| (frontendn.north);
   \end{tikzpicture}
-  \caption{ \label{fig:rtic-scope-data-flow-record} Downstream data in RTIC Scope.
+  \caption{ \label{fig:rtic-scope-data-flow} Downstream data flow in RTIC Scope.
     Data flow drawn with solid lines (\protect\tikz[baseline]{\protect\draw[-] (0,.5ex)--++(1,0) ;}) are operational during trace recording;
     dashed lines (\protect\tikz[baseline]{\protect\draw[-,dashed] (0,.5ex)--++(1,0) ;}) during trace replay; and
     dash-dotted lines (\protect\tikz[baseline]{\protect\draw[-,dashdotted] (0,.5ex)--++(1,0) ;}) during both trace recording and replay.
     During recording the trace is saved to a replay file.}
   \end{figure}
 #+END_src
-
-\missingfigure{Draw the data flow in RTIC Scope: DWT to ITM to TPIU to cargo-rtic-scope and the itm crate, to replay file and frontends.}
 
 *** ~cortex-m-rtic-trace~ and its application
 :PROPERTIES:
