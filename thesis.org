@@ -252,7 +252,7 @@ These trace facilities allows for an event-based monitoring of
 - interrupt handler enters and exits;
 - Read and write access to in-memory address spaces; and
 - [[gls:PC]] samples, among other features.
-The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[#debug-periphs]]), henceforth referred to as the [[gls:trace-stream]].
+The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[cref:debug-periphs]]), henceforth referred to as the [[gls:trace-stream]].
 These facilities are not disjoint (if they were, no insight into the traced system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
