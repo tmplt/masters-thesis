@@ -579,28 +579,47 @@ See [[cref:theory:itm-proto]] for a description of the [[gls:ITM]] packet protoc
 
 # DWT -> ITM -> TPIU -> ETB.
 RTIC Scope utilizes the [[gls:DWT]], [[gls:ITM]], and [[gls:TPIU]] peripherals for on-target trace generation and exfiltration.
-The [[gls:DWT]] and [[gls:ITM]] peripherals are sources of [[gls:ITM]] protocol packets which are forwarded to the [[gls:TPIU]] for device exfiltration via serial communication.
-The [[gls:ITM]] muxes packets emitted by the [[gls:DWT]] and generates timestamp packets in order to establish a timeline of events that occured on the traced target.
+The [[gls:DWT]] and [[gls:ITM]] peripherals are sources of [[gls:ITM]] protocol packets which are forwarded to the [[gls:TPIU]] for device exfiltration.
+The [[gls:ITM]] muxes packets emitted by itself and the [[gls:DWT]] and generates timestamp packets in order to establish a timeline of events that occured on the traced target.
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
 #+BEGIN_src latex
-    \begin{figure}[htbp]
-    \centering
-    \begin{tikzpicture}[node distance = 3cm, auto]
+  \begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[node distance = 1cm, auto]
+    \node[block] (clock) {timestamp clock};
+    \node[block, below=0.5cm of clock] (itm) {\gls{ITM} \\ (timestamps, muxing), \\ \cref{theory:itm-periph}};
+    \node[block, left=of itm] (dwt) {\gls{DWT} \\ (hardware events), \\ \cref{theory:dwt}};
+    \node[block, right=of itm] (tpiu) {\gls{TPIU} \\ (serialization), \\ \cref{theory:tpiu}};
+    \node[below=of tpiu.south east] (swo) {\gls{SWO}, \\ \cref{theory:swo}};
+    \node[below=of tpiu.south west] (parallel) {parallel \\ trace \\ output};
+    \path[->]
+    (dwt) edge (itm)
+    (clock) edge (itm)
+    (itm) edge (tpiu);
 
-      \node[block] (dwt) {DWT};
-      \node[block, right of=dwt] (itm) {ITM};
-      \node[block, right of=itm] (tpiu) {TPIU};
+    %% box
+    \node[above=0.5cm of clock] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}, \\ \cref{impl:rtic-trace}};
+  %%   \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=(target.north), \p2=($(tpiu.south east)+(0.3,-0.3)$) in (target.north west) rectangle (\x1,\y2);
 
-      \path[->]
-      (dwt) edge (itm)
-      (itm) edge (tpiu);
-    \end{tikzpicture}
-    \caption{Downstream relationship between ARMv7-M debug peripherals used in RTIC Scope.\label{fig:debug-relations}}
-    \end{figure}
+    %% anchors
+    \node[below=0.5cm of tpiu.south west] (parallel-anchor) {};
+    \node[below=0.5cm of tpiu.south east] (swo-anchor) {};
+    \draw[-] ($(tpiu.south west)!0.5!(tpiu.south)$) |- (parallel-anchor.center);
+    \draw[-] ($(tpiu.south east)!0.5!(tpiu.south)$) |- (swo-anchor.center);
+    \path[->] (swo-anchor.center) edge (swo);
+    \path[->] (parallel-anchor.center) edge (parallel);
+
+  \end{tikzpicture}
+  \caption{\label{fig:debug-relations}Downstream relationship between ARMv7-M debug peripherals used for tracing.
+  The parallel trace output is briefly covered in this text but not utilized.}
+  \end{figure}
 #+END_src
 
 **** \glsxtrfull{DWT}
+:PROPERTIES:
+:CUSTOM_ID: theory:dwt
+:END:
 # What does the DWT do and how do we use it?
 The DWT peripheral concerns itself with hardware events and respond to these accordingly depending on the applied configuration.
 For the purpose of RTIC Scope the [[gls:DWT]] is configured to emit [[glspl:hardware-event-packet]] on two types of events: when
@@ -644,6 +663,14 @@ For more information on the TPIU, refer to [[parencite:&arm-rm Section C1.10]].
 # TODO recreate Fig. C1-1 from [[pdf:~/exjobb/thesis/docs/DDI0403E_d_armv7m_arm.pdf::713++0.00][DDI0403E_d_armv7m_arm.pdf: Page 713]] without ETM component.
 
 # XXX The combination of the DWT and ITM packet stream and an asynchronous Serial Wire Output (SWO) is called a Serial Wire Viewer (SWV)
+*** The \glsxtrfull{SWO} pin
+:PROPERTIES:
+:CUSTOM_ID: theory:swo
+:END:
+*** Serial devices
+:PROPERTIES:
+:CUSTOM_ID: theory:serial-device
+:END:
 *** The \glsxtrfull{ITM} packet protocol
 :PROPERTIES:
 :CUSTOM_ID: theory:itm-proto
@@ -818,7 +845,7 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
     \node[above=0.5cm of tpiu] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}, \\ \cref{impl:rtic-trace}};
     \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=(target.north east), \p2=($(tpiu.south east)+(0.3,-0.3)$) in (target.north west) rectangle (\x1,\y2);
     \node[block, below=of tpiu] (serial-dev) {serial device, \\ \cref{theory:serial-device}};
-    \path[->] (tpiu) edge node {\gls{SWO}} (serial-dev);
+    \path[->] (tpiu) edge node {\gls{SWO}, \\ \cref{theory:swo}} (serial-dev);
     \node[block, below=of serial-dev] (itm-crate) {\texttt{itm} crate, \\ \cref{impl:itm}};
     \path[->] (serial-dev) edge node {byte stream; \\ \cref{theory:itm-proto}} (itm-crate);
     \node[block, below left=of tpiu] (rtic-app-crate) {\gls{RTIC} application crate, \\ \crefrange{impl:cargo-rtic-scope:building-rtic-app}{impl:cargo-rtic-scope:read-manifest}};
