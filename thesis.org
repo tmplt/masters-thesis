@@ -600,7 +600,7 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 
     %% box
     \node[above=0.5cm of clock] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}, \\ \cref{impl:rtic-trace}};
-  %%   \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=(target.north), \p2=($(tpiu.south east)+(0.3,-0.3)$) in (target.north west) rectangle (\x1,\y2);
+    \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=($(dwt.west)+(-0.3,0)$), \p2=($(target.north)+(0.0,0.3)$) in (\x1, \y2) rectangle ($(tpiu.south east)+(0.3,-0.3)$);
 
     %% anchors
     \node[below=0.5cm of tpiu.south west] (parallel-anchor) {};
@@ -612,7 +612,7 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 
   \end{tikzpicture}
   \caption{\label{fig:debug-relations}Downstream relationship between ARMv7-M debug peripherals used for tracing.
-  The parallel trace output is briefly covered in this text but not utilized.}
+  The parallel trace output is briefly covered in \cref{theory:tpiu} but is not utilized.}
   \end{figure}
 #+END_src
 
