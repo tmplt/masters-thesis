@@ -300,23 +300,29 @@ For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rti
 :CUSTOM_ID: background:PAC
 :END:
 # What is a PAC and what are they used for?
-A PAC is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
-Rather than providing an ad-hoc implementation inlined in an embedded application, a PAC provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
+A [[gls:PAC]] is a Rust library crate which exposes an [[gls:API]] for hardware peripherals.
+Rather than providing an ad-hoc implementation inlined in an embedded application crate a [[gls:PAC]] provides a convenient interface to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
 
 # Differentiate {architecture,device}-specific PACs
-In the embedded Rust ecosystems, these are two kinds of PACs:
-- Architecture-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals common to all embedded systems that share the same architecture, commonly denoted as a "family". For example, =cortex-m= [[parencite:&cortex-m]] is a [[gls:PAC]] that targets the ARM Cortex-M family of embedded systems, which is based on the ARMv7-M standard.
+In the embedded Rust ecosystems, these are two kinds of [[glspl:PAC]]:
+- Architecture-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals common to all [[glspl:MCU]] that share the same architecture, commonly termed /family/.
+  For example, =cortex-m= [[parencite:&cortex-m]] is a [[gls:PAC]] that targets the ARM Cortex-M family of embedded systems.
+  Of note are the Cortex-M4 and Cortex-M7 families which are based upon ARMv7-M and includes the hardware peripherals that RTIC Scope requires.
 - Device-specific :: [[glspl:PAC]] exposes an [[gls:API]] for hardware peripherals available on a smaller family of embedded systems.
   For example, =stm32-rs= [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
 
-# svd2rust
-A common tool to generate PACs is =svd2rust= [[parencite:&svd2rust]].
+# Quick note on HALs
+The ecosystem also contains [[glspl:HAL]]. These crates are built upon [[glspl:PAC]] in order to provide a further abstracted hardware [[gls:API]].
 
-An important component of device-specific [[glspl:PAC]] for RTIC Scope is the interrupt enum.
-An example declaration of such an enum can be seen in [[lst:pac-interrupt-example]].
+# svd2rust
+[[glspl:PAC]] are canonically generated via =svd2rust= [[parencite:&svd2rust]].
+[[glspl:HAL]], on the other hand, are written by hand.
+
+An important component of device-specific [[glspl:PAC]] for RTIC Scope is the [[gls:interrupt]] enum.
+An example declaration of such an enum can be seen in [[cref:lst:pac-interrupt-example]].
 Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enum is utilized.
 #+NAME: lst:pac-interrupt-example
-#+CAPTION: Example declaration of a ~PAC::Interrupt~ enum. Left-hand side of ~Interrupt~ is the IRQ label; right-hand is $N$ in [[tbl:irqns]].
+#+CAPTION: Example declaration of a ~PAC::Interrupt~ enum. Left-hand side of ~Interrupt~ is the IRQ label; right-hand is $N$ in [[cref:tbl:irqns]].
 #+begin_src rust
   pub mod PAC {
       #[derive(Debug)]
