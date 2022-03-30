@@ -408,11 +408,10 @@ Example usage of a software task may be to send a response over a line of commun
 Hardware debuggers, also known as [[glspl:probe]], are dedicated hardware that provide a debugging interface between the host and target.
 In practise, the probe is its own embedded system, used to program and debug the embedded system that is considered the target.
 A probe usually provides a [[gls:USB]] interface for the host-side and a [[gls:SWD]] and/or [[gls:JTAG]] interface for the target.
-An embedded system may provide its own probe, usually the case for development kits, or expose headers on which to attach a probe for programming and debugging.
+An embedded system may provide its own probe which is usually the case for evaluation kits[fn:: One such kit is the Microchip SAM V71 Xplained Ultra.] or expose headers on which to attach a probe for programming and debugging.
 
-In order to interface with a hardware probe a software suite is required on the host side.
+In order to interface with a hardware probe a software suite is required on host-side.
 Examples of such suites are =openocd=, [[textcite:&openocd]]; and =probe-rs=, [[textcite:&probe-rs]].
-Two different such suites may offer different feature sets and hardware probe support sets.
 
 *** Motivation
 # We must cross a hardware boundry when debugging embedded systems.
