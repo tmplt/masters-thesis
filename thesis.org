@@ -592,7 +592,7 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
     \node[block, left=of itm] (dwt) {\gls{DWT} \\ (hardware events), \\ \cref{theory:dwt}};
     \node[block, right=of itm] (tpiu) {\gls{TPIU} \\ (serialization), \\ \cref{theory:tpiu}};
     \node[below=of tpiu.south east] (swo) {\gls{SWO}, \\ \cref{theory:swo}};
-    \node[below=of tpiu.south west] (parallel) {parallel \\ trace \\ output};
+    \node[below=of tpiu.south west] (parallel) {parallel trace \\ output};
     \path[->]
     (dwt) edge (itm)
     (clock) edge (itm)
