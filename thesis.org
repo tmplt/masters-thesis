@@ -348,14 +348,13 @@ Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enu
 :CUSTOM_ID: rtic
 :END:
 [[gls:RTIC]] [[parencite:&rtic]] is a novel [[gls:RTOS]] targeting the ARM Cortex-M platform.
-It is developed at Luleå Technical University based on the extensively studied [[gls:SRP]], which
+It is developed at Luleå Technical University based on the extensively studied [[gls:SRP]][fn:: Refer to [[textcite:&srp]].], which
 - prevents deadlocks;
 - mitigates priority inversions; and
-- is compatible with [[gls:EDF]] sheduling [[parencite:&srp]].
-[[gls:RTIC]] thus removes some burden out-of-the-box while also
-- implementing message passing between tasks;
+- is compatible with [[gls:EDF]] sheduling.
+[[gls:RTIC]] removes some embedded programming burden out-of-the-box while also
+- implementing message passing between [[glspl:task]];
 - incurring a minimal scheduling overhead;
-- being highly efficient on memory usage; and
 - being amenable to [[gls:WCET]] analysis [[parencite:&rauk]].
 
 # Oh yeah, and Rust
@@ -399,9 +398,7 @@ It is not possible to declare which tasks a task dispatcher should handle; this 
   }
 #+end_src
 
-The purpose of hardware tasks is to respond to external stimuli, e.g. a button press, a timer trigger, or similar.
-Hardware tasks cannot be scheduled via the [[gls:RTIC]] [[gls:API]].
-
+The purpose of hardware tasks is to respond to external stimuli, e.g. a button press, a hardware timer trigger, or incoming communication.
 The purpose of software tasks is to provide a task implementation that is scheduled by software via the [[gls:RTIC]] [[gls:API]] instead of being triggered by external stimuli.
 Example usage of a software task may be to send a response over a line of communication after a hardware task executed to read a message on the same line.
 **** Hardware debuggers
