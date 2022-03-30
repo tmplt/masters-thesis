@@ -588,7 +588,7 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
   \centering
   \begin{tikzpicture}[node distance = 1cm, auto]
     \node[block] (clock) {timestamp clock};
-    \node[block, below=0.5cm of clock] (itm) {\gls{ITM} \\ (timestamps, muxing), \\ \cref{theory:itm-periph}};
+    \node[block, below=0.5cm of clock] (itm) {\gls{ITM} \\ (timestamps, \\ multiplexing, etc.), \\ \cref{theory:itm-periph}};
     \node[block, left=of itm] (dwt) {\gls{DWT} \\ (hardware events), \\ \cref{theory:dwt}};
     \node[block, right=of itm] (tpiu) {\gls{TPIU} \\ (serialization), \\ \cref{theory:tpiu}};
     \node[below=of tpiu.south east] (swo) {\gls{SWO}, \\ \cref{theory:swo}};
@@ -633,17 +633,17 @@ Refer to [[textcite:&arm-rm Section C1.8]] for more information on the DWT unit.
 :CUSTOM_ID: theory:itm-periph
 :END:
 # Summarize ITM functionality
-The [[gls:ITM]] unit is of an auxilliary nature; it has three functions:
-- the multiplexing of hardware event packets from the [[gls:DWT]] unit with its own packets which are then forwarded to the TPIU;
+The [[gls:ITM]] is of an auxilliary nature with three functions:
+- the multiplexing of hardware event packets from the [[gls:DWT]] unit with its own packets which are then forwarded to the [[gls:TPIU]];
 - control and generation of timestamp packets; and
-- a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers, unused by RTIC Scope.
+- a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers[fn:: Not utilized by RTIC Scope.].
 
 # Summarize the timestamp sources
-Timestamp packets are sourced from a reference clock.
-The reference clock is either the [[gls:system-clock]], an asynchronous [[gls:TPIU]] reference clock, or a global timestamp clock[fn:: See [[cref:fut:review-timestamp-relation]].].
+Timestamp packets are sourced from a reference clock which can be seen in [[cref:fig:debug-relations]].
+This reference clock is either the [[gls:system-clock]], an asynchronous [[gls:TPIU]] reference clock, or a "global timestamp clock"[fn:: See [[cref:fut:review-timestamp-relation]].].
 The frequencies and behavior of these reference clocks and how the target clock hierarchy is configured in general is wholly specific to each target and will thus not be covered in further detail.
 
-For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm p. C1-710]].
+For more information on the [[gls:ITM]] unit, refer to [[parencite:&arm-rm Section C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm p. C1-710]].
 **** \glsxtrfull{TPIU}
 :PROPERTIES:
 :CUSTOM_ID: theory:tpiu
