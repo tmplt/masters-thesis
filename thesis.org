@@ -557,13 +557,12 @@ This chapter briefly covers previous work upon which RTIC Scope is based and rel
 The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
 Notable libraries are referred to inline throughout this text.
 When citing software, the three authors with the most contributions (in decreasing order) at the time of writing are cited as the authors of that software.
-This is done for brevity.
 
 *** Related work
 Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
 - orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
 - Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[glspl:RTOS]] [[parencite:&tracealyzer]].
-Neither of the above tools support [[gls:RTIC]] at the time of writing.
+Neither of the above tools support [[gls:RTIC]] at the time of writing and were not investigated further.
 
 ** Theory
 :PROPERTIES:
