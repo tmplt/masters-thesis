@@ -634,6 +634,10 @@ For the purpose of RTIC Scope the [[gls:DWT]] is configured to emit [[glspl:hard
 Within this text the range of memory used for data tracing is referred to as a [[gls:watch-address]]:
 when a value is written to a [[gls:watch-address]], a data trace packet is generated containing the written value.
 
+In order to monitor a [[gls:watch-address]] a hardware comparator must be used.
+An ARMv7-M [[gls:MCU]] offers between 0 and 15 such comparators.
+RTIC Scope v0.3 requires two comparators.
+
 Refer to [[textcite:&arm-rm Section C1.8]] for more information on the DWT unit.
 **** \glsxtrfull{ITM}
 :PROPERTIES:
@@ -680,23 +684,28 @@ Some headers also contain payload.
 The protocol effectively implements a [[gls:TLV]] encoding sheme.
 This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[crefrange:fig:lts1,fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
 Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet:
-if C is not set, the next byte in the stream is a header for the next packet.
+if /C/ is not set, the next byte in the stream is a header for the next packet.
 
 For other packet types, and a full description of the protocol, see [[textcite:&arm-rm Part D4]].
 
-RTIC Scope v0.3.1 concerns itself with six packets:
-- [[gls:GTS1]] :: A timestamp packet containing the lower 26 bits of the /absolute/ timestamp.
-- [[gls:GTS2]] :: A timestamp packet containig the upper 22 or 38 bits of the /absolute/ timestamp, depending on the hardware implemenation.
-- [[gls:LTS1]] :: A multi-byte timestamp packet containing the /relative/ timestamp.
-- [[gls:LTS2]] :: A single-byte timestamp packet containing the /relative/ timestamp.
-- Exception trace packet :: A hardware-event packet describing the status of an interrupt handler.
-- Data trace data value packet format :: A hardware-event packet describing the value read or written to a watch address monitored by a [[gls:DWT]] comparator.
+RTIC Scope v0.3 concerns itself with six packets:
+- [[gls:GTS1]] :: A timestamp packet containing the lower 26 bits of the absolute timestamp.
+- [[gls:GTS2]] :: A timestamp packet containig the upper 22 or 38 bits of the absolute timestamp, depending on the hardware implemenation.
+- [[gls:LTS1]] :: A multi-byte timestamp packet containing the relative timestamp.
+- [[gls:LTS2]] :: A single-byte timestamp packet containing the relative timestamp.
+- Exception trace packet :: A [[gls:hardware-event-packet]] describing the status of an interrupt handler. See [[cref:theory:itm:exceptions]]
+- Data trace data value packet format :: A [[gls:hardware-event-packet]] describing the value read or written to a [[gls:watch-address]] monitored by a [[gls:DWT]] comparator. See [[cref:theory:itm:data-trace]].
+For timestamp packets, see [[cref:theory:itm:timestamps]].
 
-Timestamp packets come in two types: /absolute/ and /relative/.
+**** Timestamp packets
+:PROPERTIES:
+:CUSTOM_ID: theory:itm:timestamps
+:END:
+Timestamp packets come in two types: absolute and relative.
 Both types derive their timestamps from one or more reference clocks (see [[cref:theory:itm-periph]]):
-/absolute/ timestamps denote how many ticks this clock have tocked ever since it began; and
-/relative/ timestamps denote how many ticks this clock have tocked ever since the last relative timestamp.
-When a relative timestamp is generated, the relative timestamp is then reset.
+absolute timestamps denote how many ticks this clock have tocked ever since it was connected to the [[gls:ITM]]; and
+relative timestamps denote how many ticks this clock have tocked ever since the last relative timestamp.
+When a relative timestamp is generated the relative timestamp counter is reset.
 This type separation is done in order to decrease the required bandwidth to communicate the time on the system.
 Absolute and relative timestamps are further divided into a total of four different packets, summarized above and detailed below.
 
@@ -728,18 +737,16 @@ The two local timestamps, [[gls:LTS1]] and [[gls:LTS2]], are not complementary:
 instead they supply a different maximum relative timestamp.
 [[gls:LTS1]] provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included).
 [[gls:LTS2]] is a single-byte packet with a relative timestamp that can be represented with 3 bits that are provided in the header.
-More specifially, an [[gls:LTS2]] can represent a relative timestamp value of 1--6;
+More specifically, an [[gls:LTS2]] can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
 [[gls:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
 This flag have four possible values, termed /qualities/ throughout this text, described in decreasing quality:
-- TC $=$ 0b00 :: /Synchronous/: the timestamp value denotes the time when the non-timestamp packet was generated.
-- TC $=$ 0b01 :: /Delayed relative/: the timestamp value denotes the time when the timestamp packet itself was generated.
-  The synchron ous timestamp is here unknown, "but must be between the previous and current timestamp values".
-- TC $=$ 0b10 :: Synchronous, but the corresponding non-timestamp packet generation was "delayed relative to the associated event".
-- TC $=$ 0b11 :: Delayed relative, and the corresponding non-timestamp packet generation was delayed relative to the associated event.
+- /TC/ $=$ 0b00 :: Synchronous: the timestamp value denotes the time when the non-timestamp packet was generated.
+- /TC/ $=$ 0b01 :: Delayed relative: the timestamp value denotes the time when the timestamp packet itself was generated.
+  The synchronous timestamp is here unknown but must be between the previous and current timestamp values.
+- /TC/ $=$ 0b10 :: Synchronous, but the corresponding non-timestamp packet generation was delayed relative to the associated event.
+- /TC/ $=$ 0b11 :: Delayed relative, and the corresponding non-timestamp packet generation was delayed relative to the associated event.
 [[gls:LTS2]] packets are always synchronous.
-
-# TODO? in impl: current implementation (dummy) assumes local timestamps are all sync. time restriction.
 
 Local timestamps are emitted after the corresponging non-timestamp packets.
 For example, if the sequence reads
@@ -749,7 +756,7 @@ For example, if the sequence reads
 4. data packet 3; and
 5. [[gls:LTS2]],
 then the [[gls:LTS1]] corresponds to data packet 1;
-and [[gls:LTS2]] corresponds to data packet 2 and 3, presuming that the hardware events occured without idle time inbetween.
+and [[gls:LTS2]] corresponds to data packet 2 and 3.
 
 #+NAME: fig:lts1
 #+CAPTION: \glsxtrfull{LTS1} packet format, copied from [[textcite:&arm-rm Figure D4-4]].
@@ -758,17 +765,20 @@ and [[gls:LTS2]] corresponds to data packet 2 and 3, presuming that the hardware
 #+CAPTION: \glsxtrfull{LTS2} packet format, copied from [[textcite:&arm-rm Figure D4-6]].
 [[file:svgs/lts2.pdf]]
 
-The exception trace packet ([[cref:fig:exception-packet]]) describes the state of the system's interrupt handlers and are emitted upon a state change.
+**** Exception trace packets
+:PROPERTIES:
+:CUSTOM_ID: theory:itm:exceptions
+:END:
+The exception trace packet ([[cref:fig:exception-packet]]) describes the state of the system's interrupt handlers and are emitted upon such a state change.
 Its payload contains two fields:
 - /ExceptionNumber/ :: A 7-bit field describing which interrupt handler changed state.
   This field it decoded via [[cref:tbl:irqns]].[fn:exception-number-0]
 - /FN/ :: A 2-bit field describing the action taken by the processor regarding the interrupt handler.
   This field can have three possible values:
-  - FN $=$ 0b01 :: the exception was entered;
-  - FN $=$ 0b10 :: the exception was exited; or
-  - FN $=$ 0b11 :: the exception was returned to.
+  - /FN/ $=$ 0b01 :: the exception was entered;
+  - /FN/ $=$ 0b10 :: the exception was exited; or
+  - /FN/ $=$ 0b11 :: the exception was returned to.
     This action indicates that exception was previously preempted by an exception of higher priority which has now exited.
-  *FN $=$ 0b00* is a reserved value.
 
 #+NAME: fig:exception-packet
 #+CAPTION: Exception trace packet format, copied from [[textcite:&arm-rm Figure D4-16]].
@@ -795,6 +805,10 @@ Its payload contains two fields:
 |         16 + $N$ | External interrupt $N$ |
 |------------------+------------------------|
 
+**** Data trace data value packets
+:PROPERTIES:
+:CUSTOM_ID: theory:itm:data-trace
+:END:
 The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a watch address after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
 The payload contains three fields of information:
 - /CMPN/ :: A 2-bit identifier of the [[gls:DWT]] comparator which matched the configured watch address access.
@@ -807,6 +821,7 @@ The payload contains three fields of information:
 #+NAME: fig:data-trace-packet
 #+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
 [[file:svgs/data-trace.pdf]]
+
 *** Tracing \glsxtrfull{RTIC} tasks
 # How tasks are traced, summarized
 Because RTIC implements tasks by use of exception handlers it is only natural to exploit exception tracing in order to trace the tasks abstracted above them.
@@ -2385,6 +2400,6 @@ Refer to [[cref:fig:auto-plot-example]].
 * Footnotes
 [fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
 
-[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm Section B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[gls:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm p. B1-517]] comments that a value of [[gls:IPSR]] is zero is no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[gls:RTIC]] tasks entered and exited. An execption number of 0 is then ultimately ignored by RTIC Scope v0.3.1.
+[fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm Section B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[gls:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm p. B1-517]] comments that a value of [[gls:IPSR]] is zero if no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[gls:RTIC]] tasks entered and exited. An exception number of 0 is then ultimately ignored by RTIC Scope v0.3.
 
 [fn:dwt-n] $n$ emphasized for reasons of readability and typesetting.
