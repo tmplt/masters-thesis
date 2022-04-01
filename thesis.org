@@ -414,28 +414,13 @@ In order to interface with a hardware probe a software suite is required on the 
 Examples of such suites are =openocd=, [[textcite:&openocd]]; and =probe-rs=, [[textcite:&probe-rs]].
 
 *** Motivation
-# We must cross a hardware boundry when debugging embedded systems.
-Debugging the code being executed in an embedded system is an integral part of an embedded work-flow similar to how it is common to attach to and debug a process of a program being developed on a general-purpose computer.
-The latter process can be considered trivial because no hardware boundries must be crossed; the debugger and debugged program are (usually) contained within the same system.
-Debugging an embedded system is on the other hand non-trivial: the embedded system is its own contained system and a probe must be used to establish a line of communication with a host system to debug the embedded system.
-\missingfigure{Draw a comparison between conventional debugging and embedded debugging.}
+Both [[gls:RTIC]] and the debug peripherals of ARMv7-M operate in an event-based context where RTIC events trigger the debug peripherals to emit [[glspl:trace-packet]].
+Exploiting this relationship is thus sensible; certainly so because these peripherals do not affect the wider system as covered in [[cref:introduction]].
+Hardware-wise, this approach is very cheap to utilize on a supporting [[gls:MCU]]:
+only the [[gls:SWO]] pin needs to be exposed and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system.
 
-# We want to be able to debug in real-time (read: trace), but also record it.
-An important aspect of debugging is the act of debugging in real-time, often referred to as the act of [[gls:tracing]].
-By tracing an embedded system it is possible to verify its internal operations continuously as long as a debugger is attached.
-Another important aspect of debugging are post-mortem analyses: being able to analyse a system's run-time behavior before it ended up in an invalid or unexpected state after the fact.
-Port-mortem analyses are realized by recording a trace from the attached debugger.
-Such analyses are useful for systems deployed in the field or any system which are seldom (or not at all) continuously controlled by human hands.
-If such a system fails and its operation has been traced it can be replayed to debug how it failed.
-
-# Tracing is zero-cost by help of hardware, but not trivial to configure.
-Tracing is supported by hardware debug facilities on the ARMv7-M platform, as is the exfiltration of the trace stream from the device (a line of communication which can be read by a host system).
-Enabling and correctly configuring these facilites to generate a trace stream and decoding the trace stream itself is no trivial task, however.
-
-# The emergence of RTIC, and its lack of debug tools.
-RTIC is a novel RTOS which offers improvements over conventional RTOSs [[parencite:&tjader2021rtic 23]].
-The motivation behind RTIC Scope is thus to offer a batteries included[fn:: where details regarding trace stream generation and decoding is abstracted, and where no additional work must be done to utilize the tool.] toolset that enables instant insight into an RTIC application.
-Such a toolset would make it easier to verify the implementation of an RTIC application.
+The motivation of RTIC Scope is then to provide the necessary software to configure the target for [[gls:tracing]] and interpret the byte stream received on the host.
+With available software, embedded developers can then quickly garner insight into their system to verify that the software behaves as expected, and trivially find out when and where it does not.
 
 *** Problem definition
 :PROPERTIES:
