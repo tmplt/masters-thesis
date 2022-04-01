@@ -67,6 +67,15 @@
 # TODO fix long-em on first use only?
 #+latex_header: \setabbreviationstyle[acronym]{long-em-short-em}
 
+# Allow \ref for description environments
+#+latex_header: \makeatletter
+#+latex_header: \def\namedlabel#1#2{\begingroup
+#+latex_header:     #2%
+#+latex_header:     \def\@currentlabel{#2}%
+#+latex_header:     \phantomsection\label{#1}\endgroup
+#+latex_header: }
+#+latex_header: \makeatother
+
 # TODO install and apply a grammar checker.
 # TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
 # TODO verify software versions with Cargo.lock from v0.3.0 tag.
@@ -426,20 +435,21 @@ With available software, embedded developers can then quickly garner insight int
 :PROPERTIES:
 :CUSTOM_ID: requirements
 :END:
-This thesis covers the development of an embedded systems analysis toolset, RTIC Scope, that enables an RTIC application developer to gain non-invasive insight into the run-time of said application by exploiting the trace stream generated and exfiltrated by the debug facilities (see [[#debug-periphs]]) made available by the ARMv7-M standard, which RTIC supports by targeting Cortex-M platforms.
+This thesis covers the development of an embedded systems analysis toolset, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and exfiltrated by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
-The set of requirements RTIC Scope must fulfill within the scope of this thesis follows: RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] be able to
-1. <<req:itm-gen>> enable trace stream generation of hardware and software tasks (as defined by RTIC), and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
-2. <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
-3. <<req:decode>> decode the trace stream;
-4. <<req:rtic>> recover RTIC application metadata not contained within the trace stream;
-5. <<req:timestamps>> associate timestamps to RTIC task events;
-6. <<req:protocol>> report RTIC task events to the RTIC Scope end-user by use of a defined communication protocol.
-7. <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the the protocol described in Requirement [[req:protocol]].
-8. <<req:record>> record a trace to file which can be replayed offline by use of a host-side daemon; and
-9. <<req:cargo>> be invoked as a =cargo= subcommand.
+The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
+RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] adhere to, and thus be able to
+- \namedlabel{req:itm-gen}{Requirement 1} :: <<req:itm-gen>> enable trace stream generation of [[glspl:hardware-task]] and [[glspl:software-task]] --- as defined by RTIC, [[cref:rtic]] --- and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
+- \namedlabel{req:input}{Requirement 2} :: <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
+- \namedlabel{req:decode}{Requirement 3} :: <<req:decode>> decode the trace stream;
+- \namedlabel{req:rtic}{Requirement 4} :: <<req:rtic>> recover RTIC application metadata not contained within the trace stream;
+- \namedlabel{req:timestamps}{Requirement 5} :: <<req:timestamps>> associate timestamps to RTIC task events;
+- \namedlabel{req:protocol}{Requirement 6} :: <<req:protocol>> report RTIC task events to the RTIC Scope end-user by use of a defined communication protocol.
+- \namedlabel{req:dummy}{Requirement 7} :: <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the the protocol described in [[req:protocol]];
+- \namedlabel{req:record}{Requirement 8} :: <<req:record>> record a trace to file which can be replayed offline (i.e. without executing code on the target) by use of a host-side [[gls:daemon]]; and
+- \namedlabel{req:cargo}{Requirement 9} :: <<req:cargo>> be invoked as a =cargo= subcommand.
 
-Delimitations to the above requirements apply, see [[#delimitations]].
+Delimitations to the above requirements apply, see [[cref:delimitations]].
 *** Delimitations
 :PROPERTIES:
 :CUSTOM_ID: delimitations
