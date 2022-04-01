@@ -455,14 +455,19 @@ Delimitations to the above requirements apply, see [[cref:delimitations]].
 :CUSTOM_ID: delimitations
 :END:
 In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
-These delimitations[fn:: Uses the key words *MUST* and *SHOULD NOT* which are to be interpreted as described in [[textcite:&rfc2119]].], which are related to the requirements enumerated in [[#requirements]], are as follows:
-1. Requirement [[req:itm-gen]]: RTIC Scope *MUST* apply the device mutations that are common to all ARM Cortex-M targets in order to enable trace stream generation and exfiltration. RTIC Scope *SHOULD NOT* apply device-specific mutations.
-2. Requirement [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is read from the device; that responsibility falls upon the RTIC Scope end-user. However, RTIC Scope *MUST* fail or warn the end-user if it is unable to correctly decode the read data stream.
-3. Requirement [[req:rtic]]: RTIC Scope *MUST* support RTIC version 1.0.0, see [[textcite:&rtic]].
-   RTIC Scope *MUST* recover metadata necessary to report the timestamped state changes of hardware and software tasks, as defined by RTIC.
-4. Requirement [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the =cargo= subcommand [[gls:backend]] to the reference [[gls:frontend]]. The protocol *SHOULD NOT* enable two-way communication.
+These delimitations --- which uses the key words *MUST* and *SHOULD NOT* covered in [[textcite:&rfc2119]] --- are related to the requirements described in [[cref:requirements]] and are below enumerated.
+1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all ARMv7-M [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and exfiltration.
+   RTIC Scope *SHOULD NOT* apply device-specific configurations.
+2. [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is actually read from the device:
+   it falls on the RTIC Scope end-user to establish a connection between the target and the host.
+   However, RTIC Scope *MUST* fail or warn the end-user if it is unable to correctly decode the read data stream.
+3. [[req:rtic]]: RTIC Scope *MUST* only support [[gls:RTIC]] version 1;
+   refer to [[textcite:&rtic]].
+   RTIC Scope *MUST* recover the RTIC application metadata necessary to report the timestamped state changes of hardware and software tasks as declared by the user's RTIC application and supplied metadata.
+4. [[req:protocol]]: The defined communication protocol *MUST* enable one-way communication from the =cargo= subcommand [[gls:backend]] to the reference [[gls:frontend]].
+   The protocol *SHOULD NOT* enable two-way communication.
 
-Following the above delimitations allows this thesis to be finished within an acceptable time frame[fn:: As defined by the author, i.e. not necessarily the recommended time frame as defined by the X7009E course taken at Luleå Technical University during which this thesis is written.] and also to yield a documented code base which allows future development with minimal friction.
+Following the above delimitations allows this thesis to be finished within an acceptable time frame and also yield a documented code base which allows future development with reduced friction.
 
 *** Contributions
 :PROPERTIES:
