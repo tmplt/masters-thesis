@@ -117,7 +117,7 @@
   description={A \gls{trace-packet} describing a hardware event, such as memory being written to or an \gls{interrupt} handler being executed.},
 }
 \newglossaryentry{watch-address}{
-  name={watch-address},
+  name={watch address},
   description={Memory address which the \gls{DWT} monitors for changes. When the memory at this address is written to, a \gls{hardware-event-packet} is generated.}
 }
 \newglossaryentry{system-clock}{
@@ -184,6 +184,10 @@
 \newglossaryentry{unsafe}{
   name={unsafe},
   description={Context in which code can potentially violate the memory-safety rules of Rust.}
+}
+\newglossaryentry{prescaler}{
+  name={prescaler},
+  description={A clock divider. For example, a clock frequency of $16~\text{MHz}$ prescaled by $n = 2$ yields a frequency of $8~\text{MHz}$.}
 }
 
 \newabbreviation{PC} {PC} {{program counter}}
