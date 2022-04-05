@@ -661,10 +661,9 @@ For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]
 :CUSTOM_ID: theory:tpiu
 :END:
 # Summarize TPIU functionality
-The [[gls:TPIU]] provides external visibility of the trace packet stream by asynchronously serializing them on a single pin by help of a prescaled reference clock, see [[cref:fig:debug-relations]].
+The [[gls:TPIU]] provides external visibility of the trace packet stream by asynchronously serializing them on a single pin --- the [[gls:SWO]] --- by help of a prescaled reference clock, see [[cref:fig:debug-relations]].
 In order to communicate over an asynchronous serial channel the [[gls:baud-rate]] must be communicated out-of-band: it must be pre-configured both target-side and host-side.
-
-When asynchronous serial is used, a choice of two protocols can be chosen: Manchester or NRZ encoding[fn:: Definition of these encoding protocols are not important in the context of this thesis. NRZ encoding is used in experiments referred to in this text.].
+The signal emitted on the SWO can be configured for either the level-inverted RS-232 serial data-byte protocol [[parencite:&art Section 14.7.8]] or Manchester encoding protocol [[parencite:&art Section 14.7.9]].
 
 For more information on the TPIU, refer to [[parencite:&arm-rm Section C1.10]].
 *** The \glsxtrfull{SWO} pin
