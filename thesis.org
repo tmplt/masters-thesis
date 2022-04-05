@@ -629,15 +629,15 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 :END:
 # What does the DWT do and how do we use it?
 The [[gls:DWT]] peripheral concerns itself with hardware events and react to these accordingly depending on the applied configuration.
-For the purpose of RTIC Scope the [[gls:DWT]] is configured to emit [[glspl:hardware-event-packet]] on two types of events: when
+For the purpose of RTIC Scope the DWT is configured to emit [[glspl:hardware-event-packet]] on two types of events: when
 - a configured range of memory is accessed (known as [[gls:data-tracing]]); and
-- whenever the processor enters, exits, and returns to an exception handler (known as [[gls:exception-tracing]]).
+- whenever the processor enters, exits, and returns to an [[gls:exception]] handler (known as [[gls:exception-tracing]]).
 Within this text the range of memory used for data tracing is referred to as a [[gls:watch-address]]:
-when a value is written to a [[gls:watch-address]], a data trace packet is generated containing the written value.
+when a value is written to a watch address, a data trace packet is generated containing the written value.
 
-In order to monitor a [[gls:watch-address]] a hardware comparator must be used.
+In order to monitor a watch address a DWT hardware comparator must be used.
 An ARMv7-M [[gls:MCU]] offers between 0 and 15 such comparators.
-RTIC Scope v0.3 requires two comparators.
+RTIC Scope v0.3 requires two comparators for the purpose of [[gls:tracing]] [[glspl:software-task]].
 
 Refer to [[textcite:&arm-rm Section C1.8]] for more information on the DWT unit.
 **** \glsxtrfull{ITM}
