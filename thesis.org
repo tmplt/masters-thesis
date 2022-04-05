@@ -605,11 +605,11 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 
     %% box
     \node[above=0.5cm of clock] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}, \\ \cref{impl:rtic-trace}};
-    \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=($(dwt.west)+(-0.3,0)$), \p2=($(target.north)+(0.0,0.3)$) in (\x1, \y2) rectangle ($(tpiu.south east)+(0.3,-0.3)$);
+    \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=($(dwt.west)+(-0.3,0)$), \p2=($(target.north)+(0.0,0.3)$), \p3=($(tpiu.south east)+(0.3,-0.3)$), \p4=($(itm.south)+(0,-0.3)$) in (\x1, \y2) rectangle (\x3, \y4);
 
     %% anchors
-    \node[below=0.5cm of tpiu.south west] (parallel-anchor) {};
-    \node[below=0.5cm of tpiu.south east] (swo-anchor) {};
+    \node[below=0.2cm of tpiu.south west] (parallel-anchor) {};
+    \node[below=0.2cm of tpiu.south east] (swo-anchor) {};
     \draw[-] ($(tpiu.south west)!0.5!(tpiu.south)$) |- (parallel-anchor.center);
     \draw[-] ($(tpiu.south east)!0.5!(tpiu.south)$) |- (swo-anchor.center);
     \path[->] (swo-anchor.center) edge (swo);
