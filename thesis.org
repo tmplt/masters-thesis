@@ -633,7 +633,7 @@ For the purpose of RTIC Scope the DWT is configured to emit [[glspl:hardware-eve
 - a configured range of memory is accessed (known as [[gls:data-tracing]]); and
 - whenever the processor enters, exits, and returns to an [[gls:exception]] handler (known as [[gls:exception-tracing]]).
 Within this text the range of memory used for data tracing is referred to as a [[gls:watch-address]]:
-when a value is written to a watch address, a data trace packet is generated containing the written value.
+when a value is written to a watch address --- the [[gls:watch-variable]] --- a data trace packet is generated containing the written value.
 
 In order to monitor a watch address a DWT hardware comparator must be used.
 An ARMv7-M [[gls:MCU]] offers between 0 and 15 such comparators.
@@ -836,13 +836,13 @@ An additional decoding step is then applied to trace software tasks. Refer to [[
 :CUSTOM_ID: impl
 :END:
 This chapter covers the implementation of =cortex-m-rtic-trace=, =cargo-rtic-scope=, =rtic-scope-api=, and =rtic-scope-frontend-dummy= of RTIC Scope and the implementation of =itm=.
-The implementation is presented in a downstream manner, similar to the order in which the RTIC Scope crates are applied and how the trace data flows.
+The implementation is presented in a [[gls:downstream]] manner, similar to the order in which the RTIC Scope crates are applied and how the trace data flows.
 That is, how
 1. =cortex-m-rtic-trace= is applied on the target-side and what it does;
-2. =cargo-rtic-scope= recovers metadata from the RTIC application and how it reads the raw trace stream from the source;
+2. =cargo-rtic-scope= recovers metadata from the [[gls:RTIC]] application and how it reads the byte-raw [[gls:trace-stream]] from the source;
 3. =itm= decodes this stream into manageable Rust structures;
 4. =cargo-rtic-scope= recovers RTIC metadata for the decoded trace stream;
-5. this resolved (or previously recorded) trace stream is forwarded to frontends as =rtic-scope-api= structures; and
+5. this resolved (or previously recorded) trace stream is forwarded to [[glspl:frontend]] as =rtic-scope-api= structures; and
 6. how a frontend handles a trace stream.
 
 A graphical representation this data flow can be seen in [[cref:fig:rtic-scope-data-flow]].
@@ -919,24 +919,24 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-=cortex-m-rtic-trace= is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for tracing, namely the [[gls:DCB]][fn:: A component of the [[gls:SCB]] peripheral.], [[gls:TPIU]], [[gls:DWT]], and [[gls:ITM]].
+=cortex-m-rtic-trace= is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for [[gls:tracing]], namely the [[gls:DCB]][fn:: A component of the [[gls:SCB]] peripheral.], [[gls:TPIU]], [[gls:DWT]], and [[gls:ITM]].
 The crate exposes two functions:
 - =cortex_m_rtic_trace::configure= :: a regular Rust function for configuration of the peripherals mentioned above; and
-- =cortex_m_rtic_trace::trace= :: a Rust macro with with to trace software tasks.
-Henceforth, within this section, these two functions will be referred to as =configure= and =trace=, respectively.
+- =cortex_m_rtic_trace::trace= :: a Rust macro used to trace [[glspl:software-task]].
+Henceforth within this section these two functions will be referred to as =configure= and =trace=, respectively.
 
 This section is divided into two parts: [[cref:impl:rtic-trace:peripheral-config]], which covers the application of =configure=; and [[cref:impl:rtic-trace:trace-macro]], which covers the application of the =trace= macro.
 
-It is important to point out that =cortex-m-rtic-trace= is a crutch which incurs unecessary overhead for the end-user.
+It is important to point out that =cortex-m-rtic-trace= is a crutch which incurs unecessary overhead in theory for the end-user.
 On the RTIC Scope roadmap is thus the eventual deprecation of this crate. See [[cref:fut:rm-rtic-trace]] for more on this topic.
 
 **** Peripheral configuration
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace:peripheral-config
 :END:
-After applying device-specific configurations for trace generation, and querying the frequency of the [[gls:TPIU]] reference clock, =configure= is applied as shown in [[cref:lst:rtic-trace:configure]].
+After applying device-specific configurations for trace generation and querying the frequency of the [[gls:TPIU]] reference clock, =configure= is applied as shown in [[cref:lst:rtic-trace:configure]].
 #+NAME: lst:rtic-trace:configure
-#+CAPTION: Example application of ~cortex_m_rtic_trace::configure~.
+#+CAPTION: Example application of ~cortex_m_rtic_trace::configure~. Configuration covered in text.
 #+begin_src rust
   #[init]
   fn init(mut ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics()) {
@@ -944,7 +944,7 @@ After applying device-specific configurations for trace generation, and querying
 
       let freq = {
           // device-specific query for the TPIU reference clock
-          // frequency...
+          // frequency (or simply hard-coded)
       };
 
       use cortex_m_rtic_trace::{
@@ -958,14 +958,14 @@ After applying device-specific configurations for trace generation, and querying
           &mut ctx.core.TPIU,
           &mut ctx.core.DWT,
           &mut ctx.core.ITM,
-          1, // task enter DWT comparator ID
-          2, // task exit DWT comparator ID
+          1, // DWT comparator ID for software task enter events
+          2, // DWT comparator ID for software task exit events
           &TraceConfiguration {
               delta_timestamps: LocalTimestampOptions::Enabled,
               absolute_timestamps: GlobalTimestampOptions::Disabled,
               timestamp_clk_src: TimestampClkSrc::AsyncTPIU,
               tpiu_freq: freq, // Hz
-              tpiu_baud: 9600, // B/s
+              tpiu_baud: 9600, // B/s; the baud rate of the SWO
               protocol: TraceProtocol::AsyncSWONRZ,
           },
       )
@@ -976,30 +976,30 @@ After applying device-specific configurations for trace generation, and querying
 #+end_src
 
 =configure= in [[cref:lst:rtic-trace:configure]] does a number of operations in the following order:
-1. <<rtic-trace:conf-protocol>> ensures that the target's [[gls:TPIU]] peripheral supports the requested =protocol= by reading the [[gls:TPIU_TYPE]] [[parencite:&arm-rm Section C1.10.6]];
-2. ensures that the user did not request an invalid [[gls:TPIU]] configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
+1. <<rtic-trace:conf-protocol>> ensures that the target's TPIU peripheral supports the requested =protocol= by reading the [[gls:TPIU_TYPE]] [[parencite:&arm-rm Section C1.10.6]];
+2. ensures that the user did not request an invalid TPIU configuration (i.e. =tpiu_freq: 0= or =tpiu_baud: 0=);
 3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[gls:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[gls:DWT_CTRL]] [[parencite:&arm-rm Section C1.8.7]];
-4. <<rtic-trace:nofail-conf>> configures the [[gls:DCB]], [[gls:TPIU]], and [[gls:DWT]] peripherals (partially):
-   1. sets the /TRCENA/ bit in the [[gls:DCB_DEMCR]], a "global enable for all [[gls:DWT]] and [[gls:ITM]] features";
-   2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[gls:TPIU_ACPR]] such that the [[gls:TPIU]] communicates with a requested baud rate.
-      The prescaler is calculated via [[cref:eq:prescaler]] as derived from [[textcite:&arm-rm Section C1.10.4]].[fn:: This configuration implementation is error-prone: See [[cref:fut:swoscaler]].]
+4. <<rtic-trace:nofail-conf>> configures the [[gls:DCB]], TPIU, and DWT peripherals (partially):
+   1. sets the /TRCENA/ bit in the [[gls:DCB_DEMCR]], a "global enable for all DWT and ITM features";
+   2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[gls:TPIU_ACPR]] such that the TPIU communicates with a requested baud rate on the [[gls:SWO]] pin.
+      The prescaler is calculated via [[cref:eq:prescaler]] derived from [[textcite:&arm-rm Section C1.10.4]].[fn:: This configuration implementation is error-prone: See [[cref:fut:swoscaler]].]
       #+NAME: eq:prescaler
       \begin{equation}
         \left\lfloor
         \frac{\texttt{tpiu\textunderscore freq}}{\texttt{tpiu\textunderscore baud}}
         \right\rfloor - 1
       \end{equation}
-   3. drops any [[gls:ETM]][fn:: A debug facility similar to (but with finer granularity than) the [[gls:ITM]], but outside the scope of this thesis.] packets that the [[gls:TPIU]] receives because the utilization of these packets are outside the scope of this thesis; and
-   4. sets the /EXCTRCENA/ bit in [[gls:DWT_CTRL]] which enables the generation of exception traces in the [[gls:DWT]] [[parencite:&arm-rm Section C1.8.7]].
-5. <<rtic-trace:itm>> Applies [[gls:ITM]]-related options given to =configure= by writing to the [[gls:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm Section C1.7.6]]:
-   1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the [[gls:ITM]], forwards trace packets from the [[gls:DWT]] to the [[gls:ITM]], "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
+   3. drops any [[gls:ETM]][fn:: A debug facility similar to (but with finer granularity than) the ITM, but outside the scope of this thesis.] packets that the [[gls:TPIU]] would otherwise receive; and
+   4. sets the /EXCTRCENA/ bit in [[gls:DWT_CTRL]] which enables the generation of [[gls:exception]] traces from the DWT [[parencite:&arm-rm Section C1.8.7]].
+5. <<rtic-trace:itm>> Applies ITM-related options given to =configure= by writing to the [[gls:ITM_TCR]] while also checking for target support for the requested configuration [[parencite:&arm-rm Section C1.7.6]]:
+   1. sets the /ITMENA/, /TXENA/, /SWOENA/, and /TSENA/ bits which enables the ITM, forwards trace packets from the DWT to the ITM, "enables asynchronous clocking of the timestamp counter", and enables the generation of local timestamps, respectively;
    2. writes 0 to the /TraceBusID/ field because RTIC Scope does not support multi-source tracing within the scope of this thesis[fn:: Writing 0 to this field is potentially invalid. See [[cref:fut:TraceBusID]].]
-   3. writes 0 to the /TSPrescale/ field, disabling prescaling for local timestamps; and
+   3. writes 0 to the /TSPrescale/ field, using a [[gls:prescaler]] of $n = 1$ for local timestamps; and
    4. writes 0 to the /GTSFREQ/ field, disabling global timestamps.[fn:: Global timestamps are an optional feature, and is not supported by all Cortex-M targets.]
-6. <<rtic-trace:dwt>> Configures [[gls:DWT]] comparators for software task tracing:
-   1. first, resolves the target addresses of two =u32= /watch variables/ which live in target memory;
-   2. dereferences two [[gls:DWT]] comparators as specified by the 5th and 6th arguments to =configure= in [[cref:lst:rtic-trace:configure]];[fn:: The [[gls:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
-   3. configures the first comparator to signal a match (and generate an associated trace stream packet) when data is written to the first watch variable:
+6. <<rtic-trace:dwt>> Configures DWT comparators for software task [[gls:tracing]]:
+   1. first, resolves the addresses of two [[glspl:watch-variable]] which reside in scope of the =cortex-m-rtic-trace= crate;
+   2. dereferences two DWT comparators as specified by the 5th and 6th arguments to =configure= in [[cref:lst:rtic-trace:configure]];[fn:: The [[gls:API]] for specifying these comparators can be greatly improved by passing them via the =TraceConfiguration= structure. Additionally and ideally, only a single comparator would be required; see [[cref:disc:perf]].]
+   3. configures the first comparator to signal a match (and generate an associated [[gls:hardware-event-packet]]) when data is written to the first watch variable:
       1. writes to seven fields in the [[gls:DWT_FUNCTIONn]][fn:dwt-n] [[parencite:&arm-rm Section C1.8.17]], where $n$ is the offset of the comparator (in the context of [[cref:lst:rtic-trace:configure]], $n=1$):
          0b1101 to /FUNCTION/, configuring the comparator to match on address access;
          0 to /EMITRANGE/, disabling trace address packet generation;[fn:: We are not interested in the address that contains the watch variable.]
@@ -1010,18 +1010,18 @@ After applying device-specific configurations for trace generation, and querying
       3. writes 0 to [[gls:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
    4. Lastly, the second comparator is configured in the same manner as the first, but with the second watch variable address in mind and $n=2$.
 
-If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-trace]] fails =configure= prematurely returns an =Err(_)= that signals what went wrong, and no peripheral configuration will have been applied: the target will be in the same state as before =configure= was called.
+If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-trace]] fails =configure= prematurely returns an error that signals what went wrong, and no peripheral configuration will have been applied: the target will be in the same state as before =configure= was called.
 
 Several fields in [[gls:ITM_TCR]] are potentially [[gls:RAZ-WI]], [[gls:RAZ]], or [[gls:RAO]] [[parencite:&arm-rm p. Glossary-854]] in order to signal hardware support.
 This requires the field to be read after a write to ensure that a configuration was applied.
-During the steps in [[cref:rtic-trace:itm]], if any read-back values does not match what was written, =configure= prematurely returns an =Err(_)= signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the end-user that a partial configuration has now been applied.
-It is up to the end-user to reset the target to the state before =configure= was called.
+During the steps in [[cref:rtic-trace:itm]], if any read-back value does not match what was written, =configure= prematurely returns an error signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the user that a partial configuration has now been applied.
+It is up to the user to reset the target to the state before =configure= was called.[fn:: In practise, one would reset the target and iterate on the configuration instead of manually reverting the changes.]
 For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:382]].
 
 The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} cannot fail.
 
 Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in memory to trace software tasks, and how the watch variables in this section are aligned in memory.
-The [[gls:DWT]] comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
+The DWT comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
 However, due to performance reasons (and in order to reduce implementation complexity), the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
 Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]].
 
@@ -1029,8 +1029,8 @@ Further, because of time constrains no experimentation has been done with a non-
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace:trace-macro
 :END:
-=trace= is an optional macro that is only required if software task tracing is wanted.
-Its application is trivial, but requires that =configure= executed successfully.
+=trace= is an optional macro that is only required if [[gls:software-task]] [[gls:tracing]] is wanted.
+Its application is trivial but requires that =configure= executed without error.
 To trace a software task, consider [[cref:lst:rtic-trace:trace]] which defines two tasks: =task1= and =task2=.
 Of the two tasks, =task2= is traced by simply decorating it with =#[trace]=, the invocation of the =trace= macro.
 #+NAME: lst:rtic-trace:trace
@@ -1072,7 +1072,9 @@ Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expa
   // ...
 #+end_src
 
-A traced software task then writes its unique ID to two watch addresses that signify that a task was entered or exited.
+A traced software task writes a [[gls:UTID]]  to two [[glspl:watch-variable]] that signify that a task was entered or exited.
+The UTIDs of an [[gls:RTIC]] application are calculated when the =trace= macro is expanded by the Rust compiler.
+UTIDs are integers and starts counting from zero.
 
 *** Recording a trace
 :PROPERTIES:
@@ -2402,4 +2404,4 @@ Refer to [[cref:fig:auto-plot-example]].
 
 [fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm Section B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[gls:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm p. B1-517]] comments that a value of [[gls:IPSR]] is zero if no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[gls:RTIC]] tasks entered and exited. An exception number of 0 is then ultimately ignored by RTIC Scope v0.3.
 
-[fn:dwt-n] $n$ emphasized for reasons of readability and typesetting.
+[fn:dwt-n] $n$ emphasized for reasons of readability.

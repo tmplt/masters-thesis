@@ -12,11 +12,11 @@
   }
 \newglossaryentry{downstream}{
    name={downstream},
-  description={In software development the dependencies of code is often compared to that of a stream of water. A program commonly depends on libraries. This program is then downstream of the libraries; just as water flows downstream, code from these libraries flow downstream into the dependent program. Opposite of \gls{upstream}.}
+  description={In software development the dependencies of code is often compared to that of a stream of water. A program commonly depends on libraries. This program is then downstream of the libraries; just as water flows downstream, code from these libraries flow downstream into the dependent program. Opposite of \gls{upstream}. The comparison also holds for data dependency.}
   }
 \newglossaryentry{upstream}{
   name={upstream},
-  description={Opposite of \gls{downstream}: the libraries are upstream from the program.}
+  description={Opposite of \gls{downstream}: the library or data is upstream from the program or concerning software component.}
   }
 \newglossaryentry{frontend}{
   name={frontend},
@@ -120,6 +120,10 @@
   name={watch address},
   description={Memory address which the \gls{DWT} monitors for changes. When the memory at this address is written to, a \gls{hardware-event-packet} is generated.}
 }
+\newglossaryentry{watch-variable}{
+  name={watch variable},
+  description={In-memory variable from which a \gls{watch-address} is derived.}
+}
 \newglossaryentry{system-clock}{
   name={system clock},
   description={The clock which drives the system. The frequency of this clock is the frequency at which instructions of the \gls{user-application} are executed.}
@@ -189,6 +193,7 @@
   description={A clock divider. For example, a clock frequency of $16~\text{MHz}$ prescaled by $n = 2$ yields a frequency of $8~\text{MHz}$.}
 }
 
+\newabbreviation{UTID} {UTID} {{Unique Task Identifier}}
 \newabbreviation{PC} {PC} {{program counter}}
 \newabbreviation{CPU} {CPU} {{central processing unit}}
 \newabbreviation{MCU} {MCU} {{microcontroller unit}}
