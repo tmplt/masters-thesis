@@ -828,8 +828,8 @@ Because [[gls:RTIC]] implements [[glspl:task]] by use of [[gls:exception]] handl
 This approach is however only directly applicable to [[glspl:hardware-task]] which dedicate a handler for each task.
 [[Glspl:software-task]] are implemented with an additional layer of abstraction above handlers by use of [[glspl:task-dispatcher]] as covered in [[cref:rtic]].
 If exception tracing is employed to trace software tasks such a [[gls:trace-packet]] would only describe that one of the potentially multiple software tasks handled by one dispatcher changed state.
-Instead, a unique identifier is assigned to each software task and written to a [[gls:watch-address]] when the task enters and exits.
-An additional decoding step is then applied to trace software tasks. Refer to [[cref:impl]].
+Instead, a [[gls:UTID]] is assigned to each software task and written to a [[gls:watch-address]] when the task enters and exits.
+An additional decoding step is then applied to map UTIDs back to their corresponding software tasks. Refer to [[cref:impl]].
 
 ** Implementation
 :PROPERTIES:
