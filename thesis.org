@@ -652,10 +652,10 @@ The [[gls:ITM]] is of an auxilliary nature with three functions:
 
 # Summarize the timestamp sources
 Timestamp packets are sourced from a reference clock which can be seen in [[cref:fig:debug-relations]].
-This reference clock is either the [[gls:system-clock]], an asynchronous [[gls:TPIU]] reference clock, or a "global timestamp clock"[fn:: See [[cref:fut:review-timestamp-relation]].].
+This reference clock is either the [[gls:system-clock]], an asynchronous TPIU reference clock, or a "global timestamp clock"[fn:: See [[cref:fut:review-timestamp-relation]].].
 The frequencies and behavior of these reference clocks and how the target clock hierarchy is configured in general is wholly specific to each target and will thus not be covered in further detail.
 
-For more information on the [[gls:ITM]] unit, refer to [[parencite:&arm-rm Section C1.7]]. For more information on global and local timestamps, refer to [[parencite:&arm-rm p. C1-710]].
+For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]].
 **** \glsxtrfull{TPIU}
 :PROPERTIES:
 :CUSTOM_ID: theory:tpiu
