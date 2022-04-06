@@ -1225,24 +1225,24 @@ Manifest metadata is read via =cargo_metadata= [[parencite:&cargo-metadata]] and
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:create-trace-file
 :END:
-To enable post-mortem analysis of a traced RTIC application the recorded trace must be saved to disk.
-The build step (see [[cref:impl:cargo-rtic-scope:building-rtic-app]]) yields the crate root of the traced application.
-A natural directory in which to save trace files is then under =/target/= which contains all build artifacts of the crate.
-For purposes of separation trace files are then saved under the =rtic-traces= sub-directory; the full path to this directory is then =/target/rtic-traces/=.
-While this directory is meant for ephemeral artifacts (of which recorded traces may not belong) it was the simplest approach to associate traces to a particular crate (including its git revision; see below) while also not writing files to a wholly unexpected directory (e.g. the crate root directory).
+To enable post-mortem analysis of a traced [[gls:RTIC]] application the recorded trace must be saved to disk.
+The build step in [[cref:impl:cargo-rtic-scope:building-rtic-app]] yields the crate root of the application.
+A natural directory in which to save trace files is then under =/target/= which otherwise contains all build artifacts of the crate.
+For purposes of separation trace files are then saved under =/target/rtic-traces/=.
 
-Of note is that =/target/= is removed if =cargo clean= is executed.
-It is thus up to the RTIC Scope user to ensure that traces of interests are saved to a persistent location.
+While =/target/= is meant for ephemeral artifacts --- of which recorded traces may not necessarily belong --- saving traces elsewhere could be considered unwanted behavior.
+However, =/target/= is removed upon a =cargo clean=;
+it is thus up to the user to ensure that traces of interest are saved to a persistent location.
 For this purpose the optional =--trace-dir <dir>= option overrides the output directory of the trace files.
 
 The trace filename contains three sections of information:
-- the name of the RTIC application :: which associates the trace with the application that generated it, useful when a crate contains more than one application.
-- the git revision of the local repository :: to associate the trace with the source code of the traced RTIC application; and
-- a second-accurate timestamp :: to associate the trace with target-external events (e.g. conditions of the physical environment in which the application is traced).
+- the name of the RTIC application :: which associates the trace with the application that generated it, useful when a crate contains more than one application;
+- the git revision of the local repository :: to associate the trace with the source code of the application; and
+- a second-accurate timestamp :: to associate the trace with environmental factors that cannot be derived from the application name and revision.
 
-For example, after some tracing and development during January 13th and 14th, 2022, the trace directory could for example contain the files in [[cref:lst:cargo-rtic-scope:trace-example-files]].
+For example, after some tracing and development during January 13th and 14th, 2022, the trace directory contains the files in [[cref:lst:cargo-rtic-scope:trace-example-files]].
 #+NAME: lst:cargo-rtic-scope:trace-example-files
-#+CAPTION: Example of trace filenames after two traces. ~blinky~ is the name of the RTIC application binary; ~124b3c5~ the git revision; and the remainder (sans ~.trace~) is the timestamp of the trace. The second trace file was recoded from an RTIC application with uncommitted changes, hence the ~-dirty~ suffix to the git revision.
+#+CAPTION: Example of recorded trace filenames after two traces. ~blinky~ is the name of the [[gls:RTIC]] application; ~124b3c5~ the git revision; and the remainder (sans ~.trace~) is the timestamp of the trace. The second trace file was recoded from an RTIC application with uncommitted changes, hence the ~-dirty~ suffix to the git revision.
 #+begin_src text
   $ ls -ogh target/rtic-traces
   total 8.0K
@@ -1250,8 +1250,9 @@ For example, after some tracing and development during January 13th and 14th, 20
   -rw-r--r-- 1 1.3K Jan 14 18:38 blinky-g124b3c5-dirty-2022-01-14T18:37:57.trace
 #+end_src
 
-In case two =cargo rtic-scope trace= instances are executed within the span of one second without any changes to the git repository the same trace filename will be generated twice; this will be caught by the second instance which will exit with an error[fn:: A virtual limitation. The timestamp granularity can be increased, but from a user standpoint it is unlikely to start a trace twice within the same second unless two targets are traced at the same time with the same application.]:
-=cargo-rtic-scope= cannot overwrite trace files.
+In case two =cargo rtic-scope trace= instances are executed within the span of one second without any changes to the git repository the same filename will be generated twice;
+this will be caught during the second instance which will exit with an error[fn:: A virtual limitation. The timestamp granularity can be increased, but from a user standpoint it is unlikely to start a trace twice within the same second using the same target and application.]:
+=cargo-rtic-scope= does not overwrite trace files.
 Trace files can however be explicitly deleted:
 if the user wants to record a trace and remove all previously recoded traces in the trace directory =--clear-traces= can be specified.
 This flag only deletes files with the =.trace= file extension.
