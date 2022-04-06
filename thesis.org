@@ -1492,14 +1492,14 @@ see [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:spawning-frontends
 :END:
-The host-side of RTIC Scope is divided into two parts: the backend, =cargo-rtic-scope=;
-and the frontends, of which =rtic-scope-frontend-dummy= is provided within the scope of this thesis, fulfilling Requirement [[req:dummy]] and also acting as the frontend reference implementation (see [[cref:impl:rtic-scope-frontend-dummy]]).
-Frontends are separate processes that receive JSON messages from the backend over a local socket connection.
-This section covers how frontends are specified, found in the environment, and executed.
+The host-side of RTIC Scope is divided into two parts:
+the =cargo-rtic-scope= [[gls:backend]] and the [[glspl:frontend]] of which =rtic-scope-frontend-dummy= ([[cref:impl:rtic-scope-frontend-dummy]]) is provided within the scope of this thesis, fulfilling [[req:dummy]] and acting as the frontend reference implementation.
+Frontends are separate processes that receive =rtic-scope-api= structures in the form of [[gls:JSON]] messages from the backend over a local [[gls:socket]] connection.
+This section covers how frontends are specified, found in the environment, and spawned.
 
-The set of frontends to spawn is specified with the =--frontend= option before the =<verb>= in [[cref:lst:spawn-frontend]].
+The set of frontends to spawn is specified via the =--frontend= option before the =<verb>= in [[cref:lst:spawn-frontend]].
 #+NAME: lst:spawn-frontend
-#+CAPTION: Starting the RTIC Scope backend with an explicit frontend.
+#+CAPTION: Starting the RTIC Scope [[gls:backend]] with an explicit [[gls:frontend]].
 #+begin_src shell
   $ cargo rtic-scope --frontend=rtic-scope-frontend-dummy <verb> [OPTIONS...]
 #+end_src
@@ -1514,15 +1514,16 @@ With =--frontend=rtic-scope-frontend-dummy= the search pattern in decreasing ord
 If a higher priority location is valid, the search ends.
 [[cref:lst:spawn-frontends]] contains an example of spawning three frontends in each of the supported location types.
 #+NAME: lst:spawn-frontends
-#+CAPTION: Starting the RTIC Scope backend with three explicit frontends: one in ~PATH~, one relative, and one absolute.
+#+CAPTION: Starting the RTIC Scope [[gls:backend]] with three explicit [[glspl:frontend]]: one in ~PATH~, one relative, and one absolute.
 #+begin_src shell
   $ cargo rtic-scope --frontend=frontend-in-PATH \
                      --frontend=./path/to/relative/frontend \
                      --frontend=/path/to/absolute/frontend \
                      <verb> [OPTIONS...]
 #+end_src
+When the frontend(s) have been found in the environment they are spawned as child processes to =cargo-rtic-scope= which handles their eventual termination.
 
-In RTIC Scope v0.3.1, a frontend takes zero arguments and *MUST* return a path to a Unix socket on [[gls:stdout]] which the backend can use to communicate with the frontend.
+In RTIC Scope v0.3 a frontend takes zero arguments and *MUST*[fn:: Refer to [[textcite:&rfc2119]].] print a path to a socket on [[gls:stdout]] which the backend can use to communicate with the frontend.
 **** Sourcing the trace stream from the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reading-the-trace-stream
