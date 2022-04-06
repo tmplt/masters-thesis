@@ -1262,15 +1262,15 @@ This flag only deletes files with the =.trace= file extension.
 :CUSTOM_ID: impl:cargo-rtic-scope:generating-metadata-maps
 :END:
 # Introduction: we must translate raw ITM data to RTIC run-time information.
-As covered in [[cref:theory:itm-proto]], the [[gls:ITM]] packet protocol is used to trace [[gls:RTIC]] tasks.
+As covered in [[cref:theory:itm-proto]], the [[gls:ITM]] packet protocol is used to trace [[gls:RTIC]] [[glspl:task]].
 This protocol is not designed with RTIC in mind:
-instead of information that can be directly associated to an RTIC tasks the protocol tells us the number of the [[gls:DWT]] comparator that signaled a write to a watch address along with the data written, used to signal a software task enter or exit;
-and the IRQ number of the interrupt handler that entered, exited or was returned to, used to signal a hardware task enter or exit.
-These pieces of information must be associated back to the RTIC tasks responsible for their emission in a preparatory /recovery step/.
+instead of information that can be directly associated to RTIC tasks the protocol describes the identity of the [[gls:DWT]] comparator that signaled a write to a [[gls:watch-address]] along with the data written, used to signal a software task enter or exit.
+Additionally, the protocol describes the [[gls:IRQ]] of the hardware tasks that enter or exit.
+These pieces of information must be associated back to the tasks responsible for their emission in a preparatory recovery step.
 This section covers this step which is divided into two parts:
-1. the generation of the =recovery::HardwareMap= for hardware tasks associations, [[cref:impl:hardware-map]]; and
-2. the generation of the =recovery::SoftwareMap= for software tasks associations, [[cref:impl:software-map]].
-Together these two lookup maps constitute the full =recovery::TraceLookupMaps= which is used by =recovery::TraceMetadata= in order to fulfill Requirement [[req:rtic]].
+1. the generation a =recovery::HardwareMap= for hardware tasks association, [[cref:impl:hardware-map]]; and
+2. the generation a =recovery::SoftwareMap= for software tasks association, [[cref:impl:software-map]].
+Together these two lookup maps constitute a full =recovery::TraceLookupMaps= which is used by =recovery::TraceMetadata= in order to fulfill [[req:rtic]].
 
 ***** Generating the ~recovery::HardwareMap~
 :PROPERTIES:
