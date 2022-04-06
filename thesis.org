@@ -751,13 +751,20 @@ This flag have four possible values, termed /qualities/ throughout this text, de
 
 Local timestamps are emitted after the corresponging non-timestamp packets.
 For example, if the sequence reads
+#+begin_export latex
+\begin{multicols}{3}
+#+end_export
 1. data packet 1;
 2. [[gls:LTS1]];
 3. data packet 2;
 4. data packet 3; and
 5. [[gls:LTS2]],
+#+begin_export latex
+\end{multicols}
+\noindent
+#+end_export
 then the [[gls:LTS1]] corresponds to data packet 1;
-and [[gls:LTS2]] corresponds to data packet 2 and 3.
+and [[gls:LTS2]] to data packet 2 and 3.
 
 #+NAME: fig:lts1
 #+CAPTION: \glsxtrfull{LTS1} packet format, copied from [[textcite:&arm-rm Figure D4-4]].
