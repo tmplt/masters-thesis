@@ -1757,13 +1757,13 @@ For a discussion on how to avoid overflows, see [[cref:disc:overflows]].
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-scope-frontend-dummy
 :END:
-The purpose of the of =rtic-scope-frontend-dummy= frontend is to act as a reference implementation upon which more useful frontends can be built.
-There is no limit to what a frontend could do.
-It could present a real-time graphical representation of the system alike a logic analyzer, it could store the resolved trace in a database, or it could simply echo the messages to =stderr=.
+The purpose of the of =rtic-scope-frontend-dummy= [[gls:frontend]] is to act as a reference implementation upon which more useful frontends can be built.
+There is no limit to what a frontend could do:
+it could present a real-time graphical representation of the system alike a logic analyzer; it could store the resolved trace in a fully-fledged database; or it could simply print the messages to =stderr=, like the dummy.
 
-The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains its entirety with exhaustively descriptive comments.
+The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains its entirety.
 #+NAME: lst:dummy-src
-#+CAPTION: The full source code of the dummy frontend.
+#+CAPTION: The full source code of ~rtic-scope-frontend-dummy~.
 #+begin_src rust
   #![allow(rustdoc::bare_urls)]
   //! Reference frontend implementation for RTIC Scope.
@@ -1788,10 +1788,16 @@ The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains
       let stream = Deserializer::from_reader(socket).into_iter::<api::EventChunk>();
       let mut prev_nanos = 0;
       for chunk in stream {
-          let chunk = chunk.context("Failed to deserialize chunk")?;
-          let nanos = chunk.timestamp.offset.as_nanos();
+          let api::EventChunk { timestamp, events } = chunk.context("Failed to deserialize chunk")?;
+          let (quality, nanos) = match timestamp {
+              api::Timestamp::Sync(offset) | api::Timestamp::AssocEventDelay(offset) => {
+                  ("good", offset.as_nanos())
+              }
+              api::Timestamp::UnknownDelay { prev: _, curr }
+              | api::Timestamp::UnknownAssocEventDelay { prev: _, curr } => ("bad!", curr.as_nanos()),
+          };
           let diff = nanos - prev_nanos;
-          eprintln!("@{} µs (+{} ns): {:?}", nanos, diff, chunk.events);
+          eprintln!("@{nanos} ns (+{diff} ns) [{quality}]: {events:?}");
           prev_nanos = nanos;
       }
 
