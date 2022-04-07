@@ -1552,7 +1552,7 @@ A list of connected and supported probes can be queried by specifying the =--lis
 
 When the target is traced in [[cref:impl:cargo-rtic-scope:trace-target]] the trace stream is simply read from the serial device if one is used.
 If a probe source is used =probe-rs= sends the appropriate commands to the used probe polling for available trace data.
-**** Flashing the target
+**** Flashing the target (optional)
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:flash-target
 :END:
@@ -1623,7 +1623,7 @@ The data that is flushed to file is a [[gls:JSON]]-representation of the structu
 #+end_src
 
 This structure is utilized in [[cref:impl:cargo-rtic-scope:replay]] when a trace is replayed.
-**** Resetting the target
+**** Resetting the target (optional)
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reset-target
 :END:
