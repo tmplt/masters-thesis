@@ -1810,18 +1810,19 @@ The dummy frontend is trivial in implementation: [[cref:lst:dummy-src]] contains
 :CUSTOM_ID: impl:cargo-rtic-scope:replay
 :END:
 Replaying a trace is done via the =replay= verb.
-The implementation behind replaying a trace is the same as recording one, only that the source is a replay file instead of a serial device or a probe, and no recovery must be done.
+The implementation behind replaying a trace is the same as recording one, only that the source is a replay file instead of a serial device or a [[gls:probe]], and no recovery must be done.
 A replay file can be specified in two ways: by use of an index of which the =--list= flag lists the indices; or by specifying the path to the trace file.
 [[cref:lst:replay-examples]] exemplifies these two methods.
-When using an index to replay a file the default directory within which to search for replay files can be overridden via =--trace-dir=.
+When using an index to replay a file the default directory within which to search for replay files (=/target/rtic-traces/=) can be overridden via =--trace-dir=.
 
-When replaying a file, =cargo-rtic-scope= will terminate when the replay file ends or if a SIGINT is received.
+When replaying a file, =cargo-rtic-scope= will terminate when the replay file ends or if the [[gls:sigint][SIGINT handler]] executes.
 
 #+NAME: lst:replay-examples
 #+CAPTION: Example commands of listing and replaying recoded traces.
 #+begin_src shell
   # listing available replay files
   $ cargo rtic-scope replay --list
+  index   trace file
   0       target/rtic-traces/atsamd-demo-g472bc3d-dirty-2022-01-19T17:05:21.trace
   # replaying the trace with index 0
   $ cargo rtic-scope replay 0
