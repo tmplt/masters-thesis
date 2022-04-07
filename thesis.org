@@ -1429,7 +1429,7 @@ If the task dispatcher is an unknown bind =recovery::resolve_int_nrs= in [[cref:
 For the example in [[cref:lst:rtic-scope:trace-software-task]], =SoftwareMap= would contain the information denoting =EXTI2= as the task dispatcher and
 #+begin_export latex
 $$
-\langle u = 0 \mapsto \texttt{app::task1} \rangle,\quad\langle u = 1 \mapsto \texttt{app::task2} \rangle\text{,}\quad\text{$u$ a UTID.}
+\langle u = 0 \mapsto \texttt{app::task1} \rangle,\quad\langle u = 1 \mapsto \texttt{app::task2} \rangle\text{,}\quad\text{$u$ an UTID.}
 $$
 #+end_export
 #+NAME: lst:rtic-scope:trace-software-task
