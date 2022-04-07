@@ -1682,7 +1682,7 @@ If a packet in the chunk is
 If none of the above predicates were true, the chunk packet is logged as an unknown packet by wrapping it in an =api::EventType::Unknown=.
 Last of all are the malformed packets: these are simply wrapped in an =api::EventType::Invalid=.
 
-*** Decoding the ITM packet stream via ~itm~
+*** Decoding the [[gls:ITM]] packet stream via ~itm~
 :PROPERTIES:
 :CUSTOM_ID: impl:itm
 :END:
@@ -1690,21 +1690,18 @@ The =itm= library crate, [[textcite:&itm]], is
 #+ATTR_LATEX: :environment quotation
 #+begin_quote
 \noindent
-A decoder for the [[gls:ITM]] and [[gls:DWT]] packet protocol[fn:: [[gls:DWT]] packets (hardware event packets) are included in the [[gls:ITM]] packet protocol standard.] as specifed in [[[textcite:&arm-rm Part D4]]].
+A decoder for the [[gls:ITM]] and [[gls:DWT]] packet protocol[fn:: DWT packets ([[glspl:hardware-event-packet]]) are included in the ITM packet protocol standard.] as specifed in [[textcite:&arm-rm Part D4]].
 
-Aside from covering the entirety of the protocol, this crate offers two iterators which reads data from the given [\textttBreak{std::io::Read}] instance:
-- [\texttt{iter::Singles}] :: which decodes each packet in the stream in sequence, yielding [\textttBreak{TracePacket} structures].
-- [\texttt{iter::Timestamps}] :: which continuously decodes packets from the stream until a local timestamp is encountered,
-  yielding \linebreak[4] [\texttt{TimestampedTracePackets} structures],
-  which contains a \linebreak[4] [nanosecond-accurate] timestamp relative to trace reset of when the packets where generated target-side.
+Aside from covering the entirety of the protocol, this crate offers two iterators which reads data from the given =std::io::Read= instance:
+- =iter::Singles= :: which decodes each packet in the stream in sequence, yielding =itm::TracePacket= structures.
+- =iter::Timestamps= :: which continuously decodes packets from the stream until a local timestamp is encountered yielding \linebreak[4] =itm::TimestampedTracePackets= structures which contains an absolute nanosecond-accurate timestamp associated to the target-side event.
 #+end_quote
 
-While the implementation of =itm= has been influenced by the development of RTIC Scope it is logically disjoint from the the RTIC Scope feature set.
-=itm= can thus be considered a wholly separate project but its inception was a precursor to RTIC Scope in order to fulfill Requirement [[req:decode]], and it is thus within the scope of this thesis.
-RTIC Scope is then considered a downstream crate of =itm=, because it depends on it.
+While the implementation of =itm= has been influenced by the development of RTIC Scope it is logically [[gls:upstream]] of RTIC Scope.
+=itm= can thus be considered a wholly separate project but its inception was a precursor to RTIC Scope in order to fulfill [[req:decode]], and it is thus within the scope of this thesis.
 
-The crate is a /green-field implementation/ of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.7 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
-Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated (intepreted as such; not explicitly stated as of writing) =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
+The crate is a green-field implementation of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.8 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
+Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
 Both =itm-decode= and =itm-tools= are convenient UNIX-like tools for decoding the ITM packet protocol.
 
 =itm= is a packet decoder with state that handles its own data input.
@@ -1713,32 +1710,26 @@ e.g. a =std::fs::File= pointing to a preconfigured serial device, or a =probe_rs
 decoded packets are trivially acquired via the exposed iterators summarized above.
 RTIC Scope utilizes the =iter::Timestamps= iterator, and is thus the only iterator covered in this text.
 
-As covered in [[cref:theory:itm-proto]], the [[gls:ITM]] packet protocol define packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
-Effectively, the protocol follows a [[gls:TLV]] encoding sheme.
-Decoding such a protocol is rather trivial, especially in Rust:
-the individual bytes of the header are pattern-matched in order to decode the packet type after which the remaining bytes are dispatched to another pattern-matcher in order to decode its payload.
+As covered in [[cref:theory:itm-proto]] the protocol follows a [[gls:TLV]] encoding scheme which is trivially decoded in Rust via pattern-matching:
+the header byte is matched against packet types; subsequent payload bytes are then matched against the format of this type.
 On success an =itm::TracePacket= is emitted.
 On failure --- if a header or payload contains data that is not covered by [[textcite:&arm-rm Part D4]] --- an =itm::MalformedPacket= is emitted, describing why the decode failed.
 
-=iter::Timestamps= intercepts all global and local timestamps in order to maintain a monotonically increasing duration from when the reference clocks start ticking.
-Logically, this duration is initially zero, before any timestamp packets have been decoded.
+=iter::Timestamps= intercepts all global and local timestamps ([[cref:theory:itm:timestamps]]) in order to maintain a monotonically increasing duration from when the reference clock start ticking.
+Logically this duration is initially zero before any timestamp packets have been decoded.
 When a local timestamp is intercepted, its value is added to the current duration and its quality recorded.
 When a global timestamp is intercepted, the duration is reset to this value, discarding information from previously received timestamps.
 
 Any non-timestamp packets will be buffered until a local timestamp is intercepted after which they will be associated to this latest timestamp in an emitted =TimestampedTracePackets=.
-This structure also contains a field describing how many [[gls:ITM]] packets were consumed to generate it.
-This information is used in =cargo-rtic-scope= in order to report the number of trace packets received per second.
+This structure also contains a field describing how many [[gls:ITM]] packets were consumed to generate it, information that is used in [[cref:impl:cargo-rtic-scope:trace-target]].
 
-# XXX qualitative/quantitive? Am I formulating correctly here?
-The maintained and emitted durations are structures with a qualitative unit that which the timestamp packets themselves does not contain; timestamp packets contain a unit-less counter, which is quantitative.
-In order to calculate a duration two pieces of information must be known:
-- the frequency of the reference clock; and
-- the prescaler of this clock.
-This information is the same that is configured in [[cref:impl:rtic-trace]].
+The maintained and emitted durations are structures with unit information; the timestamp packets themselves contain unit-less time information.
+In order to calculate a duration two pieces of information must be known: the frequency of the reference; and the [[gls:prescaler]] of this clock.
+In RTIC Scope, this information is acquired in [[cref:impl:cargo-rtic-scope:read-manifest]].
 When a full timestamp has been received the offset to add to the current duration is calculated via =iter::calc_offset= seen in [[cref:lst:calc-offset]].
 
 #+NAME: lst:calc-offset
-#+CAPTION: Calculation of the offset to add to the current timestamp.
+#+CAPTION: Calculation of the offset to add to the current timestamp in ~itm~ [[parencite:&itm]].
 #+begin_src rust
   fn calc_offset(ts: u64, prescaler: Option<LocalTimestampOptions>, freq: u32) -> Duration {
     let prescale = match prescaler {
@@ -1758,7 +1749,7 @@ When a full timestamp has been received the offset to add to the current duratio
 #+end_src
 
 The generation of local timestamps is critical in order to ensure a qualitative trace.
-If trace packets are generated faster than they can be emitted from the target, a queued packet is dropped in favor of an overflow packet.
+If trace packets are generated faster than they can be emitted from the target a queued packet is dropped in favor of an overflow packet.
 One of these packets may be a local timestamp.
 For a discussion on how to avoid overflows, see [[cref:disc:overflows]].
 
