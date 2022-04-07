@@ -1531,16 +1531,16 @@ In RTIC Scope v0.3 a frontend takes zero arguments and *MUST*[fn:: Refer to [[te
 # Introduce the two main sources
 At this point a line of communication with the target must be established.
 Internally, this line of communication is known as a /source/ of which only one is established before =cargo-rtic-scope= traces the target.
-As of v0.3.1 two sources are implemented:
-- a TTY/serial source :: which configures and reads the trace data from a serial device; and
-- a probe source :: wherein =probe-rs= [[textcite:&probe-rs]] is used to read trace data from supported targets.
+In RTIC Scope v0.3 two sources are implemented:
+- a serial source :: which configures and reads the trace data from a serial device; and
+- a [[gls:probe]] source :: wherein =probe-rs= [[parencite:&probe-rs]] is used to read trace data from supported targets.
 
 A serial source is used if =--serial= is specified to the =trace= verb.
-When a serial source is used =cargo-rtic-scope= must know what baud rate to configure the device for.
-This is specified via the =tpiu_baud= field in the crate manifest (see [[cref:lst:cargo-rtic-scope:manifest-metadata-example]]) but can also be overridden via the =--tpiu-baud= option.
+When a serial source is used the [[gls:baud-rate]] of the [[gls:SWO]] must be known so that the serial device can be properly configured.
+This is specified via the =tpiu_baud= field in the crate's manifest metadata ([[cref:impl:cargo-rtic-scope:read-manifest]]) but can also be overridden via the =--tpiu-baud= option.
 See [[cref:lst:tty-source]] for an example of these options.
 #+NAME: lst:tty-source
-#+CAPTION: Tracing a target by reading the trace stream from a serial device at ~/dev/ttyUSB3~ at 115200 bauds.
+#+CAPTION: [[Gls:tracing]] a target by reading the [[gls:trace-stream]] from a serial device located at ~/dev/ttyUSB3~ at a [[gls:baud-rate]] of $115200$ bps.
 #+begin_src shell
   $ cargo rtic-scope trace --serial /dev/ttyUSB3 --tpiu-baud 115200 [OPTIONS...]
 #+end_src
