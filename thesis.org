@@ -1556,18 +1556,32 @@ If a probe source is used =probe-rs= sends the appropriate commands to the used 
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:flash-target
 :END:
-If the target under trace is supported by =probe-rs= it can optionally be flashed before tracing begins.
+If the target is supported by =probe-rs= it can optionally be flashed before tracing begins, given that the memory layout is described.
 This is the default behavior in order to simplify an iterative development process but can be disabled by specifying the =--dont-touch-target= flag to the =trace= verb.
-If a chip is supported =cargo-rtic-trace= must know its memory layout for flashing.
-This is done via the =--chip= option.
-See the example in [[cref:lst:chip-opt-example]].
+The memory layout is described via the =--chip= option; see the example in [[cref:lst:chip-opt-example]].
+The list of chips that =probe-rs= supports can be queried by specifying the =--list-chips= flag; [[cref:lst:chips-supported]].
 #+NAME: lst:chip-opt-example
-#+CAPTION: Flashing and tracing an STMicroelectronics STM32 NUCLEO-F401RE.
+#+CAPTION: Flashing and [[gls:tracing]] an [[gls:MCU]] from the STMicroelectronics STM32F401 family.
 #+begin_src shell
-  $ cargo rtic-scope trace --chip stm32f401ret [OPTIONS...]
+  $ cargo rtic-scope trace --chip stm32f401ret
 #+end_src
 
-The list of chips that =probe-rs= supports can be queried by specifying the =--list-chips= to the =trace= verb.
+#+NAME: lst:chips-supported
+#+CAPTION: Listing all chips supported by ~probe-rs~ [[parencite:&probe-rs]].
+#+begin_src shell
+  $ cargo rtic-scope trace --list-chips
+  Available chips:
+  [...]
+  STM32F4 Series
+      Variants:
+        STM32F401CBUx
+        STM32F401CBYx
+        STM32F401CCUx
+        STM32F401CCYx
+        STM32F401CDUx
+        [...]
+  [...]
+#+end_src
 
 **** Flushing trace metadata to file
 :PROPERTIES:
