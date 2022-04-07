@@ -1627,12 +1627,11 @@ This structure is utilized in [[cref:impl:cargo-rtic-scope:replay]] when a trace
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reset-target
 :END:
-The last step before tracing the target is optionally resetting it.
+The last step before [[gls:tracing]] the target is optionally resetting it.
 This is the default behavior but can be disabled by specifying the =--dont-touch-target= flag to the =trace= verb.
 Resetting the target causes it to begin executing the flashed application from the beginning.
-If =--dont-touch-target= was not specified the executing application will be the flashed RTIC application.
 
-From this point on the target will generate and emit [[gls:ITM]] packets.
+From this point on the target will generate and emit [[gls:ITM]] packets on the [[gls:SWO]] pin according to the configuration applied in [[cref:impl:rtic-trace]].
 
 **** Tracing the target
 :PROPERTIES:
