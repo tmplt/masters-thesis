@@ -204,7 +204,7 @@ Here be an abstract...
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 
-\listoftodos
+\newpage
 \tableofcontents
 \newpage
 \listoftables
