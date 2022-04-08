@@ -2112,6 +2112,9 @@ If overflows are encountered the below description of approaches can be consulte
 - Generate less events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[gls:RTIC]] application to generate less events: that is, decrease the frequency at which tasks are entered and exited.
   The lowest hanging fruit of this approach is to simply disable the tracing of software tasks by omitting all instances of the =trace= macro.
 *** Future work
+:PROPERTIES:
+:CUSTOM_ID: fut
+:END:
 This section comments on some choice topics of future work planned for RTIC Scope, most sections being referred to previously in this text and being filed as issues in the relevant repository.
 This section is not exhaustive:
 as of writing 31 issues are open for RTIC Scope[fn:: Refer to [[https://github.com/rtic-scope/cargo-rtic-scope/issues][https://github.com/rtic-scope/cargo-rtic-scope/issues]].];
@@ -2329,8 +2332,10 @@ Refer to [[textcite:&issue:cargo-rtic-scope:135]] and [[textcite:&issue:cargo-rt
 :PROPERTIES:
 :CUSTOM_ID: conclusion
 :END:
-The RTIC Scope project fulfills all requirements enumered in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]].
-While end-user overhead has been minimized as much as possible with the allotted development time overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
+The RTIC Scope project fulfills all requirements enumered in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]] in mind.
+While user [[gls:overhead]] has been minimized as much as possible within the allotted development time overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
+Future work ([[cref:fut]]) is warranted to improve RTIC Scope.
+
 ** Backmatter                                                       :ignore:
 [[printglossaries:]]
 [[printbibliography:]]
