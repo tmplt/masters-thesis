@@ -2113,22 +2113,22 @@ If overflows are encountered the below description of approaches can be consulte
   The lowest hanging fruit of this approach is to simply disable the tracing of software tasks by omitting all instances of the =trace= macro.
 *** Future work
 This section comments on some choice topics of future work planned for RTIC Scope, most sections being referred to previously in this text and being filed as issues in the relevant repository.
-This section is not exhaustive for sake of brevity:
+This section is not exhaustive:
 as of writing 31 issues are open for RTIC Scope[fn:: Refer to [[https://github.com/rtic-scope/cargo-rtic-scope/issues][https://github.com/rtic-scope/cargo-rtic-scope/issues]].];
 7 for =itm=[fn:: Refer to [[https://github.com/rtic-scope/itm/issues][https://github.com/rtic-scope/itm/issues]].];
-and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to tracing functionality).
+and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to RTIC SCope functionality).
 
-**** \glsxtrfull{TPIU} baud rate configuration
+**** [[gls:TPIU]] [[gls:baud-rate]] configuration
 :PROPERTIES:
 :CUSTOM_ID: fut:swoscaler
 :END:
-The baud rate of the [[gls:TPIU]] is configured via [[cref:lst:tpiu-baud-rate]] which implements [[cref:eq:prescaler]].
-This implementation is error-prone due to integer division and because it does not verify the written prescaler value by reading it back.
+The [[gls:baud-rate]] of the [[gls:TPIU]] is configured via [[cref:lst:tpiu-baud-rate]] which implements [[cref:eq:prescaler]].
+This implementation is error-prone due to integer division and because it does not verify the written [[gls:prescaler]] value by reading it back.
 The implementation will also attempt a divide-by-zero if a baud rate of 0 is requested; in the best case, this leads to a panic.
-Currently, this behavior is not documented.
+This behavior is not documented.
 
 #+NAME: lst:tpiu-baud-rate
-#+CAPTION: \glsxtrfull{TPIU} baud rate configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[gls:TPIU]] configuration registers. This implementation is subject to integer division, divide-by-zero, and does not verify the written prescaler value; it is thus error-prone.
+#+CAPTION: [[gls:TPIU]] [[gls:baud-rate]] configuration using the reference clock frequency and requested baud rate, from the ~cortex-m~ crate, that implements [[cref:eq:prescaler]]. ~self~ is a structure representation of the [[gls:TPIU]] configuration registers. This implementation is subject to integer division, divide-by-zero, and does not verify the written [[gls:prescaler]] value; it is thus error-prone.
 #+begin_src rust
   impl TPIU {
       /// Sets the prescaler value for a wanted baud rate of the Serial
@@ -2145,7 +2145,7 @@ Currently, this behavior is not documented.
   }
 #+end_src
 
-For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value 137.88 to be written, but because this prescaler must be an integer 137 is written instead, configuring the [[gls:TPIU]] to use a baud rate of approximately 115942 instead as per [[textcite:&arm-rm Section C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
+For example, if the function is called via =tpiu.set_swo_baud_rate(16_000_000, 115_200)= one would expect the prescaler value $137.88$ to be written, but because this prescaler must be an integer $137$ is written instead, configuring the TPIU to use a baud rate of approximately $115942$ bps instead as per [[textcite:&arm-rm Section C1.10.4]]; an error of 6.44%, via [[cref:eq:baud-rate-error]].
 A sufficiently large error will induce communication problems.
 #+NAME: eq:baud-rate-error
 \begin{equation}
