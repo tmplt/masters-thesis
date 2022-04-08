@@ -2206,15 +2206,13 @@ Regardless of what the outcome of minimizing end-user overhead is, =cortex-m-rti
 A tracking issue for this eventuality is available; see [[textcite:&issue:cargo-rtic-scope:90]].
 See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero end-user overhead.
 
-**** Supporting other \glsxtrfullpl{RTOS} than \glsxtrfull{RTIC}
-Version 0.3.1 of RTIC Scope targets and depends on (as the name implies) [[gls:RTIC]] v1.0.0.
-This dependency is only required for the recovery step which generates the =recovery::SoftwareMap= and =recovery::HardwareMap= with some metadata required by the end-user (see [[cref:impl:cargo-rtic-scope:read-manifest]]).
-RTIC Scope could as well require that the end-user provide these maps by describing them in an external file passed via a theoretical =cargo rtic-scope trace --maps-file /path/to/extenal-map-description [...]= invocation.
-Such an approach would enable an end-user to apply =cargo-rtic-scope= on an application that is not written in [[gls:RTIC]].
-Additionally, =cargo-rtic-scope= could then also be applied on an application that is not necessarily written in Rust if =--dont-touch-target= and =--trace-dir= are passed to the =trace=[fn:: =--trace-dir= would be required such that =cargo-rtic-scope= would not search through a crate that does not exist. =--dont-touch-target= is would be required because =cargo-rtic-scope= only knows how to build and flash a Rust application.] verb and provided that =cortex-m-rtic-trace= is substituted.
-This would make the toolset more general and drive development from more than a single, currently niche, front.
-
-No work has currently been done to make [[gls:RTIC]] an optional run-time dependency of =cargo-rtic-scope=.
+**** Supporting other [[glspl:RTOS]] than [[gls:RTIC]]
+RTIC Scope v0.3 targets and depends on [[gls:RTIC]] v1.0.0.
+This dependency is only required for the recovery step in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
+RTIC Scope could as well implement support for the user to provide these maps by describing them in an external file passed via a theoretical =cargo rtic-scope trace --maps-file /path/to/extenal-maps-description [...]= invocation.
+Such an approach would enable RTIC Scope to be applied on an application that is not writtin in RTIC.
+Additionally, RTIC Scope could then also be applied on an application that is not necessarily written in Rust if =--dont-touch-target= and =--trace-dir= are passed to the =trace=[fn:: =--trace-dir= would be required such that =cargo-rtic-scope= would not search through a crate that does not exist. =--dont-touch-target= is would be required because =cargo-rtic-scope= only knows how to build and flash a Rust application.] verb and provided that =cortex-m-rtic-trace= is substituted.
+This would make the toolset more general and drive development from more than a single front.
 
 **** Publishing all crates to the crate registery
 In order to publish a crate all of its dependencies must first be published.
