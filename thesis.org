@@ -1871,21 +1871,18 @@ The recorded traces are then listed via [[cref:lst:app-atsame-example-trace-scop
 :PROPERTIES:
 :CUSTOM_ID: disc:itm-embedded-wg
 :END:
-As mentioned in [[cref:impl:itm]], =itm= is a re-implementationand feature superset of a deprecated library with the same trace stream decoding goal, namely [[textcite:&itm-old]].
+As mentioned in [[cref:impl:itm]], =itm= is a re-implementation and feature superset of a deprecated library with the same [[gls:trace-stream]] decoding goal, namely [[textcite:&itm-old]].
 During the re-implementation the changes where pushed upstream to the original repository but a consensus regarding the created merge request was not reached.
-Subsequently, a [[gls:RFC]] was created [[parencite:&rfc:rust-embedded:move-itm-crate]] initially proposing that the =itm= crate was moved out of the then-maintaining Cortex-M team of the Embedded Rust working group to a repository under my control to continue the development.
+Subsequently a [[gls:RFC]] was created [[parencite:&rfc:rust-embedded:move-itm-crate]] initially proposing that the =itm= crate was to be moved out of the then-maintaining Cortex-M team of the Embedded Rust [[gls:WG]] to a repository under my control to continue the development.
 When the discussion concluded it was instead decided to simply add a deprecation notice to the =itm= repository pointing towards the new implementation at [[textcite:&itm]].
 
-The reason for the proposed move was that the maintaining working group would have to maintain a wholly new code-base that had yet to stabilize.
-Changes to both implementation and the [[gls:API]] of the library would then have to be vetted by team members before merge which would induce development friction.
-The [[gls:RFC]] process then decided that a new discussion should be held regarding adopting the new implementation when it has stabilized.
-The [[gls:RFC]] also notes that "the crate is unlikely to stabilize before Q1 2022".
+The reason for the deprecation was that the WG would have to maintain a wholly new code-base that had yet to stabilize.
+Changes to both implementation and the [[gls:API]] of the library would then have to be vetted by WG members before merge which would induce development friction.
+The RFC then concluded that a new discussion should be held regarding adoption of the new implementation when it reaches API stability.
 
-Another root reason that led to the indecision of the merge was the question whether a host-side crate should ultimately be maintained by a working group focused on an embedded aspect.
-While the library could in theory be adapted to operate in an embedded environment such a discussion was not raised at the time
-In its present form, =itm= [[parencite:&itm]] can only be run in a rich OS environment.
+Another root reason that led to the indecision of the merge was the question whether a host-side crate should ultimately be maintained by a WG focused on the embedded aspect.
 
-As of writing, the discussion on the adoption of the reimplementation has yet to begin.
+As of writing the discussion on the adoption of the reimplementation has yet to begin.
 A comment will be appended to [[textcite:&rfc:rust-embedded:move-itm-crate]] pointing to the new discussion when it begins.
 *** Tracing overhead with RTIC Scope
 :PROPERTIES:
