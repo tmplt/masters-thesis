@@ -2162,12 +2162,12 @@ Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically 
 :END:
 [[textcite:&arm-rm p. C1-718]] documents:
 #+begin_quote
-If a system supports multiple trace streams, the debugger must write a nonzero value to the ITM\textunderscore TCR.TraceBusID field.
-\textelp{} An example of a system with multiple trace streams is an ARMv7-M core with ETM trace stream.
+If a system supports multiple trace streams, the debugger must write a nonzero value to the [[gls:ITM_TCR]].TraceBusID field.
+\textelp{} An example of a system with multiple trace streams is an ARMv7-M core with [[gls:ETM]] trace stream.
 #+end_quote
-However, no documentation covers the use-case when [[gls:ETM]] should be disabled and only the [[gls:ITM]] trace stream is of interest.
-From brief communication with the ARM errata team, it seems that writing zero to this field is valid if the device does not support [[gls:ETM]], but anecdotally (during RTIC Scope testing) it also seems valid when [[gls:ETM]] packets are dropped (see [[cref:impl:rtic-trace:peripheral-config]]) on a device that does offer an [[gls:ETM]], particularly the Atmel ATSAME51N20A.
-This relationship (validity of a zero trace bus ID when [[gls:ETM]] packets are dropped) has not been verified.
+However, no documentation covers the use-case when ETM should be disabled and only the [[gls:ITM]] trace stream is of interest.
+From brief communication with the ARM errata team, it seems that writing zero to this field is valid if the device does not support [[gls:ETM]], but anecdotally it also seems valid when ETM packets are dropped ([[cref:impl:rtic-trace:peripheral-config]]) on a device that does offer an ETM, particularly the Microchip ATSAME51N20A.
+This relationship (validity of a zero trace bus ID when ETM packets are dropped) has not yet been confirmed with ARM.
 
 An issue covering the potential invalidity of a zero trace bus ID is available at [[textcite:&issue:cortex-m:392]].
 
