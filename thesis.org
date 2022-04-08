@@ -2280,15 +2280,15 @@ configure an optional serial device for direct reading, offer the option to main
 It would be beneficial to incorporate these features into =itm= in order to collect ITM decoding and interpretation efforts in a singular crate.
 For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] and [[textcite:&issue:itm:14]], respectively.
 
-**** Escaping the \glsxtrfull{SWO} transient noise
+**** Escaping the [[gls:SWO]] transient noise
 :PROPERTIES:
 :CUSTOM_ID: fut:espace-swo-transient
 :END:
 Below is a list of possible methods of espacing the transient noise of the [[gls:SWO]] pin described in [[cref:disc:swo-transient]].
 
-- Using the parallel trace port :: [[textcite:&arm-rm Section C1.10]] describes the optional feature of a "parallel trace port".
+- Using the parallel trace port :: [[textcite:&arm-rm Section C1.10]] describes the optional feature of a parallel trace port.
   This is a synchronous trace exfiltration method that uses one pin for the clock and at least one pin for data communication.
-  An optional "control pin" may also be supported by the [[gls:MCU]], but its purpose has not been investigated.
+  An optional control pin may also be supported by the [[gls:MCU]], but its purpose has not been investigated.
 
   This approach may remove the noise entirely, but may depend on the order in which the pins are configured.
   It will also require more complex hardware between the target and host in order to adapt the parallel interface to a serial device which =cargo-rtic-scope= can read.
@@ -2297,12 +2297,12 @@ Below is a list of possible methods of espacing the transient noise of the [[gls
 - Using sentinel synchronization packets :: [[textcite:&arm-rm Section D4.2.1]] defines a synchronization packet that "trace capture hardware can [use to] identify the alignment of packet bytes in the bitstream".
   If such a packet is emitted after pin configuration, the decoder may be able to implement support to drop read trace data until this packet is encountered.
   Due to the constitution of this packet (at least 47 zeros followed by a single 1 bit), the possibility of the transient noise generating such a packet may be sufficiently low to ensure a stable trace stream.
-  However, this possibility is difficult to find because the induces noise depends on the internal characteristics of the [[gls:MCU]].
+  However, this possibility is difficult to find because the induces noise depends on the internal characteristics of the MCU.
   Refer to [[textcite:&issue:itm:11]] for the progress and applicability of this approach.
 
 - Storing trace data on-chip :: [[textcite:&arm-rm Section C1.10]] refers to a [[gls:TPIU]]-alternative dubbed the [[gls:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
-  An attached debugger could theoretically read this data, sidestepping the [[gls:TPIU]] (and thus any pin transients) completely.
-  =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the [[gls:ETB]].
+  An attached debugger could theoretically read this data, sidestepping the TPIU (and thus any pin transients) completely.
+  =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the ETB.
   Refer to [[textcite:&issue:cargo-rtic-scope:128]] for the progress of this approach.
 
 **** Review local and global timestamp clock relationship
