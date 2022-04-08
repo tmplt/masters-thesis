@@ -1996,20 +1996,20 @@ It is thus recommended to only use the =trace= macro on [[gls:RTIC]] task declar
 :PROPERTIES:
 :CUSTOM_ID: disc:swo-transient
 :END:
-During the development of RTIC Scope done within the scope of this thesis, considerate focus was put on trace exfiltration using asynchronous serial communication.
-This approach saw focus due to the minimal hardware design required to enable tracing support of a product based on a ARMv7-M [[gls:MCU]]:
+During the development of RTIC Scope considerate focus was put on trace exfiltration using asynchronous serial communication.
+This approach saw focus due to the minimal hardware design required to enable [[gls:tracing]] of a product based on an ARMv7-M [[gls:MCU]]:
 the base requirement is to expose the single [[gls:SWO]] pin, after which the remaining work is done by device-external hardware (in order to convert the electrical signal to a byte stream) and software.
-A single [[gls:MCU]] pin commonly multiplex features, however.
-Features can in theory be selected via hardware or software:
-via a hardware configuration (pulling another pin high or low[fn:: Shorting the pin to a 3.3V source, or common ground, respectively.]) the pin in question will expose the wanted feature when the [[gls:MCU]] and eventual [[gls:MCU]]-internal peripherals are powered;
+A single MCU pin commonly multiplex features, however.
+In theory features be selected via hardware or software:
+via a hardware configuration (pulling another pin high or low[fn:: Shorting the pin to a (e.g.) $3.3$ V source, or common ground, respectively.]) the pin in question will expose the wanted feature when the MCU is powered;
 via software the pin will expose its default feature on power and software must configure the pin during initialization.
-Commonly, most pins can only be configured via software and upon a [[gls:MCU]] reset, the pin returns to its default feature.
-Unfortunately, software configuration is prone to induce transient noise on the pin until it is configured.
-If this noise it not accounted for and host-side trace recording starts as the [[gls:MCU]] resets, the recorded noise will put the trace decoder in an unknown state and likely emit malformed packets.
-Ultimately, task state changes are likely to be lost and the error induced to the decoder may not necessarily be transient.
-This behavior is intrinsically [[gls:MCU]]-specific: there is unlikely a common model of this noise that can be used to filter the bytes host-side in software.
+Commonly, most pins can only be configured via software and upon a MCU reset, the pin returns to its default feature.
+Unfortunately, software configuration is prone to induce transient noise on the pin until it is fully configured.
+If this noise it not accounted for and host-side trace recording starts as the MCU resets (e.g. via [[cref:impl:cargo-rtic-scope:reset-target]]), the recorded noise will put the trace decoder in an unknown state and likely emit malformed packets.
+Ultimately, task state changes are likely to be lost and the error induced to the decoder may not necessarily die out.
+This behavior is intrinsically MCU-specific: there is unlikely a common model of this noise that can be used to filter the bytes host-side in software.
 
-The ATSAME51N20A is one example of an [[gls:MCU]] that displays this noise, seen in [[cref:fig:swo-transient]], as a consequence of the configuration done to pin PC27 in [[cref:lst:atsame51n20a-swo-conf]].
+The ATSAME51N20A is one example of an MCU that displays this noise, seen in [[cref:fig:swo-transient]], as a consequence of the configuration done to pin PC27 in [[cref:lst:atsame51n20a-swo-conf]].
 
 #+NAME: lst:swo-transient-plot
 #+begin_src python :results file :exports results
