@@ -2083,17 +2083,17 @@ A few methods of "escaping" this transient that require further investigation ar
 The theory behind overflow avoidance is simple: the [[gls:ITM]] and [[gls:DWT]] may not generate more trace packets than what the [[gls:TPIU]] can serialize.
 
 If overflows are encountered the below description of approaches can be consulted, in order of recommendations.
-- Increase [[gls:TPIU]] baud rate :: the [[gls:SWO]] baud rate is controlled via the /SWOSCALER/ bitrange in [[gls:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
-  /SWOSCALER/ can be calculated via [[cref:eq:prescaler]], and can be considered arbitrary.
-  Increasing the baud rate by lowering /SWOSCALER/ gives the [[gls:TPIU]] more time to serialize a packet onto the [[gls:SWO]] pin, thus inceasing the margin until the internal [[gls:FIFO]] queue fills up prompts an overflow on the next packet.
+- Increase TPIU [[gls:baud-rate]] :: The [[gls:SWO]] baud rate is controlled via the /SWOSCALER/ bitrange in [[gls:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
+  /SWOSCALER/ can be calculated via [[cref:eq:prescaler]] and may have any value that fits in the field.
+  Increasing the baud rate by lowering /SWOSCALER/ gives the TPIU more time to serialize a packet onto the SWO pin, thus inceasing the margin until the internal [[gls:FIFO]] queue fills up prompting an overflow on the next packet.
 
-  While the [[gls:TPIU]] can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
+  While the TPIU can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
   Linux, for example, can only communicate with a set of pre-defined baud rates as described in =termios.h= [[parencite:&linux:termios]].
   With a sufficiently low error rate, $\left\lvert1 - \frac{\text{Linux baud rate}}{\text{TPIU baud rate}}\right\rvert$, it may be possible to establish a stable communication with non-matched baud rates.
 
   The baud rate can be selected via =cortex_m_rtic_trace::configure= by appropriately configuring the passed =TraceConfiguration::tpiu_baud= structure field.
 
-- Asynchronously clock [[gls:TPIU]] :: The [[gls:TPIU]] can be clocked with the system clock or via an asynchronous clock, configured via the =TraceConfiguration::timestamp_clk_src= enum passed to =cortex_m_rtic_trace::configure=.
+- Asynchronously clock the TPIU :: The TPIU can be clocked with the system clock or via an asynchronous clock, configured via the \linebreak[4] =TraceConfiguration::timestamp_clk_src= enum passed to =cortex_m_rtic_trace::configure=.
   If overflows are encountered when using the system clock, it is recommended to use a faster asynchronous clock instead.
   The capabilites of this clock, how it is configured, and whether an asynchronous clock source is supported at all is [[gls:MCU]]-specific.
   In combination with the previous recommendation, this gives a lot more leeway when configuring the baud rate;
@@ -2107,7 +2107,7 @@ If overflows are encountered the below description of approaches can be consulte
 
 - Lower the system clock :: The frequency at which trace packets are generated is entirely bound to how often tasks are entered and exited and the frequency of the system clock.
   If the above recommendations have been applied and overflows are still encountered, a last resort before the traced application must be refactored is to lower the system clock frequency.
-  This frequency should as per the last recommendation be lower than that of the asynchronous clock frequency which the [[gls:TPIU]] sources.
+  This frequency should as per the last recommendation be lower than that of the asynchronous clock frequency which the TPIU sources.
 
 - Generate less events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[gls:RTIC]] application to generate less events: that is, decrease the frequency at which tasks are entered and exited.
   The lowest hanging fruit of this approach is to simply disable the tracing of software tasks by omitting all instances of the =trace= macro.
