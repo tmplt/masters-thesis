@@ -2309,8 +2309,8 @@ Below is a list of possible methods of espacing the transient noise of the [[gls
 :PROPERTIES:
 :CUSTOM_ID: fut:review-timestamp-relation
 :END:
-As of writing RTIC Scope assumes that local and global timestamps are incremented via the same clock.
-As per [[textcite:&arm-rm p. C1-710]] this may not necessarily be the case: "[Global timestamps] provide absolute timestamp values, based on a system global timestamp clock" whereas "[Local timestamps are generated] from the timestamp clock in the ITM unit".
+As of writing RTIC Scope assumes that local and global timestamps ([[cref:theory:itm:timestamps]]) are incremented via the same clock.
+As per [[textcite:&arm-rm p. C1-710]] this may not necessarily be the case: "[Global timestamps] provide absolute timestamp values, based on a system global timestamp clock" whereas "[Local timestamps are generated] from the timestamp clock in the [[gls:ITM]] unit".
 [[textcite:&arm-rm Figure C1-1]] can on the other hand be interpreted to imply that both local and global timestamps are derived from this global timestamp clock, but it is nowhere unambiguously stated as such.
 Due to this ambiguity it is presumed that the relationship between the clocks that generate local and global timestamps is unknown and thus [[gls:MCU]]-specific;
 =itm= should be adapted to account for this.
