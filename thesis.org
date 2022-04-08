@@ -2175,18 +2175,18 @@ An issue covering the potential invalidity of a zero trace bus ID is available a
 :PROPERTIES:
 :CUSTOM_ID: fut:rm-rtic-trace
 :END:
-=cortex-m-rtic-trace= is an auxilliary library that provides =configure=, which configures all relevant peripherals for tracing; and =trace=, a macro with which software tasks can be traced after =configure= has been called successfully.
-Refer to [[cref:impl:rtic-trace]] for implementation details.
+=cortex-m-rtic-trace= is an auxilliary library that provides =configure= which configures all relevant peripherals for [[gls:tracing]];
+and =trace=, a macro with which [[glspl:software-task]] can be traced after =configure= has been called successfully.
+Refer to [[cref:impl:rtic-trace]].
 
-A goal of RTIC Scope is to minimize the end-user overhead when applying it.
-The version of RTIC Scope presented in this text requires the user to modify their RTIC application's =init= function by calling =configure=.
-Ideally, the end-user should be able to enable tracing via flags to RTIC, either for the whole application or tasks of interest.
+A goal of RTIC Scope is to minimize the user [[gls:overhead]].
+The version of RTIC Scope presented in this text requires the user to modify their [[gls:RTIC]] application's =init= function by calling =configure=.
+Ideally, the user should be able to enable tracing via flags to RTIC, either for the whole application or tasks of interest.
 See [[cref:lst:ideal-trace-enable]] for an example.
 Then the =trace= flag is set, RTIC could then inject the code to =configure= into the application.
 
-
 #+NAME: lst:ideal-trace-enable
-#+CAPTION: Ideal methods to enable tracing of RTIC applications via flag specification: either
+#+CAPTION: Ideal methods to enable [[gls:tracing]] of [[gls:RTIC]] applications via flag specification.
 #+begin_src rust
   #[rtic::app(trace = true, ...)] // enables tracing of all tasks
   mod app {
@@ -2199,12 +2199,12 @@ Then the =trace= flag is set, RTIC could then inject the code to =configure= int
   }
 #+end_src
 
-Of note is that only a portion of =configure= is specific to RTIC Scope; other RTOSs could benefit from its implementation.
-It may be apt to upstream portions of its implementations to [[textcite:&cortex-m]] (which =cortex-m-rtic-trace= extends).
+Of note is that only a portion of =configure= is specific to RTIC Scope; other [[glspl:RTOS]] could benefit from its implementation.
+It may be apt to [[gls:upstream]] portions of its implementations to [[textcite:&cortex-m]] which =cortex-m-rtic-trace= extends.
 
-Regardless of what the outcome of minimizing end-user overhead is, =cortex-m-rtic-trace= is predicted to be deprecated.
-A tracking issue for this eventuality is available; see [[textcite:&issue:cargo-rtic-scope:90]].
-See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero end-user overhead.
+Regardless of what the outcome of minimizing overhead is, =cortex-m-rtic-trace= is predicted to eventually be deprecated;
+refer to [[textcite:&issue:cargo-rtic-scope:90]].
+See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero overhead (i.e., no longer requiring the user to modify the crate's =Cargo.toml=).
 
 **** Supporting other [[glspl:RTOS]] than [[gls:RTIC]]
 RTIC Scope v0.3 targets and depends on [[gls:RTIC]] v1.0.0.
