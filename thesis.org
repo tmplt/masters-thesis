@@ -1884,27 +1884,29 @@ Another root reason that led to the indecision of the merge was the question whe
 
 As of writing the discussion on the adoption of the reimplementation has yet to begin.
 A comment will be appended to [[textcite:&rfc:rust-embedded:move-itm-crate]] pointing to the new discussion when it begins.
-*** Tracing overhead with RTIC Scope
+*** [[Gls:tracing]] [[gls:overhead]] with RTIC Scope
 :PROPERTIES:
 :CUSTOM_ID: disc:perf
 :END:
-[[parencite:&arm-cortex-learn 24]] states:
+[[textcite:&arm-cortex-learn 24]] states:
 #+begin_quote
 Except for the power that is consumed by the system trace components,
 trace is almost entirely non-invasive. This means that performing trace
 generation and collection does not influence the wider system.
 #+end_quote
 
-The target-side code of RTIC Scope itself has a theoritecally negligible performance impact during execution:
-- the ITM/DWT/TPIU units need only be configured once in =#[init]= or during some other preparatory stage; and
-- when software tasks are traced, a =u8= variable write must be done when entering and exiting the task.
+The target-side code of RTIC Scope has a hypothesized negligible performance impact during execution:
+- the [[gls:ITM]], [[gls:DWT]], and [[gls:TPIU]] peripherals need only be configured once in [[gls:RTIC]]'s =#[init]= or during some other preparatory stage; and
+- when [[glspl:software-task]] are traced, an =u8= memory write must be done when entering and exiting the task.
 
-Some hardware resources are also required: two [[gls:DWT]] comparators for the tracing functionality and 64 bits of flash storage for watch variables (see [[cref:lst:watch-variable-impl]]).
+Some hardware resources are also required: two DWT comparators for the [[gls:tracing]] functionality and 64 bits of flash storage for [[glspl:watch-variable]] (see [[cref:lst:watch-variable-impl]]).
 These resources are only strictly required if software tasks are traced, but are unconditionally required due to the current [[gls:API]] of =cortex-m-rtic-trace=, implemented as such for simplicity.
 
 #+NAME: lst:watch-variable-impl
-#+CAPTION: Implementation of watch variable storage in ~cortex-m-rtic-trace~. Two ~u8~, aligned to 32 bits, are used to track the state of software tasks. The variables are aligned to 32 bits for implementation simplicity.
+#+CAPTION: Implementation of [[gls:watch-variable]] storage in ~cortex-m-rtic-trace~ [[parencite:&rtic-scope:rtic-trace \texttt{src/lib.rs}]]. Two ~u8~, aligned to 32 bits, are used to track the state of [[glspl:software-task]]. The variables are aligned to 32 bits for implementation simplicity.
 #+begin_src rust
+  // ...
+
   /// Container of a variable in memory that is watched by a DWT
   /// comparator to enable software task tracing. Word-aligned to help
   /// with address comparison.
@@ -1921,13 +1923,15 @@ These resources are only strictly required if software tasks are traced, but are
   /// Watch variable to which the just exited software task ID is written to. Aligned to 32-bit.
   static mut WATCH_VARIABLE_EXIT: WatchVariable = WatchVariable { id: 0 };
 
+  // ...
+
   /// Function utilized by [`#[trace]`](trace) to write the unique ID of
   /// the just entered software task to its associated watch address. Only
   /// use this function via [`#[trace]`](trace).
   #[inline]
   pub fn __write_enter_id(id: u8) {
       unsafe {
-          WATCH_VARIABLE_ENTER.id = id;
+          core::ptr::write_volatile(&mut WATCH_VARIABLE_ENTER.id, id);
       }
   }
 
@@ -1937,14 +1941,14 @@ These resources are only strictly required if software tasks are traced, but are
   #[inline]
   pub fn __write_exit_id(id: u8) {
       unsafe {
-          WATCH_VARIABLE_EXIT.id = id;
+          core::ptr::write_volatile(&mut WATCH_VARIABLE_EXIT.id, id);
       }
   }
 #+end_src
 
-Theoretically, a single comparator could be utilized to handle both software task enters and exit by reserving a bit in the written =u8= to denote the new state.
-Further, because only 8 of the 32 bits (in conjunction with a change to only use a single comparator) are effectively used, only 8 bit should need to be allocated for the (now) singular watch variable.
-This overzealous resource allocation was for implementation simpliticy.
+Theoretically a single DWT comparator could be utilized to handle both software task enters and exit by reserving a bit in the written =u8= to denote the new state.
+Further, because only 8 of the 32 bits (in conjunction with a change to only use a single comparator) are effectively used, only 8 bit should need to be allocated for the singular watch variable.
+This overzealous resource allocation was done for implementation simpliticy.
 A future release of RTIC Scope can offer a lower resource requirement.
 
 The performance of the host-side =cargo-rtic-scope= and =rtic-scope-frontend-dummy= programs have not been measured.
