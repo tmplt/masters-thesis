@@ -230,14 +230,14 @@ Here be an abstract...
 :CUSTOM_ID: introduction
 :END:
 # What are embedded systems, regulators, and how do they relate?
-Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices (commonly known as [[glspl:MCU]]) --- serve a key role in the operation of systems with electronical components where computations must be made.
+Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices (commonly known as [[glspl:MCU]]) --- serve a key role in the operation of systems with electronic components where computations must be made.
 Prime examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to design characteristics.
 Often the goal is to track a reference signal; such a control system is known as a [[gls:regulator]].
 For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output while keeping the plant within safe operation boundaries.
 
 # On the real-time restrictions of control systems; exponential complexity phenomena.
-A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or inconsistent the controlled system will end up unstable [[parencite:&franklin]]:
-the rocket may thus fly off course, or the nuclear reactor reach a meltdown.
+A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or inconsistent, the controlled system will end up unstable [[parencite:&franklin]]:
+The rocket may thus fly off course, or the nuclear reactor reach a melt-down.
 This puts a [[gls:real-time]] constrain on the digital controller which greatly limits how it can be implemented.
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constrain.
 This task grows exponentially in difficulty as the number of [[glspl:system-state]], inputs, and outputs increase.
@@ -246,7 +246,7 @@ A similar phenomena is observed for embedded systems with an increasing number o
 # The observer effect; data exfiltration.
 Unfortunately are embedded systems subject to the observer effect: to observe the internal state of a embedded system (i.e., system variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
-This observeration is often realized by exfiltrating data via serial communication which in the best case is subject to bus contention and full output queues.
+This observation is often realized by exfiltrating data via serial communication which in the best case is subject to bus contention and full output queues.
 It is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation properties of the system if the payload is large.
 In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
 
@@ -267,11 +267,11 @@ These facilities are not wholly disjoint (if they were, no insight into the syst
 Further, with non-invasive trace generation, less code must be executed by the [[gls:CPU]], allowing a shorter duty-cycle of the user application.
 With a decreased duty-cycle the system can be put to sleep longer, and thus conserve energy.
 
-# On real-time implementation restictions, embedded implementation difficulties in general.
+# On real-time implementation restrictions, embedded implementation difficulties in general.
 The development of embedded systems in general is non-trivial.
 In comparison to general-purpose computers, where one often must not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
 # No rich OS; no two embedded platforms are the same.
-An embedded developer seldom have access to a rich operating systems --- a Linux-based distibution, for example --- which offers general-purpose facilities based on dynamic allocations and a common environment to simplify implementation.
+An embedded developer seldom have access to a rich operating systems --- a Linux-based distribution, for example --- which offers general-purpose facilities based on dynamic allocations and a common environment to simplify implementation.
 Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M, due to the different peripherals) and porting an implementation to another platform is no small task.
 This compares to general-purpose computers where a program written on one computer can be executed on another one, as long as the operating environment remains the same or are compatible.
 # Side effects and priority inversions.
@@ -282,12 +282,12 @@ In summary it is easy to put an embedded system in an incorrect or unknown state
 In order to lighten the implementation burden one may employ [[gls:RTIC]] (see [[cref:rtic]]).
 
 # Project aim
-The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
-RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the toolset, and allow the replay of traces post-mortem (after the system has executed and is no longer active).
+The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a tool-set, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilities and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
+RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the tool-set, and allow the replay of traces postmortem (after the system has executed and is no longer active).
 
 # Thesis summary
-This thesis covers the theory behind relevant ARM peripherals and protocols upon which RTIC Scope relies, a close-to exhaustive enumerations of the contributions made during the project and a detailed description of its implementation, along with discussions on approaches taken and topics of interests regarding the future work that can be done to improve upon the toolset.
-The toolset is applied to a trivial RTIC application for demonstration purposes.
+This thesis covers the theory behind relevant ARM peripherals and protocols upon which RTIC Scope relies, a close-to exhaustive enumerations of the contributions made during the project and a detailed description of its implementation, along with discussions on approaches taken and topics of interests regarding the future work that can be done to improve upon the tool-set.
+The tool-set is applied to a trivial RTIC application for demonstration purposes.
 
 *** Background
 This introductory section covers the software components that have realized RTIC Scope.
@@ -300,7 +300,7 @@ Rust is a system programming language that guarantees defined run-time behavior 
 Throughout this text the following Rust terminology is used:
 [[gls:crate]], [[gls:enum]], [[gls:struct]], [[gls:function]], [[gls:macro]], [[gls:manifest]], [[gls:feature]], and [[gls:trait]].
 For sake of decreasing typesetting noise, the relevant glossary entries for these fundamental terms will not be referred to again henceforth.
-For a more detailed description of this terminology, and the Rust programming language and eco-system in general, refer to [[textcite:&rust-lang]].
+For a more detailed description of this terminology, and the Rust programming language and ecosystem in general, refer to [[textcite:&rust-lang]].
 
 For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
 
@@ -360,7 +360,7 @@ Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enu
 It is developed at Luleå Technical University based on the extensively studied [[gls:SRP]][fn:: Refer to [[textcite:&srp]].], which
 - prevents deadlocks;
 - mitigates priority inversions; and
-- is compatible with [[gls:EDF]] sheduling.
+- is compatible with [[gls:EDF]] scheduling.
 RTIC removes some embedded programming burden out-of-the-box while also
 - implementing message passing between [[glspl:task]];
 - incurring a minimal scheduling overhead;
@@ -444,7 +444,7 @@ With available software, embedded developers can then quickly garner insight int
 :PROPERTIES:
 :CUSTOM_ID: requirements
 :END:
-This thesis covers the development of an embedded systems analysis toolset, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and exfiltrated by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
+This thesis covers the development of an embedded systems analysis tool-set, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and exfiltrated by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
 The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
 RTIC Scope *MUST* adhere to, and thus be able to
@@ -463,7 +463,7 @@ Delimitations to the above requirements apply, see [[cref:delimitations]].
 :PROPERTIES:
 :CUSTOM_ID: delimitations
 :END:
-In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
+In order to focus on the delivery of a robust tool-set with proper implementation and documentation the scope of this thesis have been limited.
 These delimitations are related to the requirements described in [[cref:requirements]] and are below enumerated.
 1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all ARMv7-M [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and exfiltration.
    RTIC Scope *SHOULD NOT* apply device-specific configurations.
@@ -489,7 +489,7 @@ The development of RTIC Scope has yielded a number of [[gls:downstream]] contrib
   See [[cref:impl:rtic-scope-frontend-dummy]] and [[textcite:&rtic-scope:dummy]].
 - =rtic-scope-api= :: The protocol that =cargo-rtic-scope= uses to report [[gls:RTIC]] [[gls:task]] events to =rtic-scope-frontend-dummy=, as described by [[req:protocol]].
   See [[textcite:&rtic-scope:api]].
-- =cortex-m-rtic-trace= :: An auxilliary target-side crate that properly configures the device for [[gls:trace-stream]] generation and exfiltration, which fulfills [[req:itm-gen]].
+- =cortex-m-rtic-trace= :: An auxiliary target-side crate that properly configures the device for [[gls:trace-stream]] generation and exfiltration, which fulfills [[req:itm-gen]].
   See [[cref:impl:rtic-trace]] and [[textcite:&rtic-scope:rtic-trace]].
 - =itm= :: A library crate for decoding the trace stream exfiltrated from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
   See [[cref:impl:itm]] and [[textcite:&itm]].
@@ -516,7 +516,7 @@ An exhaustive summary of these contributions are described below (listed in no p
 - =probe-rs/cargo-flash= ::
   A "cargo extension for programming microcontrollers" [[parencite:&cargo-flash]], functionality of which is used by =cargo-rtic-scope=.
   Contributions are:
-  - move probe, session logic, flash downloader to probe-rs-cli-util: :: moves functionality from =cargo-flash= to an auxilliary =probe-rs= library crate such that they can be utilized by =cargo-rtic-scope= [[parencite:&pr:cargo-flash:188]].
+  - move probe, session logic, flash downloader to probe-rs-cli-util: :: moves functionality from =cargo-flash= to an auxiliary =probe-rs= library crate such that they can be utilized by =cargo-rtic-scope= [[parencite:&pr:cargo-flash:188]].
 
 - =rust-embedded/cortex-m= :: A library crate that enables "low level access to Cortex-M processors" [[parencite:&cortex-m]], utilized to fulfill [[req:itm-gen]], [[req:decode]] and [[req:record]].
   Contributions are:
@@ -547,7 +547,7 @@ An exhaustive summary of these contributions are described below (listed in no p
    Subsequently covers the project motivation, problem definition, delimitations and contributions made within the scope of this thesis, and guidelines on how to read this text.
  - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
  - [[cref:theory]], Theory :: covers the ARMv7-M debug facilities, the [[gls:ITM]] packet protocol and how RTIC [[glspl:task]] are traced in theory via RTIC Scope.
- - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the auxilliary =itm= crate.
+ - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the auxiliary =itm= crate.
  - [[cref:results]], Results :: covers the results of this thesis and applies RTIC Scope to a trivial RTIC application.
  - [[cref:discussion]], Discussion :: discusses some topics of interests regarding RTIC Scope, and a choice selection of topics for further development.
  - [[cref:conclusion]], Conclusions :: summarizes the work done in this thesis.
@@ -555,9 +555,9 @@ An exhaustive summary of these contributions are described below (listed in no p
 *** Reading guidelines
 # cover important typesetting such as glossary use. When and why not all terms are linked to the glossary.
 Terms that warrant further description in this text are referred to the glossary on its first occurance in a section, along with their use in the section title and captions of tables, listings, and figures.
-In flowing text some occurances stray from this pattern.
+In flowing text some occurrences stray from this pattern.
 For example, when "[[gls:task]]" links to the glossary the terms "software task" and "hardware task" may not due to the shared relationship between these terms.
-For acronyms, the first occurance is written in full form and subsequent in its short form; e.g.,
+For acronyms, the first occurrence is written in full form and subsequent in its short form; e.g.,
 #+begin_quote
 \glsxtrfull{RTIC} is a \textelp{}
 
@@ -567,7 +567,7 @@ For acronyms, the first occurance is written in full form and subsequent in its 
 There are exceptions to the rules above where a full acronym form or overzealous term definition is warranted.
 
 Throughout this text the key words *MUST*, *SHOULD*, and *SHOULD NOT* are used to describe requirements levels;
-these should be interpresed as covered in [[textcite:&rfc2119]].
+these should be interpreted as covered in [[textcite:&rfc2119]].
 
 ** Previous and Related Work
 :PROPERTIES:
@@ -575,12 +575,12 @@ these should be interpresed as covered in [[textcite:&rfc2119]].
 :END:
 This chapter briefly covers previous work upon which RTIC Scope is based and related work.
 *** Previous work
-The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
+The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the tool-set within the frame of this thesis.
 Notable libraries are referred to inline throughout this text.
 When citing software, the three authors with the most contributions (in decreasing order) at the time of writing are cited as the authors of that software.
 
 *** Related work
-Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
+Some tool-sets similar to RTIC Scope were already available before the start of this thesis, namely:
 - orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
 - Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[glspl:RTOS]] [[parencite:&tracealyzer]].
 Neither of the above tools support [[gls:RTIC]] at the time of writing and were not investigated further.
@@ -595,7 +595,7 @@ This chapter covers the purpose and usage of the utilized ARMv7-M debug peripher
 :CUSTOM_ID: debug-periphs
 :END:
 This section summarizes the hardware peripherals responsible for the generation and exfiltration of the [[gls:ITM]] packet protocol.
-The relationship of these perhipherals is also presented.
+The relationship of these peripherals is also presented.
 This section is not exhaustive for the sake of brevity.
 For full information on each peripheral, refer to the respective sections in [[textcite:&arm-rm]].
 See [[cref:theory:itm-proto]] for a description of the ITM packet protocol.
@@ -603,7 +603,7 @@ See [[cref:theory:itm-proto]] for a description of the ITM packet protocol.
 # DWT -> ITM -> TPIU -> ETB.
 RTIC Scope utilizes the [[gls:DWT]], ITM, and [[gls:TPIU]] peripherals for on-target trace generation and exfiltration.
 The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU for device exfiltration.
-The ITM multiplexes packets emitted by itself and the DWT and generates timestamp packets in order to establish a timeline of events that occured on the traced target.
+The ITM multiplexes packets emitted by itself and the DWT and generates timestamp packets in order to establish a time-line of events that occurred on the traced target.
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
 #+BEGIN_src latex
@@ -638,8 +638,8 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
     \path[->] (parallel-anchor.center) edge (parallel);
 
   \end{tikzpicture}
-  \caption{\label{fig:debug-relations}Downstream relationship between ARMv7-M debug peripherals used for \gls{tracing}.
-    Hardware event packets from the \gls{DWT} are forwarded to the \gls{ITM} which are subsequently forwarded to the \gls{TPIU} with an attached timestamp generated by the \gls{ITM}.
+  \caption{\label{fig:debug-relations}\Gls{Downstream} relationship between ARMv7-M debug peripherals used for \gls{tracing}.
+    \Glspl{hardware-event-packet} from the \gls{DWT} are forwarded to the \gls{ITM} which are subsequently forwarded to the \gls{TPIU} with an attached timestamp generated by the \gls{ITM}.
     The \gls{TPIU} serializes the \gls{ITM} protocol packets over \gls{SWO} or a parallel trace output by help of a reference clock divided by a \gls{prescaler} ($n \geq 1$ is an integer).
     In this text only the \gls{SWO} is considered.}
   \end{figure}
@@ -667,7 +667,7 @@ Refer to [[textcite:&arm-rm Section C1.8]] for more information on the DWT unit.
 :CUSTOM_ID: theory:itm-periph
 :END:
 # Summarize ITM functionality
-The [[gls:ITM]] is of an auxilliary nature with three functions:
+The [[gls:ITM]] is of an auxiliary nature with three functions:
 - the multiplexing of [[glspl:hardware-event-packet]] from the [[gls:DWT]] with its own packets which are then forwarded to the [[gls:TPIU]];
 - control and generation of timestamp packets; and
 - exposure of a memory-mapped register interface that allows logging of arbitrary data via a maximum of 256 stimulus registers[fn:: Not utilized by RTIC Scope.].
@@ -703,7 +703,7 @@ For more information on the TPIU, refer to [[parencite:&arm-rm Section C1.10]].
 The [[gls:ITM]] packet protocol is used by RTIC Scope to garner insight about the executing RTIC application.
 This protocol defines packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
 Some headers also contain payload.
-The protocol effectively implements a [[gls:TLV]] encoding sheme.
+The protocol effectively implements a [[gls:TLV]] encoding scheme.
 This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[crefrange:fig:lts1,fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
 Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet:
 if /C/ is not set, the next byte in the stream is a header for the next packet.
@@ -712,7 +712,7 @@ For other packet types, and a full description of the protocol, see [[textcite:&
 
 RTIC Scope v0.3 concerns itself with six packets:
 - [[gls:GTS1]] :: A timestamp packet containing the lower 26 bits of the absolute timestamp.
-- [[gls:GTS2]] :: A timestamp packet containig the upper 22 or 38 bits of the absolute timestamp, depending on the hardware implemenation.
+- [[gls:GTS2]] :: A timestamp packet containing the upper 22 or 38 bits of the absolute timestamp, depending on the hardware implementation.
 - [[gls:LTS1]] :: A multi-byte timestamp packet containing the relative timestamp.
 - [[gls:LTS2]] :: A single-byte timestamp packet containing the relative timestamp.
 - Exception trace packet :: A [[gls:hardware-event-packet]] describing the status of an interrupt handler. See [[cref:theory:itm:exceptions]]
@@ -731,10 +731,10 @@ When a relative timestamp is generated the relative timestamp counter is reset.
 This type separation is done in order to decrease the required bandwidth to communicate the time on the system.
 Absolute and relative timestamps are further divided into a total of four different packets, summarized above and detailed below.
 
-Global timestamps come in three flavour: 48-bit, 64-bit, or not at all (omitted).
+Global timestamps come in three flavors: 48-bit, 64-bit, or not at all (omitted).
 Whether global timestamp support is implemented, and the size of this timestamp, depends on the hardware implementation of the [[gls:ITM]].
 
-The two packets that constitute a global timestamp, [[gls:GTS1]] and [[gls:GTS2]], are sent seperately and not necessarily in order.
+The two packets that constitute a global timestamp, [[gls:GTS1]] and [[gls:GTS2]], are sent separately and not necessarily in order.
 A [[gls:GTS2]] packet is not emitted unless any of the bits in the 26--47 or 26--64 range have changed.
 The [[gls:GTS1]] packet also contains two flags aside from the lesser significant 25 bits:
 - /ClkCh/ :: Set if the system which the [[gls:ITM]] is tracing has changed clock input to the processor since the last global timestamp packet.
@@ -770,7 +770,7 @@ This flag have four possible values, termed /qualities/ throughout this text, de
 - /TC/ $=$ 0b11 :: Delayed relative, and the corresponding non-timestamp packet generation was delayed relative to the associated event.
 [[gls:LTS2]] packets are always synchronous.
 
-Local timestamps are emitted after the corresponging non-timestamp packets.
+Local timestamps are emitted after the corresponding non-timestamp packets.
 For example, if the sequence reads
 #+begin_export latex
 \begin{multicols}{3}
@@ -934,7 +934,7 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
     \draw[->,dashdotted] (mux-frontend.center) -| (frontendn.north);
     \draw[thin,fill=gray,fill opacity=0.2] ($(frontend2.north west)+(-0.3,0.3)$) rectangle ($(frontendn.south east)+(0.3,-0.3)$);
   \end{tikzpicture}
-  \caption{ \label{fig:rtic-scope-data-flow} Downstream data flow in RTIC Scope.
+  \caption{ \label{fig:rtic-scope-data-flow} \Gls{downstream} data flow in RTIC Scope.
     Data flow drawn with solid lines (\protect\tikz[baseline]{\protect\draw[-] (0,.5ex)--++(1,0) ;}) are operational during trace recording;
     dashed lines (\protect\tikz[baseline]{\protect\draw[-,dashed] (0,.5ex)--++(1,0) ;}) during trace replay; and
     dash-dotted lines (\protect\tikz[baseline]{\protect\draw[-,dashdotted] (0,.5ex)--++(1,0) ;}) during both trace recording and replay.
@@ -948,7 +948,7 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
 :PROPERTIES:
 :CUSTOM_ID: impl:rtic-trace
 :END:
-=cortex-m-rtic-trace= is an auxilliary target-side crate that configures all relevant Cortex-M peripherals for [[gls:tracing]], namely the [[gls:DCB]][fn:: A component of the [[gls:SCB]] peripheral.], [[gls:TPIU]], [[gls:DWT]], and [[gls:ITM]].
+=cortex-m-rtic-trace= is an auxiliary target-side crate that configures all relevant Cortex-M peripherals for [[gls:tracing]], namely the [[gls:DCB]][fn:: A component of the [[gls:SCB]] peripheral.], [[gls:TPIU]], [[gls:DWT]], and [[gls:ITM]].
 The crate exposes two functions:
 - =cortex_m_rtic_trace::configure= :: a regular Rust function for configuration of the peripherals mentioned above; and
 - =cortex_m_rtic_trace::trace= :: a Rust macro used to trace [[glspl:software-task]].
@@ -956,7 +956,7 @@ Henceforth within this section these two functions will be referred to as =confi
 
 This section is divided into two parts: [[cref:impl:rtic-trace:peripheral-config]], which covers the application of =configure=; and [[cref:impl:rtic-trace:trace-macro]], which covers the application of the =trace= macro.
 
-It is important to point out that =cortex-m-rtic-trace= is a crutch which incurs unecessary overhead in theory for the end-user.
+It is important to point out that =cortex-m-rtic-trace= is a crutch which incurs necessary [[gls:overhead]] in theory for the user.
 On the RTIC Scope roadmap is thus the eventual deprecation of this crate. See [[cref:fut:rm-rtic-trace]] for more on this topic.
 
 **** Peripheral configuration
@@ -1010,7 +1010,7 @@ After applying device-specific configurations for trace generation and querying 
 3. <<rtic-trace:conf-exception-trace>> ensures that the target's [[gls:DWT]] peripheral supports exception tracing by reading a zero from the /NOTRCPKT/ bit in the [[gls:DWT_CTRL]] [[parencite:&arm-rm Section C1.8.7]];
 4. <<rtic-trace:nofail-conf>> configures the [[gls:DCB]], TPIU, and DWT peripherals (partially):
    1. sets the /TRCENA/ bit in the [[gls:DCB_DEMCR]], a "global enable for all DWT and ITM features";
-   2. calculates and writes a prescaler to the /SWOSCALER/ bitrange in the [[gls:TPIU_ACPR]] such that the TPIU communicates with a requested baud rate on the [[gls:SWO]] pin.
+   2. calculates and writes a prescaler to the /SWOSCALER/ bit-range in the [[gls:TPIU_ACPR]] such that the TPIU communicates with a requested baud rate on the [[gls:SWO]] pin.
       The prescaler is calculated via [[cref:eq:prescaler]] derived from [[textcite:&arm-rm Section C1.10.4]].[fn:: This configuration implementation is error-prone: See [[cref:fut:swoscaler]].]
       #+NAME: eq:prescaler
       \begin{equation}
@@ -1163,9 +1163,9 @@ Specifying this flag is done in the same way as for =cargo build=: via =--bin=.
 #+end_src
 
 Below are a description of the flags and options the user can specify during the invocation of =cargo rtic-scope trace= that are forwarded to the underlying =cargo build= invocation in [[cref:lst:cargo-rtic-scope:build]].
-- =--bin <binary>= :: Used to specify which singlar binary to build.
+- =--bin <binary>= :: Used to specify which singular binary to build.
 - =--example <example>= :: Used to build a singular example binary instead of a non-example binary.
-- =--package <package>= :: Used to build a specific crate instead of a singlar binary inside of a top-level crate context.
+- =--package <package>= :: Used to build a specific crate instead of a singular binary inside of a top-level crate context.
   This crate should yield a single binary.
 - =--release= :: Used to build the binary in release mode instead of debug mode. Optimizations are applied during build with this flag.
 - =--target <target-triple>= :: Used to specify the target platform for which the binary should be built for. This option can be used to override the default target triple, or the one specified via the =/.cargo/config{,toml}= files.
@@ -1253,7 +1253,7 @@ Manifest metadata is read via =cargo_metadata= [[parencite:&cargo-metadata]] and
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:create-trace-file
 :END:
-To enable post-mortem analysis of a traced [[gls:RTIC]] application the recorded trace must be saved to disk.
+To enable postmortem analysis of a traced [[gls:RTIC]] application the recorded trace must be saved to disk.
 The build step in [[cref:impl:cargo-rtic-scope:building-rtic-app]] yields the crate root of the application.
 A natural directory in which to save trace files is then under =/target/= which otherwise contains all build artifacts of the crate.
 For purposes of separation trace files are then saved under =/target/rtic-traces/=.
@@ -2104,19 +2104,19 @@ A few methods of "escaping" this transient that require further investigation ar
 The theory behind overflow avoidance is simple: the [[gls:ITM]] and [[gls:DWT]] may not generate more trace packets than what the [[gls:TPIU]] can serialize.
 
 If overflows are encountered the below description of approaches can be consulted, in order of recommendations.
-- Increase TPIU [[gls:baud-rate]] :: The [[gls:SWO]] baud rate is controlled via the /SWOSCALER/ bitrange in [[gls:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
+- Increase TPIU [[gls:baud-rate]] :: The [[gls:SWO]] baud rate is controlled via the /SWOSCALER/ bit-range in [[gls:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
   /SWOSCALER/ can be calculated via [[cref:eq:prescaler]] and may have any value that fits in the field.
   Increasing the baud rate by lowering /SWOSCALER/ gives the TPIU more time to serialize a packet onto the SWO pin, thus inceasing the margin until the internal [[gls:FIFO]] queue fills up prompting an overflow on the next packet.
 
   While the TPIU can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
-  Linux, for example, can only communicate with a set of pre-defined baud rates as described in =termios.h= [[parencite:&linux:termios]].
+  Linux, for example, can only communicate with a set of predefined baud rates as described in =termios.h= [[parencite:&linux:termios]].
   With a sufficiently low error rate, $\left\lvert1 - \frac{\text{Linux baud rate}}{\text{TPIU baud rate}}\right\rvert$, it may be possible to establish a stable communication with non-matched baud rates.
 
   The baud rate can be selected via =cortex_m_rtic_trace::configure= by appropriately configuring the passed =TraceConfiguration::tpiu_baud= structure field.
 
 - Asynchronously clock the TPIU :: The TPIU can be clocked with the system clock or via an asynchronous clock, configured via the \linebreak[4] =TraceConfiguration::timestamp_clk_src= enum passed to =cortex_m_rtic_trace::configure=.
   If overflows are encountered when using the system clock, it is recommended to use a faster asynchronous clock instead.
-  The capabilites of this clock, how it is configured, and whether an asynchronous clock source is supported at all is [[gls:MCU]]-specific.
+  The capabilities of this clock, how it is configured, and whether an asynchronous clock source is supported at all is [[gls:MCU]]-specific.
   In combination with the previous recommendation, this gives a lot more leeway when configuring the baud rate;
   with a dedicated trace clock the baud rate can much more easily match the baud rates the host system can communicate with, without affecting the [[gls:MCU]]'s system clock.
 
@@ -2124,7 +2124,7 @@ If overflows are encountered the below description of approaches can be consulte
   Note also [[textcite:&arm-rm Section C1.7.6]], under /SWOENA/, which the configuration field is equivalent to: "[When an asynchronous clock is used] the timestamp counter is held in reset while the output line is idle."
   This implies that when the system clock is used the timestamp counter will continue to run even if there are no trace packets to serialize.[fn:: Anecdotally, when experimenting with the Atmel ATSAME51N20A, a local timestamp would be emitted before it wrapped when using the system clock.]
   This behavior must be taken into account when changing the clock source.
-  It is in any case recommended to always use an asynchonous clock source if available in case the sysem clock frequency must be changed.
+  It is in any case recommended to always use an asynchronous clock source if available in case the system clock frequency must be changed.
 
 - Lower the system clock :: The frequency at which trace packets are generated is entirely bound to how often tasks are entered and exited and the frequency of the system clock.
   If the above recommendations have been applied and overflows are still encountered, a last resort before the traced application must be refactored is to lower the system clock frequency.
@@ -2140,7 +2140,7 @@ This section comments on some choice topics of future work planned for RTIC Scop
 This section is not exhaustive:
 as of writing 31 issues are open for RTIC Scope[fn:: Refer to [[https://github.com/rtic-scope/cargo-rtic-scope/issues][https://github.com/rtic-scope/cargo-rtic-scope/issues]].];
 7 for =itm=[fn:: Refer to [[https://github.com/rtic-scope/itm/issues][https://github.com/rtic-scope/itm/issues]].];
-and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to RTIC SCope functionality).
+and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to RTIC Scope functionality).
 
 **** [[gls:TPIU]] [[gls:baud-rate]] configuration
 :PROPERTIES:
@@ -2178,7 +2178,7 @@ A sufficiently large error will induce communication problems.
 
 An issue that further documents the erroneous implementation and offers improvements is available at [[textcite:&issue:cortex-m:388]].
 
-Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically during compilation, but such a feature would require non-trivial changes to the embedded Rust eco-system because =cortex-m= currently has no idea about the clock configuration of the target device.[fn:: This would require changes to all [[glspl:HAL]] to statically hold information about the device-specific clock hierarchy that can then be passed to and inspected by =cortex-m=.]
+Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically during compilation, but such a feature would require non-trivial changes to the embedded Rust ecosystem because =cortex-m= currently has no idea about the clock configuration of the target device.[fn:: This would require changes to all [[glspl:HAL]] to statically hold information about the device-specific clock hierarchy that can then be passed to and inspected by =cortex-m=.]
 
 **** Trace stream ID configuration
 :PROPERTIES:
@@ -2199,7 +2199,7 @@ An issue covering the potential invalidity of a zero trace bus ID is available a
 :PROPERTIES:
 :CUSTOM_ID: fut:rm-rtic-trace
 :END:
-=cortex-m-rtic-trace= is an auxilliary library that provides =configure= which configures all relevant peripherals for [[gls:tracing]];
+=cortex-m-rtic-trace= is an auxiliary library that provides =configure= which configures all relevant peripherals for [[gls:tracing]];
 and =trace=, a macro with which [[glspl:software-task]] can be traced after =configure= has been called successfully.
 Refer to [[cref:impl:rtic-trace]].
 
@@ -2234,11 +2234,11 @@ See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the reali
 RTIC Scope v0.3 targets and depends on [[gls:RTIC]] v1.0.0.
 This dependency is only required for the recovery step in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]].
 RTIC Scope could as well implement support for the user to provide these maps by describing them in an external file passed via a theoretical =cargo rtic-scope trace --maps-file /path/to/extenal-maps-description [...]= invocation.
-Such an approach would enable RTIC Scope to be applied on an application that is not writtin in RTIC.
+Such an approach would enable RTIC Scope to be applied on an application that is not written in RTIC.
 Additionally, RTIC Scope could then also be applied on an application that is not necessarily written in Rust if =--dont-touch-target= and =--trace-dir= are passed to the =trace=[fn:: =--trace-dir= would be required such that =cargo-rtic-scope= would not search through a crate that does not exist. =--dont-touch-target= is would be required because =cargo-rtic-scope= only knows how to build and flash a Rust application.] verb and provided that =cortex-m-rtic-trace= is substituted.
-This would make the toolset more general and drive development from more than a single front.
+This would make the tool-set more general and drive development from more than a single front.
 
-**** Publishing all crates to the crate registery
+**** Publishing all crates to the crate registry
 In order to publish a crate all of its dependencies must first be published.
 When a crate has been published, it can be used as a dependency by specifying the crate name and version alone in =Cargo.toml=, as seen in [[cref:lst:cargo-lib-dep]].
 A published crate can also be installed via =cargo= by simply specifying the name of the crate.
@@ -2257,7 +2257,7 @@ Ideally, an user should be able to install RTIC Scope via [[cref:lst:cargo-insta
 #+end_src
 
 #+NAME: lst:cargo-install-bins
-#+CAPTION: Installing RTIC Scope via ~cargo install~, presuming v0.3 has been published on the crate reposity.
+#+CAPTION: Installing RTIC Scope via ~cargo install~, presuming v0.3 has been published on the crate registry.
 #+begin_src shell
   $ cargo install cargo-rtic-scope rtic-scope-frontend-dummy --version 0.3
 #+end_src
@@ -2276,9 +2276,9 @@ A tracking issue has been created that documents the effort to publish RTIC Scop
 :PROPERTIES:
 :CUSTOM_ID: fut:itm-tools
 :END:
-=itm-tools= [[parencite:&itm-tools]] is a toolset for analyzing [[gls:ITM]] trace streams.
+=itm-tools= [[parencite:&itm-tools]] is a tool-set for analyzing [[gls:ITM]] trace streams.
 As of writing, these tools decode the ITM packet standard and offer interpretation of exception traces ([[cref:theory:itm:exceptions]]), [[gls:PC]] samples (via =pcsampl=), and instrumentation packet port demuxing (via =port-demux=).
-Of certain interest is that =pcsampl= can answer the quetion of "where is my program spending most if its time?"
+Of certain interest is that =pcsampl= can answer the question of "where is my program spending most if its time?"
 An example invocation of =pcsampl= would yield [[cref:lst:pcsampl]], describing that the program spent almost 92% of its time sleeping during the time the target was traced.
 
 #+NAME: lst:pcsampl
@@ -2308,7 +2308,7 @@ For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] a
 :PROPERTIES:
 :CUSTOM_ID: fut:espace-swo-transient
 :END:
-Below is a list of possible methods of espacing the transient noise of the [[gls:SWO]] pin described in [[cref:disc:swo-transient]].
+Below is a list of possible methods of escaping the transient noise of the [[gls:SWO]] pin described in [[cref:disc:swo-transient]].
 
 - Using the parallel trace port :: [[textcite:&arm-rm Section C1.10]] describes the optional feature of a parallel trace port.
   This is a synchronous trace exfiltration method that uses one pin for the clock and at least one pin for data communication.
@@ -2345,7 +2345,7 @@ During experimentation with the Microchip ATSAME51N20A [[gls:MCU]] the want to g
 Subsequently an ad-hoc fork of =rtic-scope-frontend-dummy= --- =feat/auto-plot= from [[textcite:&rtic-scope:dummy-auto-plot]], =src/main.rs= of chief interest --- was created that converts the trace to a [[gls:CSV]] representation and then plots it.
 When the [[gls:RTIC]] application in [[cref:lst:app-atsame-example-src-main]] has been traced and then replayed the dummy produces the plot in [[cref:fig:auto-plot-example]].
 
-From this proof of concept it is immidiately clear that a graphical representation of a recorded trace holds great value for system insight;
+From this proof of concept it is immediately clear that a graphical representation of a recorded trace holds great value for system insight;
 further work to this end is warranted.
 Refer to [[textcite:&issue:cargo-rtic-scope:135]] and [[textcite:&issue:cargo-rtic-scope:89]].
 
@@ -2353,7 +2353,7 @@ Refer to [[textcite:&issue:cargo-rtic-scope:135]] and [[textcite:&issue:cargo-rt
 :PROPERTIES:
 :CUSTOM_ID: conclusion
 :END:
-The RTIC Scope project fulfills all requirements enumered in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]] in mind.
+The RTIC Scope project fulfills all requirements enumerated in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]] in mind.
 While user [[gls:overhead]] has been minimized as much as possible within the allotted development time overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
 Future work ([[cref:fut]]) is warranted to improve RTIC Scope.
 
