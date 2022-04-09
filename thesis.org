@@ -78,7 +78,6 @@
 #+latex_header: \makeatother
 
 # TODO install and apply a grammar checker.
-# TODO use glossary everywhere <https://www.overleaf.com/learn/latex/Glossaries>
 # TODO verify software versions with Cargo.lock from v0.3.0 tag.
 # TODO fix hbox overflows on texttt in list of listings, bibliography, glossary
 # TODO fix second list of listings page saying "list of figures"
