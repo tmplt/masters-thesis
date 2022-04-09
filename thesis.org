@@ -448,7 +448,7 @@ With available software, embedded developers can then quickly garner insight int
 This thesis covers the development of an embedded systems analysis toolset, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and exfiltrated by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
 The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
-RTIC Scope *MUST*[fn:: Interpreted as described in [[textcite:&rfc2119]].] adhere to, and thus be able to
+RTIC Scope *MUST* adhere to, and thus be able to
 - \namedlabel{req:itm-gen}{Requirement 1} :: <<req:itm-gen>> enable trace stream generation of [[glspl:hardware-task]] and [[glspl:software-task]] --- as defined by RTIC, [[cref:rtic]] --- and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
 - \namedlabel{req:input}{Requirement 2} :: <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
 - \namedlabel{req:decode}{Requirement 3} :: <<req:decode>> decode the trace stream;
@@ -465,7 +465,7 @@ Delimitations to the above requirements apply, see [[cref:delimitations]].
 :CUSTOM_ID: delimitations
 :END:
 In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
-These delimitations --- which uses the key words *MUST* and *SHOULD NOT* covered in [[textcite:&rfc2119]] --- are related to the requirements described in [[cref:requirements]] and are below enumerated.
+These delimitations are related to the requirements described in [[cref:requirements]] and are below enumerated.
 1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all ARMv7-M [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and exfiltration.
    RTIC Scope *SHOULD NOT* apply device-specific configurations.
 2. [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is actually read from the device:
@@ -553,9 +553,22 @@ An exhaustive summary of these contributions are described below (listed in no p
  - [[cref:discussion]], Discussion :: discusses some topics of interests regarding RTIC Scope, and a choice selection of topics for further development.
  - [[cref:conclusion]], Conclusions :: summarizes the work done in this thesis.
 
-*** TODO Reading guidelines
+*** Reading guidelines
 # cover important typesetting such as glossary use. When and why not all terms are linked to the glossary.
-# Blame any mess on time constrains.
+Terms that warrant further description in this text are referred to the glossary on its first occurance in a section, along with their use in the section title and captions of tables, listings, and figures.
+In flowing text some occurances stray from this pattern.
+For example, when "[[gls:task]]" links to the glossary the terms "software task" and "hardware task" may not due to the shared relationship between these terms.
+For acronyms, the first occurance is written in full form and subsequent in its short form; e.g.,
+#+begin_quote
+\glsxtrfull{RTIC} is a \textelp{}
+
+\gls{RTIC} also \textelp{}
+#+end_quote
+
+There are exceptions to the rules above where a full acronym form or overzealous term definition is warranted.
+
+Throughout this text the key words *MUST*, *SHOULD*, and *SHOULD NOT* are used to describe requirements levels;
+these should be interpresed as covered in [[textcite:&rfc2119]].
 
 ** Previous and Related Work
 :PROPERTIES:
@@ -1337,7 +1350,7 @@ In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:ls
 With a =TokenStream2= structure in hand [[glspl:token]] are skipped until the =proc_macro2::TokenTree::Group(_)= that contains =#[rtic::app(...)]= is found ([[cref:lst:recovery-example]], line 4).
 The remainder of the source file is then assumed to be the macro input.
 
-The parsing procedure places a few restrictions on otherwise valid declarations[fn:: Keywords in *BOLD* shall be interpreted as described in [[textcite:&rfc2119]].]:
+The parsing procedure places a few restrictions on otherwise valid declarations:
 1. [[glspl:task]] *SHOULD NOT* be externally declared[fn:: Untested functionality.];
 2. the =rtic::app= macro *MUST* be called via =#[rtic::app]= (i.e. [[cref:lst:invalid-recovery-example]] will fail to parse); and
 3. the =mod app { ... }= token group terminator *MUST* be the last line of the source file ([[cref:lst:recovery-example]], line 27).
@@ -1532,7 +1545,7 @@ If a higher priority location is valid, the search ends.
 #+end_src
 When the frontend(s) have been found in the environment they are spawned as child processes to =cargo-rtic-scope= which handles their eventual termination.
 
-In RTIC Scope v0.3 a frontend takes zero arguments and *MUST*[fn:: Refer to [[textcite:&rfc2119]].] print a path to a socket on [[gls:stdout]] which the backend can use to communicate with the frontend.
+In RTIC Scope v0.3 a frontend takes zero arguments and *MUST* print a path to a socket on [[gls:stdout]] which the backend can use to communicate with the frontend.
 **** Sourcing the trace stream from the target
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope:reading-the-trace-stream
