@@ -8,7 +8,7 @@
   }
 \newglossaryentry{sample-rate}{
   name={sample rate},
-   description={TODO}
+   description={The frequency at which a control system such as a \gls{regulator} samples sensor input and manipulates the system via actuators.}
   }
 \newglossaryentry{downstream}{
    name={downstream},
@@ -55,6 +55,10 @@
 \newglossaryentry{envvar}{
   name={environmental variable},
   description={A string variable that exists in the environment that programs execute. A change to an environmental variable can change how programs are executed and can be seen as a complement to program argument options.}
+  }
+  \newglossaryentry{regulator}{
+  name={regulator},
+  description={A control system used to track one or more reference signals. The regulator observes (either directly or by approximation) the internal states of the system under control via sensors and affect the system via actuators.}
   }
 \newglossaryentry{stdout}{
   name={\texttt{stdout}},
@@ -200,15 +204,27 @@
   name={overhead},
   description={Necessary work that must be done to enable functionality or start a process (such as emitting trace packets).}
 }
+\newglossaryentry{real-time}{
+  name={real-time},
+  description={TODO}
+}
+\newglossaryentry{system-state}{
+  name={system state},
+  description={A variable that describe a system component; e.g., the velocity of a vehicle, the heading of an airplane, or the temperature of a chemical mixture.}
+}
+\newglossaryentry{microcontroller-unit}{
+  name={microcontroller unit},
+  description={A \gls{CPU} combined with a set of peripherals such as voltage sensors, serial communication interfaces, volatile and non-volatime memory.}
+}
 
 \newabbreviation{UTID} {UTID} {{Unique Task Identifier}}
 \newabbreviation{PC} {PC} {{program counter}}
 \newabbreviation{CPU} {CPU} {{central processing unit}}
-\newabbreviation{MCU} {MCU} {{microcontroller unit}}
+\newabbreviation{MCU} {MCU} {{\gls{microcontroller-unit}}}
 \newabbreviation{SWO} {SWO} {{Serial Wire Out}}
-\newabbreviation{RTIC} {RTIC} {Real-Time Interrupt-driven Concurrency}
+\newabbreviation{RTIC} {RTIC} {\Gls{real-time} \Gls{interrupt}-driven Concurrency}
 \newabbreviation{FIFO} {FIFO} {{Fist-In, First-Out}}
-\newabbreviation{RTOS} {RTOS} {{real-time operating system}}
+\newabbreviation{RTOS} {RTOS} {{\gls{real-time} operating system}}
 \newabbreviation{SRP} {SRP} {{Stack Resource Policy}}
 \newabbreviation{DCB} {DCB} {{Debug Control Block}}
 \newabbreviation{SCS} {SCS} {{System Control Space}}

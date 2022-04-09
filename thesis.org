@@ -231,64 +231,64 @@ Here be an abstract...
 :CUSTOM_ID: introduction
 :END:
 # What are embedded systems, regulators, and how do they relate?
-Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices --- serve a key role in the operation of systems with electronical components where computations must be made.
-A prime examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to designed characteristics.
-Often the goal is to track a reference signal; such a control system is known as a regulator.
-A regulator observes (either directly or by approximation) the internal states of a system under control via sensors and affect the system via actuators.
+Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices (commonly known as [[glspl:MCU]]) --- serve a key role in the operation of systems with electronical components where computations must be made.
+Prime examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to design characteristics.
+Often the goal is to track a reference signal; such a control system is known as a [[gls:regulator]].
 For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output while keeping the plant within safe operation boundaries.
 
 # On the real-time restrictions of control systems; exponential complexity phenomena.
-A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or unconsistent, the controlled system will end up unstable [[parencite:&franklin]]:
+A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or inconsistent the controlled system will end up unstable [[parencite:&franklin]]:
 the rocket may thus fly off course, or the nuclear reactor reach a meltdown.
-This puts a real-time constrain on the digital controller which greatly limits how it can be implemented.
+This puts a [[gls:real-time]] constrain on the digital controller which greatly limits how it can be implemented.
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constrain.
-This task grows exponentially in difficulty as the number of system states, inputs, and outputs increase.
+This task grows exponentially in difficulty as the number of [[glspl:system-state]], inputs, and outputs increase.
 A similar phenomena is observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
 
 # The observer effect; data exfiltration.
 Unfortunately are embedded systems subject to the observer effect: to observe the internal state of a embedded system (i.e., system variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
-This observeration is often realized by exfiltrating data via serial communication which in the best case can induce bus contention and full output queues,
-but it is not uncommon that a program blocks until the data has been serialized, severely affecting the purpose of the program --- regulation --- if the payload is large.
-In a perfect implementation, the user application --- the program that executes on the embedded system --- would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, removing the observer effect and thus the effect on the underlying control system.
+This observeration is often realized by exfiltrating data via serial communication which in the best case is subject to bus contention and full output queues.
+It is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation properties of the system if the payload is large.
+In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
-ARM Ltd. is a company that licenses out designs of ARM [[glspl:CPU]] for embedded systems.
-ARM [[glspl:CPU]] are available via a number of vendors, e.g. STMicroelectrics, NXP Semiconductors, and Nordic Semiconductors.
+ARM is a company that licenses out designs of ARM [[glspl:CPU]] for embedded systems.
+ARM CPUs are available via a number of vendors; e.g., STMicroelectrics, Microchip Technology Inc., and Nordic Semiconductors.
 The ARMv7-M platform standard offers debugging facilities that enables the developer to trace the system.
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
 These trace facilities allows for an event-based monitoring of
-- interrupt handler enters and exits;
-- Read and write access to in-memory address spaces; and
+- [[gls:interrupt]] handler enters and exits;
+- read and write access to in-memory address spaces; and
 - [[gls:PC]] samples, among other features.
-The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[cref:debug-periphs]]), henceforth referred to as the [[gls:trace-stream]].
-These facilities are not disjoint (if they were, no insight into the traced system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
+The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[cref:debug-periphs]] and [[cref:theory:itm-proto]]), henceforth referred to as the [[gls:trace-stream]].
+These facilities are not wholly disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
 Further, with non-invasive trace generation, less code must be executed by the [[gls:CPU]], allowing a shorter duty-cycle of the user application.
-With a decreased duty-cycle, the system can be put to sleep longer, and thus conserve energy.
+With a decreased duty-cycle the system can be put to sleep longer, and thus conserve energy.
 
 # On real-time implementation restictions, embedded implementation difficulties in general.
-The development of embedded system in general is a difficult one.
-In comparison to general-purpose computers, where one often need not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
+The development of embedded systems in general is non-trivial.
+In comparison to general-purpose computers, where one often must not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
 # No rich OS; no two embedded platforms are the same.
 An embedded developer seldom have access to a rich operating systems --- a Linux-based distibution, for example --- which offers general-purpose facilities based on dynamic allocations and a common environment to simplify implementation.
-Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M), and porting an implementation to another platform is no small task.
-This compares to general-purpose computers where a program written on one computer can be executed on another one, as long as the operating environment remains the same.
+Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M, due to the different peripherals) and porting an implementation to another platform is no small task.
+This compares to general-purpose computers where a program written on one computer can be executed on another one, as long as the operating environment remains the same or are compatible.
 # Side effects and priority inversions.
 Embedded platforms are much more subject to side-effects where peripherals are operated by writing data to memory-mapped registers.
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
 In summary it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
-In order to lighten the implementation burden one may employ [[gls:RTIC]], (see [[cref:rtic]]).
+In order to lighten the implementation burden one may employ [[gls:RTIC]] (see [[cref:rtic]]).
 
 # Project aim
-The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their executions off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites.
-RTIC Scope will aim for minimal end-user overhead in order to apply the toolset, and allow the replay of traces post-mortem.
+The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilites and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
+RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the toolset, and allow the replay of traces post-mortem (after the system has executed and is no longer active).
 
 # Thesis summary
 This thesis covers the theory behind relevant ARM peripherals and protocols upon which RTIC Scope relies, a close-to exhaustive enumerations of the contributions made during the project and a detailed description of its implementation, along with discussions on approaches taken and topics of interests regarding the future work that can be done to improve upon the toolset.
+The toolset is applied to a trivial RTIC application for demonstration purposes.
 
 *** Background
 This introductory section covers the software components that have realized RTIC Scope.
