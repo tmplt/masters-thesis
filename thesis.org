@@ -353,7 +353,7 @@ Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enu
   }
 #+end_src
 
-**** \glsxtrfull{RTIC}
+**** The \glsxtrfull{RTIC} [[gls:RTOS]]
 :PROPERTIES:
 :CUSTOM_ID: rtic
 :END:
@@ -362,28 +362,30 @@ It is developed at Luleå Technical University based on the extensively studied 
 - prevents deadlocks;
 - mitigates priority inversions; and
 - is compatible with [[gls:EDF]] sheduling.
-[[gls:RTIC]] removes some embedded programming burden out-of-the-box while also
+RTIC removes some embedded programming burden out-of-the-box while also
 - implementing message passing between [[glspl:task]];
 - incurring a minimal scheduling overhead;
 - being amenable to [[gls:WCET]] analysis [[parencite:&rauk]].
 
 # Oh yeah, and Rust
-[[gls:RTIC]] is written in Rust which removes additional developer overhead (see [[cref:rust]]).
+RTIC is written in Rust which removes additional developer overhead (see [[cref:rust]]).
 
-An [[gls:RTIC]] application is implemented by statically declaring a set of atomic [[glspl:task]] which are executed and scheduled by help of Cortex-M hardware features.
-This section summarizes the two different task types --- [[glspl:hardware-task]] and [[glspl:software-task]] --- that together constitute an [[gls:RTIC]] application.
-For more details on [[gls:RTIC]] and how it is implemented, refer to [[textcite:&rtic]] and [[textcite:&tjader2021rtic]].
+An RTIC application is implemented by statically declaring a set of atomic tasks which are executed and scheduled by help of Cortex-M hardware features.
+This section summarizes the two different task types --- [[glspl:hardware-task]] and [[glspl:software-task]] --- that together constitute an RTIC application.
+Refer to [[textcite:&rtic]] and [[textcite:&tjader2021rtic]] for more details on RTIC and how it is implemented.
 
-Hardware tasks are regular Rust functions that are bound to an [[gls:interrupt]].
-When this interrupt is made pending in hardware, and no interrupt handler of higher priority is currently exeuting, the task function executes.
+Hardware tasks are regular Rust functions that are bound to [[glspl:interrupt]].
+When this interrupt is made pending in hardware, and no interrupt handler of higher priority is currently executing, the task function executes.
 An example hardware task is declared via [[cref:rtic-hw-task-example]].
 With this declaration, =app::foo= will be executed when =EXTI0= is pending.
 When =app::foo= returns, the interrupt has been handled and =EXTI0= is no longer pending.
 #+name: rtic-hw-task-example
-#+CAPTION: \glsxtrfull{RTIC} hardware task bound to the ~EXTI0~ interrupt.
+#+CAPTION: [[gls:RTIC]] [[gls:hardware-task]] bound to the ~EXTI0~ [[gls:interrupt]].
 #+begin_src rust
   #[rtic::app]
   mod app {
+      // ...
+
       #[task(bound = EXTI0)]
       fn foo(_ctx: foo::Context) {
           // ...
@@ -391,16 +393,23 @@ When =app::foo= returns, the interrupt has been handled and =EXTI0= is no longer
   }
 #+end_src
 
-Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound hardware interrupt is not exclusively associated to the task in question: a single hardware interrupt can be associated with multiple software tasks.
-For this reason, the interrupt used to dispatch software tasks termed a [[gls:task-dispatcher]].
+Software tasks are also regular Rust functions that are bound to hardware interrupts, but the bound interrupt is not exclusively associated to the task in question:
+a single hardware interrupt can be associated with multiple software tasks.
+For this reason the interrupt used to dispatch software tasks is termed a [[gls:task-dispatcher]].
 An example of two software tasks are declared via [[cref:rtic-sw-task-example]].
-Multiple task dispatchers can be declared.
-It is not possible to declare which tasks a task dispatcher should handle; this is done automatically.
+Multiple task dispatchers can be declared, but as of writing it is not possible to declare which tasks a task dispatcher should handle; this is done automatically.
 #+name: rtic-sw-task-example
-#+caption: \glsxtrfull{RTIC} software task, bound non-exclusively to the ~EXTI0~ interrupt, acting as the task dispatcher.
+#+caption: [[gls:RTIC]] [[glspl:software-task]], bound to the ~EXTI0~ [[gls:task-dispatcher]].
 #+begin_src rust
   #[rtic::app(dispatchers = [EXTI0])]
   mod app {
+      // ...
+
+      #[task]
+      fn foo(_ctx: foo::Context) {
+          // ...
+      }
+
       #[task]
       fn bar(_ctx: bar::Context) {
           // ...
@@ -408,8 +417,8 @@ It is not possible to declare which tasks a task dispatcher should handle; this 
   }
 #+end_src
 
-The purpose of hardware tasks is to respond to external stimuli, e.g. a button press, a hardware timer trigger, or incoming communication.
-The purpose of software tasks is to provide a task implementation that is scheduled by software via the [[gls:RTIC]] [[gls:API]] instead of being triggered by external stimuli.
+The purpose of hardware tasks is to respond to external stimuli: e.g., a button press, a hardware timer trigger, or incoming communication.
+The purpose of software tasks is to provide a task implementation that is scheduled by software via the RTIC [[gls:API]] instead of being triggered by external stimuli.
 Example usage of a software task may be to send a response over a line of communication after a hardware task executed to read a message on the same line.
 **** Hardware debuggers
 :PROPERTIES:
