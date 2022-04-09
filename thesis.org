@@ -542,16 +542,16 @@ An exhaustive summary of these contributions are described below (listed in no p
   - Dir: add extract-to-filesystem functionality: :: implements functionality for extracting embedded file trees to disk [[parencite:&pr:includedir:57]].
   - dir/extract: add mode for overwriting existing files: :: implements functionality for overwriting existing files when extracting embedded file trees to disk [[parencite:&pr:includedir:65]].
 
-*** TODO Outline
+*** Outline
  This paper is structured as follows:
- - [[cref:introduction]], Introduction :: Provides a background introduction to Rust, the embedded Rust ecosystem and [[gls:RTIC]].
+ - [[cref:introduction]], Introduction :: provides a background introduction to Rust, the embedded Rust ecosystem and [[gls:RTIC]].
    Subsequently covers the project motivation, problem definition, delimitations and contributions made within the scope of this thesis, and guidelines on how to read this text.
  - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
- - [[cref:theory]], Theory :: Covers the ARMv7-M debug facilities, the [[gls:ITM]] packet protocol and how [[gls:RTIC]] tasks are traced in theory via RTIC Scope.
- - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the =itm= crate.
- - [[cref:results]], Results :: Covers the results of this thesis.
+ - [[cref:theory]], Theory :: covers the ARMv7-M debug facilities, the [[gls:ITM]] packet protocol and how RTIC [[glspl:task]] are traced in theory via RTIC Scope.
+ - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the auxilliary =itm= crate.
+ - [[cref:results]], Results :: covers the results of this thesis and applies RTIC Scope to a trivial RTIC application.
  - [[cref:discussion]], Discussion :: discusses some topics of interests regarding RTIC Scope, and a choice selection of topics for further development.
- - [[cref:conclusion]], Conclusions :: Summarizes the work done in this thesis.
+ - [[cref:conclusion]], Conclusions :: summarizes the work done in this thesis.
 
 *** TODO Reading guidelines
 # cover important typesetting such as glossary use. When and why not all terms are linked to the glossary.
