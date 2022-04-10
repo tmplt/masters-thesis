@@ -239,16 +239,16 @@ For example, one may wish to keep a rocket on a set path to reach orbit, or cont
 A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or inconsistent, the controlled system will end up unstable [[parencite:&franklin]]:
 The rocket may thus fly off course, or the nuclear reactor reach a melt-down.
 This puts a [[gls:real-time]] constrain on the digital controller which greatly limits how it can be implemented.
-Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constrain.
+Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constraint.
 This task grows exponentially in difficulty as the number of [[glspl:system-state]], inputs, and outputs increase.
-A similar phenomena is observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
+Similar phenomena are observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
 
 # The observer effect; data exfiltration.
-Unfortunately are embedded systems subject to the observer effect: to observe the internal state of a embedded system (i.e., system variables in memory) its operation must be affected.
+Unfortunately are embedded systems subject to the observer effect: to observe the internal state of an embedded system (i.e., system variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
 This observation is often realized by exfiltrating data via serial communication which in the best case is subject to bus contention and full output queues.
 It is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation properties of the system if the payload is large.
-In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its mainsake regulation procedure and leave data exfiltration to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
+In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its regulation procedure and leave data exfiltration to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
 ARM is a company that licenses out designs of ARM [[glspl:CPU]] for embedded systems.
@@ -256,7 +256,7 @@ ARM CPUs are available via a number of vendors; e.g., STMicroelectrics, Microchi
 The ARMv7-M platform standard offers debugging facilities that enables the developer to trace the system.
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
-These trace facilities allows for an event-based monitoring of
+These trace facilities allow for an event-based monitoring of
 - [[gls:interrupt]] handler enters and exits;
 - read and write access to in-memory address spaces; and
 - [[gls:PC]] samples, among other features.
@@ -275,9 +275,9 @@ An embedded developer seldom have access to a rich operating systems --- a Linux
 Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M, due to the different peripherals) and porting an implementation to another platform is no small task.
 This compares to general-purpose computers where a program written on one computer can be executed on another one, as long as the operating environment remains the same or are compatible.
 # Side effects and priority inversions.
-Embedded platforms are much more subject to side-effects where peripherals are operated by writing data to memory-mapped registers.
+Embedded platforms are much more subject to side effects where peripherals are operated by writing data to memory-mapped registers.
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
-In summary it is easy to put an embedded system in an incorrect or unknown state.
+In summary, it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
 In order to lighten the implementation burden one may employ [[gls:RTIC]] (see [[cref:rtic]]).
 
@@ -302,7 +302,7 @@ Throughout this text the following Rust terminology is used:
 For sake of decreasing typesetting noise, the relevant glossary entries for these fundamental terms will not be referred to again henceforth.
 For a more detailed description of this terminology, and the Rust programming language and ecosystem in general, refer to [[textcite:&rust-lang]].
 
-For a summary of Rust in an embedded context, refer to [[textcite:&tjader2021rtic 6--8]].
+Refer to [[textcite:&tjader2021rtic 6--8]] for a summary of Rust in an embedded context,
 
 **** \glsxtrfullpl{PAC}
 :PROPERTIES:
@@ -424,7 +424,7 @@ Example usage of a software task may be to send a response over a line of commun
 :CUSTOM_ID: background:probes
 :END:
 Hardware debuggers, also known as [[glspl:probe]], are dedicated hardware that provide a debugging interface between the host and target.
-The probe is its own embedded system used to program and debug the embedded system that is considered the target.
+The probe itself is an embedded system used to program and debug the embedded system that is considered the target.
 A probe usually provides a [[gls:USB]] interface for the host and a [[gls:SWD]] and/or a [[gls:JTAG]] interface for the target.
 An embedded system may provide its own probe which is usually the case for evaluation kits[fn:: One such kit is the Microchip SAM V71 Xplained Ultra.] or expose headers on which to attach a probe for programming and debugging.
 
@@ -435,7 +435,7 @@ Examples of such suites are =openocd=, [[textcite:&openocd]]; and =probe-rs=, [[
 Both [[gls:RTIC]] and the debug peripherals of ARMv7-M operate in an event-based context where RTIC events trigger the debug peripherals to emit [[glspl:trace-packet]].
 Exploiting this relationship is thus sensible; certainly so because these peripherals do not affect the wider system as covered in [[cref:introduction]].
 Hardware-wise, this approach is very cheap to utilize on a supporting [[gls:MCU]]:
-only the [[gls:SWO]] pin needs to be exposed and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system.
+only the [[gls:SWO]] pin needs to be exposed, and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system.
 
 The motivation of RTIC Scope is then to provide the necessary software to configure the target for [[gls:tracing]] and interpret the byte stream received on the host.
 With available software, embedded developers can then quickly garner insight into their system to verify that the software behaves as expected, and trivially find out when and where it does not.
@@ -444,7 +444,7 @@ With available software, embedded developers can then quickly garner insight int
 :PROPERTIES:
 :CUSTOM_ID: requirements
 :END:
-This thesis covers the development of an embedded systems analysis tool-set, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and exfiltrated by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
+This thesis covers the development of an embedded system analysis tool-set, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and exfiltrated by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
 The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
 RTIC Scope *MUST* adhere to, and thus be able to
@@ -454,7 +454,7 @@ RTIC Scope *MUST* adhere to, and thus be able to
 - \namedlabel{req:rtic}{Requirement 4} :: <<req:rtic>> recover RTIC application metadata not contained within the trace stream;
 - \namedlabel{req:timestamps}{Requirement 5} :: <<req:timestamps>> associate timestamps to RTIC task events;
 - \namedlabel{req:protocol}{Requirement 6} :: <<req:protocol>> report RTIC task events to the RTIC Scope end-user by use of a defined communication protocol.
-- \namedlabel{req:dummy}{Requirement 7} :: <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the the protocol described in [[req:protocol]];
+- \namedlabel{req:dummy}{Requirement 7} :: <<req:dummy>> offer a reference implementation of a [[gls:frontend]] which implements the protocol described in [[req:protocol]];
 - \namedlabel{req:record}{Requirement 8} :: <<req:record>> record a trace to file which can be replayed offline (i.e. without executing code on the target) by use of a host-side [[gls:daemon]]; and
 - \namedlabel{req:cargo}{Requirement 9} :: <<req:cargo>> be invoked as a =cargo= subcommand.
 
@@ -544,7 +544,7 @@ An exhaustive summary of these contributions are described below (listed in no p
 *** Outline
  This paper is structured as follows:
  - [[cref:introduction]], Introduction :: provides a background introduction to Rust, the embedded Rust ecosystem and [[gls:RTIC]].
-   Subsequently covers the project motivation, problem definition, delimitations and contributions made within the scope of this thesis, and guidelines on how to read this text.
+   Subsequently, covers the project motivation, problem definition, delimitations and contributions made within the scope of this thesis, and guidelines on how to read this text.
  - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
  - [[cref:theory]], Theory :: covers the ARMv7-M debug facilities, the [[gls:ITM]] packet protocol and how RTIC [[glspl:task]] are traced in theory via RTIC Scope.
  - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the auxiliary =itm= crate.
@@ -554,7 +554,7 @@ An exhaustive summary of these contributions are described below (listed in no p
 
 *** Reading guidelines
 # cover important typesetting such as glossary use. When and why not all terms are linked to the glossary.
-Terms that warrant further description in this text are referred to the glossary on its first occurance in a section, along with their use in the section title and captions of tables, listings, and figures.
+Terms that warrant further description in this text are referred to the glossary on its first occurrence in a section, along with their use in the section title and captions of tables, listings, and figures.
 In flowing text some occurrences stray from this pattern.
 For example, when "[[gls:task]]" links to the glossary the terms "software task" and "hardware task" may not due to the shared relationship between these terms.
 For acronyms, the first occurrence is written in full form and subsequent in its short form; e.g.,
@@ -566,7 +566,7 @@ For acronyms, the first occurrence is written in full form and subsequent in its
 
 There are exceptions to the rules above where a full acronym form or overzealous term definition is warranted.
 
-Throughout this text the key words *MUST*, *SHOULD*, and *SHOULD NOT* are used to describe requirements levels;
+Throughout this text the keywords *MUST*, *SHOULD*, and *SHOULD NOT* are used to describe requirements levels;
 these should be interpreted as covered in [[textcite:&rfc2119]].
 
 When register fields are referred to their names are /EMPHASIZED/.
@@ -764,7 +764,7 @@ instead they supply a different maximum relative timestamp.
 More specifically, an [[gls:LTS2]] can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
 [[gls:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
-This flag have four possible values, termed /qualities/ throughout this text, described in decreasing quality:
+This flag has four possible values, termed /qualities/ throughout this text, described in decreasing quality:
 - /TC/ $=$ 0b00 :: Synchronous: the timestamp value denotes the time when the non-timestamp packet was generated.
 - /TC/ $=$ 0b01 :: Delayed relative: the timestamp value denotes the time when the timestamp packet itself was generated.
   The synchronous timestamp is here unknown but must be between the previous and current timestamp values.
@@ -954,7 +954,7 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
 The crate exposes two functions:
 - =cortex_m_rtic_trace::configure= :: a regular Rust function for configuration of the peripherals mentioned above; and
 - =cortex_m_rtic_trace::trace= :: a Rust macro used to trace [[glspl:software-task]].
-Henceforth within this section these two functions will be referred to as =configure= and =trace=, respectively.
+Henceforth, within this section these two functions will be referred to as =configure= and =trace=, respectively.
 
 This section is divided into two parts: [[cref:impl:rtic-trace:peripheral-config]], which covers the application of =configure=; and [[cref:impl:rtic-trace:trace-macro]], which covers the application of the =trace= macro.
 
@@ -1046,7 +1046,7 @@ If any step in [[crefrange:rtic-trace:conf-protocol,rtic-trace:conf-exception-tr
 Several fields in [[gls:ITM_TCR]] are potentially [[gls:RAZ-WI]], [[gls:RAZ]], or [[gls:RAO]] [[parencite:&arm-rm p. Glossary-854]] in order to signal hardware support.
 This requires the field to be read after a write to ensure that a configuration was applied.
 During the steps in [[cref:rtic-trace:itm]], if any read-back value does not match what was written, =configure= prematurely returns an error signalling what configuration component was not supported by the target and what components have been successfully applied, notifying the user that a partial configuration has now been applied.
-It is up to the user to reset the target to the state before =configure= was called.[fn:: In practise, one would reset the target and iterate on the configuration instead of manually reverting the changes.]
+It is up to the user to reset the target to the state before =configure= was called.[fn:: In practice, one would reset the target and iterate on the configuration instead of manually reverting the changes.]
 For a discussion on this implementation detail, see [[textcite:&issue:cortex-m:382]].
 
 The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} cannot fail.
@@ -1113,7 +1113,7 @@ UTIDs are integers, starts counting from zero, and are incremented by one.
 :END:
 =cargo-rtic-scope= is a host-side [[gls:daemon]] that fulfills [[req:input]] to [[req:protocol]] and [[req:record]] to [[req:cargo]].
 It is run as a =cargo= subcommand, as seen in [[cref:lst:cargo-rtic-scope:summary]], where =<verb>= is either =trace= or =replay=.
-As the verbs imply, =trace= is used to record the trace emitted by an [[gls:RTIC]] application when executed on the target and =replay= is used to replay a trace for post-mortem analysis.
+As the verbs imply, =trace= is used to record the trace emitted by an [[gls:RTIC]] application when executed on the target and =replay= is used to replay a trace for postmortem analysis.
 #+NAME: lst:cargo-rtic-scope:summary
 #+CAPTION: Summary of ~cargo-rtic-scope~ invocation as a ~cargo~ subcommand.
 #+begin_src shell
@@ -1150,7 +1150,7 @@ Upon a =trace=, the application is built via [[cref:lst:cargo-rtic-scope:build]]
 #+begin_src shell
   $ cargo build --message-format=json-diagnostic-rendered-ansi [OPTIONS...]
 #+end_src
-For example, if the crate would yield multiple binaries on build, =cargo rtic-scope trace= must know the singlar binary which the user wants to trace.
+For example, if the crate would yield multiple binaries on build, =cargo rtic-scope trace= must know the singular binary which the user wants to trace.
 Specifying this flag is done in the same way as for =cargo build=: via =--bin=.
 [[cref:lst:cargo-rtic-scope:build-bin]] contains an example use of this option, which would yield the =cargo build= invocation in [[cref:lst:cargo-rtic-scope:build-bin-forwarded]].
 #+NAME: lst:cargo-rtic-scope:build-bin
@@ -1167,7 +1167,7 @@ Specifying this flag is done in the same way as for =cargo build=: via =--bin=.
 Below are a description of the flags and options the user can specify during the invocation of =cargo rtic-scope trace= that are forwarded to the underlying =cargo build= invocation in [[cref:lst:cargo-rtic-scope:build]].
 - =--bin <binary>= :: Used to specify which singular binary to build.
 - =--example <example>= :: Used to build a singular example binary instead of a non-example binary.
-- =--package <package>= :: Used to build a specific crate instead of a singular binary inside of a top-level crate context.
+- =--package <package>= :: Used to build a specific crate instead of a singular binary inside the top-level crate context.
   This crate should yield a single binary.
 - =--release= :: Used to build the binary in release mode instead of debug mode. Optimizations are applied during build with this flag.
 - =--target <target-triple>= :: Used to specify the target platform for which the binary should be built for. This option can be used to override the default target triple, or the one specified via the =/.cargo/config{,toml}= files.
@@ -1176,7 +1176,7 @@ Below are a description of the flags and options the user can specify during the
 - =--all-features= :: Used to enable all features of the crate.
 - =--features <feat1>[,feat2[,feat3[...]]]= :: Used to specify the set of features to enable for the crate.
 
-The above flags and options were deemed as the most common flags an user would want to specify when building the RTIC application.
+The above flags and options were deemed as the most common flags a user would want to specify when building the RTIC application.
 If the user wants to specify an option or flag that is not among the above set the sentinel =--= can be used.
 For example, if the user invokes [[cref:lst:cargo-rtic-scope:sentinel]] =cargo-rtic-scope= invokes [[cref:lst:cargo-rtic-scope:sentinel-forwarded]].
 #+NAME: lst:cargo-rtic-scope:sentinel
@@ -1284,7 +1284,7 @@ In case two =cargo rtic-scope trace= instances are executed within the span of o
 this will be caught during the second instance which will exit with an error[fn:: A virtual limitation. The timestamp granularity can be increased, but from a user standpoint it is unlikely to start a trace twice within the same second using the same target and application.]:
 =cargo-rtic-scope= does not overwrite trace files.
 Trace files can however be explicitly deleted:
-if the user wants to record a trace and remove all previously recoded traces in the trace directory =--clear-traces= can be specified.
+if the user wants to record a trace and remove all previously recorded traces in the trace directory =--clear-traces= can be specified.
 This flag only deletes files with the =.trace= file extension.
 
 **** Generating metadata maps
@@ -1399,7 +1399,7 @@ This must be done for all unknown binds.
 
 The above process is unfortunately non-trivial: Rust does not support runtime type introspection and an ideal evaluation function such as [[cref:lst:pac:ideal-pseudo]] is not realizeable.
 #+NAME: lst:pac:ideal-pseudo
-#+CAPTION: Non-realizeable Rust pseudo code to dynamically resolve the [[gls:IRQ]] number of an unknown bind via the [[gls:PAC]]. ~quote~ is from [[textcite:&quote]].
+#+CAPTION: Non-realizable Rust pseudocode to dynamically resolve the [[gls:IRQ]] number of an unknown bind via the [[gls:PAC]]. ~quote~ is from [[textcite:&quote]].
 #+begin_src rust
   fn resolve_irq_nr(label: &str) -> u16 {
       use quote::quote;
@@ -1493,7 +1493,7 @@ see [[cref:impl:nested-tracing]] for an example.
 Severe limitations apply when tracing functions inside tasks and are thus not useful in practise;
 see [[cref:disc:nested-tracing-restrictions]] for more on this topic.
 #+NAME: impl:nested-tracing
-#+CAPTION: [[Gls:tracing]] a function inside of a traced [[gls:software-task]].
+#+CAPTION: [[Gls:tracing]] a function inside a traced [[gls:software-task]].
 #+begin_src rust
   #[rtic::app(device = stm32f4::stm32f401, dispatchers = [EXIT2])]
   mod app {
@@ -1694,7 +1694,7 @@ This is done several steps:
 This is done by matching all =itm::TracePacket= structures in the chunk.
 If a packet in the chunk is
 - a synchronization packet (=TracePacket::Sync=), it is ignored because it does not contain any trace information;
-- an exception trace packet (=TracePacket::ExceptionTrace=, [[cref:theory:itm:exceptions]]), the lookup maps previosly generated are consulted for the [[gls:task]] matching the packet's [[gls:IRQ]] number.
+- an exception trace packet (=TracePacket::ExceptionTrace=, [[cref:theory:itm:exceptions]]), the lookup maps previously generated are consulted for the [[gls:task]] matching the packet's [[gls:IRQ]] number.
   If the exception trace corresponds to a hardware task, an =api::EventType::Task= is constructed.
   If the trace corresponds to a software [[gls:task-dispatcher]] it is ignored because it contains redundant trace information.
   If none of these predicates are true the trace is logged as an unmappable event by the construction of an =api::EventType::Unmappable=.
@@ -1721,7 +1721,7 @@ Aside from covering the entirety of the protocol, this crate offers two iterator
 #+end_quote
 
 While the implementation of =itm= has been influenced by the development of RTIC Scope it is logically [[gls:upstream]] of RTIC Scope.
-=itm= can thus be considered a wholly separate project but its inception was a precursor to RTIC Scope in order to fulfill [[req:decode]], and it is thus within the scope of this thesis.
+=itm= can thus be considered a wholly separate project, but its inception was a precursor to RTIC Scope in order to fulfill [[req:decode]], and it is thus within the scope of this thesis.
 
 The crate is a green-field implementation of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.8 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
 Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
@@ -1765,7 +1765,7 @@ When a full timestamp has been received the offset to add to the current duratio
     let ticks = ts * prescale;
     let seconds = ticks as f64 / freq as f64;
 
-    // NOTE(ceil) we rount up so as to not report an event before it
+    // NOTE(ceil) we round up so as to not report an event before it
     // occurs on hardware.
     Duration::from_nanos((seconds * 1e9).ceil() as u64)
 }
@@ -1841,7 +1841,7 @@ When using an index to replay a file the default directory within which to searc
 When replaying a file, =cargo-rtic-scope= will terminate when the replay file ends or if the [[gls:sigint][SIGINT handler]] executes.
 
 #+NAME: lst:replay-examples
-#+CAPTION: Example commands of listing and replaying recoded traces.
+#+CAPTION: Example commands of listing and replaying recorded traces.
 #+begin_src shell
   # listing available replay files
   $ cargo rtic-scope replay --list
@@ -1896,14 +1896,14 @@ The recorded traces are then listed via [[cref:lst:app-atsame-example-trace-scop
 :END:
 As mentioned in [[cref:impl:itm]], =itm= is a re-implementation and feature superset of a deprecated library with the same [[gls:trace-stream]] decoding goal, namely [[textcite:&itm-old]].
 During the re-implementation the changes where pushed upstream to the original repository but a consensus regarding the created merge request was not reached.
-Subsequently a [[gls:RFC]] was created [[parencite:&rfc:rust-embedded:move-itm-crate]] initially proposing that the =itm= crate was to be moved out of the then-maintaining Cortex-M team of the Embedded Rust [[gls:WG]] to a repository under my control to continue the development.
+Subsequently, a [[gls:RFC]] was created [[parencite:&rfc:rust-embedded:move-itm-crate]] initially proposing that the =itm= crate was to be moved out of the then-maintaining Cortex-M team of the Embedded Rust [[gls:WG]] to a repository under my control to continue the development.
 When the discussion concluded it was instead decided to simply add a deprecation notice to the =itm= repository pointing towards the new implementation at [[textcite:&itm]].
 
 The reason for the deprecation was that the WG would have to maintain a wholly new code-base that had yet to stabilize.
 Changes to both implementation and the [[gls:API]] of the library would then have to be vetted by WG members before merge which would induce development friction.
 The RFC then concluded that a new discussion should be held regarding adoption of the new implementation when it reaches API stability.
 
-Another root reason that led to the indecision of the merge was the question whether a host-side crate should ultimately be maintained by a WG focused on the embedded aspect.
+Another root question that led to the indecision of the merge was whether a host-side crate should ultimately be maintained by a WG focused on the embedded aspect.
 
 As of writing the discussion on the adoption of the reimplementation has yet to begin.
 A comment will be appended to [[textcite:&rfc:rust-embedded:move-itm-crate]] pointing to the new discussion when it begins.
@@ -1971,7 +1971,7 @@ These resources are only strictly required if software tasks are traced, but are
 
 Theoretically a single DWT comparator could be utilized to handle both software task enters and exit by reserving a bit in the written =u8= to denote the new state.
 Further, because only 8 of the 32 bits (in conjunction with a change to only use a single comparator) are effectively used, only 8 bit should need to be allocated for the singular watch variable.
-This overzealous resource allocation was done for implementation simpliticy.
+This overzealous resource allocation was done for implementation simplicity.
 A future release of RTIC Scope can offer a lower resource requirement.
 
 The performance of the host-side =cargo-rtic-scope= and =rtic-scope-frontend-dummy= programs have not been measured.
@@ -2005,13 +2005,13 @@ the exit state change of the nested function would never be reported due to the 
   // ...
 #+end_src
 
-This limitation can be side-stepped by implementing =task::nested= such that it only applies side-effects to the function's parameters.
+This limitation can be side-stepped by implementing =task::nested= such that it only applies side effects to the function's parameters.
 Such an approach can be compared to how functions in C are commonly implemented where the returned value is a pointer or an integer signalling if the operation was successful.
 However, due to the strict requirement that the function must not return any value in its last statement, any return data or signals must first be intermediately allocated and passed as a mutable reference to the traced function, yielding an ad-hoc [[gls:API]] that not only breaks Rust's implementation guidelines but is different from a C [[gls:API]].
 
-An alternative implementation of =trace= could instead be used to wrap the call to =task::nested=, allowing the implementation of a pure function[fn:: A function without side-effects.], but because =trace= is an attribute macro it cannot be applied to statements in functions [[parencite:&docs:rust-proc-macros]].
+An alternative implementation of =trace= could instead be used to wrap the call to =task::nested=, allowing the implementation of a pure function[fn:: A function without side effects.], but because =trace= is an attribute macro it cannot be applied to statements in functions [[parencite:&docs:rust-proc-macros]].
 If trace was available as a function-like macro one could in theory wrap and trace any block expression via a theoretical =trace!(|| { nested() + nested() })=, but that would require non-trivial changes to the recovery step of =cargo-rtic-scope= in order to assign a [[gls:UTID]] to each macro invocation.
-Furthermore it would also require the allocation of a key-word to differentiate trace macros from non-trace macros, inducing [[gls:overhead]].
+Furthermore, it would also require the allocation of a key-word to differentiate trace macros from non-trace macros, inducing [[gls:overhead]].
 
 The support for nested function tracing is staged to be removed in a future release of RTIC Scope.
 It is thus recommended to only use the =trace= macro on [[gls:RTIC]] task declarations.
@@ -2028,7 +2028,7 @@ via a hardware configuration (pulling another pin high or low[fn:: Shorting the 
 via software the pin will expose its default feature on power and software must configure the pin during initialization.
 Commonly, most pins can only be configured via software and upon a MCU reset, the pin returns to its default feature.
 Unfortunately, software configuration is prone to induce transient noise on the pin until it is fully configured.
-If this noise it not accounted for and host-side trace recording starts as the MCU resets (e.g. via [[cref:impl:cargo-rtic-scope:reset-target]]), the recorded noise will put the trace decoder in an unknown state and likely emit malformed packets.
+If this noise is not accounted for and host-side trace recording starts as the MCU resets (e.g. via [[cref:impl:cargo-rtic-scope:reset-target]]), the recorded noise will put the trace decoder in an unknown state and likely emit malformed packets.
 Ultimately, task state changes are likely to be lost and the error induced to the decoder may not necessarily die out.
 This behavior is intrinsically MCU-specific: there is unlikely a common model of this noise that can be used to filter the bytes host-side in software.
 
@@ -2108,7 +2108,7 @@ The theory behind overflow avoidance is simple: the [[gls:ITM]] and [[gls:DWT]] 
 If overflows are encountered the below description of approaches can be consulted, in order of recommendations.
 - Increase TPIU [[gls:baud-rate]] :: The [[gls:SWO]] baud rate is controlled via the /SWOSCALER/ bit-range in [[gls:TPIU_ACPR]] as described in [[cref:impl:rtic-trace:peripheral-config]].
   /SWOSCALER/ can be calculated via [[cref:eq:prescaler]] and may have any value that fits in the field.
-  Increasing the baud rate by lowering /SWOSCALER/ gives the TPIU more time to serialize a packet onto the SWO pin, thus inceasing the margin until the internal [[gls:FIFO]] queue fills up prompting an overflow on the next packet.
+  Increasing the baud rate by lowering /SWOSCALER/ gives the TPIU more time to serialize a packet onto the SWO pin, thus increasing the margin until the internal [[gls:FIFO]] queue fills up prompting an overflow on the next packet.
 
   While the TPIU can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
   Linux, for example, can only communicate with a set of predefined baud rates as described in =termios.h= [[parencite:&linux:termios]].
@@ -2132,7 +2132,7 @@ If overflows are encountered the below description of approaches can be consulte
   If the above recommendations have been applied and overflows are still encountered, a last resort before the traced application must be refactored is to lower the system clock frequency.
   This frequency should as per the last recommendation be lower than that of the asynchronous clock frequency which the TPIU sources.
 
-- Generate less events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[gls:RTIC]] application to generate less events: that is, decrease the frequency at which tasks are entered and exited.
+- Generate fewer events :: If all the above recommendations fail to remedy overflows, the remaining option is to refactor the [[gls:RTIC]] application to generate fewer events: that is, decrease the frequency at which tasks are entered and exited.
   The lowest hanging fruit of this approach is to simply disable the tracing of software tasks by omitting all instances of the =trace= macro.
 *** Future work
 :PROPERTIES:
@@ -2245,7 +2245,7 @@ In order to publish a crate all of its dependencies must first be published.
 When a crate has been published, it can be used as a dependency by specifying the crate name and version alone in =Cargo.toml=, as seen in [[cref:lst:cargo-lib-dep]].
 A published crate can also be installed via =cargo= by simply specifying the name of the crate.
 This makes it trivial for users to install a Rust program as long as any non-Rust dependencies are installed.
-Ideally, an user should be able to install RTIC Scope via [[cref:lst:cargo-install-bins]], but as of writing the easiest way to install RTIC Scope is via [[cref:lst:cargo-install-git]], simply because RTIC Scope v0.3 has yet to be published at the time of writing.
+Ideally, a user should be able to install RTIC Scope via [[cref:lst:cargo-install-bins]], but as of writing the easiest way to install RTIC Scope is via [[cref:lst:cargo-install-git]], simply because RTIC Scope v0.3 has yet to be published at the time of writing.
 
 #+NAME: lst:cargo-lib-dep
 #+CAPTION: Declaring ~cortex-m-rtic-trace~, which is here presumed to be published on the crate repository, as a dependency in a ~Cargo.toml~
@@ -2344,7 +2344,7 @@ Refer to [[textcite:&issue:itm:12]] regarding the progress on this issue.
 
 **** Graphically representing traces
 During experimentation with the Microchip ATSAME51N20A [[gls:MCU]] the want to graphically represent a trace result arose.
-Subsequently an ad-hoc fork of =rtic-scope-frontend-dummy= --- =feat/auto-plot= from [[textcite:&rtic-scope:dummy-auto-plot]], =src/main.rs= of chief interest --- was created that converts the trace to a [[gls:CSV]] representation and then plots it.
+Subsequently, an ad-hoc fork of =rtic-scope-frontend-dummy= --- =feat/auto-plot= from [[textcite:&rtic-scope:dummy-auto-plot]], =src/main.rs= of chief interest --- was created that converts the trace to a [[gls:CSV]] representation and then plots it.
 When the [[gls:RTIC]] application in [[cref:lst:app-atsame-example-src-main]] has been traced and then replayed the dummy produces the plot in [[cref:fig:auto-plot-example]].
 
 From this proof of concept it is immediately clear that a graphical representation of a recorded trace holds great value for system insight;
