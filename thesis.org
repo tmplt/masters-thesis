@@ -244,12 +244,12 @@ Further, a digital controller under implementation must be debugged so that the 
 This task grows exponentially in difficulty as the number of [[glspl:system-state]], inputs, and outputs increase.
 Similar phenomena are observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
 
-# The observer effect; data exfiltration.
+# The observer effect; data emission.
 Unfortunately are embedded systems subject to the observer effect: to observe the internal state of an embedded system (i.e., system variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
-This observation is often realized by exfiltrating data via serial communication which in the best case is subject to bus contention and full output queues.
+This observation is often realized by emitting data via serial communication which in the best case is subject to bus contention and full output queues.
 It is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation properties of the system if the payload is large.
-In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its regulation procedure and leave data exfiltration to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
+In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its regulation procedure and leave data emission to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
 ARM is a company that licenses out designs of ARM [[glspl:CPU]] for embedded systems.
@@ -261,7 +261,7 @@ These trace facilities allow for an event-based monitoring of
 - [[gls:interrupt]] handler enters and exits;
 - read and write access to in-memory address spaces; and
 - [[gls:PC]] samples, among other features.
-The generated trace is then exfiltrated via asynchronous serial using a packet protocol (described in [[cref:debug-periphs]] and [[cref:theory:itm-proto]]), henceforth referred to as the [[gls:trace-stream]].
+The generated trace is then emitted via asynchronous serial using a packet protocol (described in [[cref:debug-periphs]] and [[cref:theory:itm-proto]]), henceforth referred to as the [[gls:trace-stream]].
 These facilities are not wholly disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
@@ -445,11 +445,11 @@ With available software, embedded developers can then quickly garner insight int
 :PROPERTIES:
 :CUSTOM_ID: requirements
 :END:
-This thesis covers the development of an embedded system analysis tool-set, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and exfiltrated by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
+This thesis covers the development of an embedded system analysis tool-set, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and emitted by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
 The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
 RTIC Scope *MUST* adhere to, and thus be able to
-- \namedlabel{req:itm-gen}{Requirement 1} :: <<req:itm-gen>> enable trace stream generation of [[glspl:hardware-task]] and [[glspl:software-task]] --- as defined by RTIC, [[cref:rtic]] --- and enable exfiltration of said trace stream from the device, by help of a target-side tracing library crate;
+- \namedlabel{req:itm-gen}{Requirement 1} :: <<req:itm-gen>> enable trace stream generation of [[glspl:hardware-task]] and [[glspl:software-task]] --- as defined by RTIC, [[cref:rtic]] --- and enable emission of said trace stream from the device, by help of a target-side tracing library crate;
 - \namedlabel{req:input}{Requirement 2} :: <<req:input>> read the generated trace stream via a hardware debugger or a serial device;
 - \namedlabel{req:decode}{Requirement 3} :: <<req:decode>> decode the trace stream;
 - \namedlabel{req:rtic}{Requirement 4} :: <<req:rtic>> recover RTIC application metadata not contained within the trace stream;
@@ -466,7 +466,7 @@ Delimitations to the above requirements apply, see [[cref:delimitations]].
 :END:
 In order to focus on the delivery of a robust tool-set with proper implementation and documentation the scope of this thesis have been limited.
 These delimitations are related to the requirements described in [[cref:requirements]] and are below enumerated.
-1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all ARMv7-M [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and exfiltration.
+1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all ARMv7-M [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and emission.
    RTIC Scope *SHOULD NOT* apply device-specific configurations.
 2. [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is actually read from the device:
    it falls on the RTIC Scope end-user to establish a connection between the target and the host.
@@ -490,9 +490,9 @@ The development of RTIC Scope has yielded a number of [[gls:downstream]] contrib
   See [[cref:impl:rtic-scope-frontend-dummy]] and [[textcite:&rtic-scope:dummy]].
 - =rtic-scope-api= :: The protocol that =cargo-rtic-scope= uses to report [[gls:RTIC]] [[gls:task]] events to =rtic-scope-frontend-dummy=, as described by [[req:protocol]].
   See [[textcite:&rtic-scope:api]].
-- =cortex-m-rtic-trace= :: An auxiliary target-side crate that properly configures the device for [[gls:trace-stream]] generation and exfiltration, which fulfills [[req:itm-gen]].
+- =cortex-m-rtic-trace= :: An auxiliary target-side crate that properly configures the device for [[gls:trace-stream]] generation and emission, which fulfills [[req:itm-gen]].
   See [[cref:impl:rtic-trace]] and [[textcite:&rtic-scope:rtic-trace]].
-- =itm= :: A library crate for decoding the trace stream exfiltrated from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
+- =itm= :: A library crate for decoding the trace stream emitted from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
   See [[cref:impl:itm]] and [[textcite:&itm]].
 
 Of certain note is =itm= which =cargo-rtic-scope= relies on: its implementation is disjoint from RTIC and can be used independently of RTIC Scope.
@@ -597,15 +597,15 @@ This chapter covers the purpose and usage of the utilized ARMv7-M debug peripher
 :PROPERTIES:
 :CUSTOM_ID: debug-periphs
 :END:
-This section summarizes the hardware peripherals responsible for the generation and exfiltration of the [[gls:ITM]] packet protocol.
+This section summarizes the hardware peripherals responsible for the generation and emission of the [[gls:ITM]] packet protocol.
 The relationship of these peripherals is also presented.
 This section is not exhaustive for the sake of brevity.
 For full information on each peripheral, refer to the respective sections in [[textcite:&arm-rm]].
 See [[cref:theory:itm-proto]] for a description of the ITM packet protocol.
 
 # DWT -> ITM -> TPIU -> ETB.
-RTIC Scope utilizes the [[gls:DWT]], ITM, and [[gls:TPIU]] peripherals for on-target trace generation and exfiltration.
-The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU for device exfiltration.
+RTIC Scope utilizes the [[gls:DWT]], ITM, and [[gls:TPIU]] peripherals for on-target trace generation and emission.
+The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU for device emission.
 The ITM multiplexes packets emitted by itself and the DWT and generates timestamp packets in order to establish a time-line of events that occurred on the traced target.
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
@@ -2016,11 +2016,11 @@ Furthermore, it would also require the allocation of a key-word to differentiate
 
 The support for nested function tracing is staged to be removed in a future release of RTIC Scope.
 It is thus recommended to only use the =trace= macro on [[gls:RTIC]] task declarations.
-*** A fundamental flaw of asynchronous serial trace exfiltration
+*** A fundamental flaw of asynchronous serial trace emission
 :PROPERTIES:
 :CUSTOM_ID: disc:swo-transient
 :END:
-During the development of RTIC Scope considerate focus was put on trace exfiltration using asynchronous serial communication.
+During the development of RTIC Scope considerate focus was put on trace emission using asynchronous serial communication.
 This approach saw focus due to the minimal hardware design required to enable [[gls:tracing]] of a product based on an ARMv7-M [[gls:MCU]]:
 the base requirement is to expose the single [[gls:SWO]] pin, after which the remaining work is done by device-external hardware (in order to convert the electrical signal to a byte stream) and software.
 A single MCU pin commonly multiplex features, however.
@@ -2314,7 +2314,7 @@ For =port-demux= and =pcsampl= equivalence, refer to [[textcite:&issue:itm:5]] a
 Below is a list of possible methods of escaping the transient noise of the [[gls:SWO]] pin described in [[cref:disc:swo-transient]].
 
 - Using the parallel trace port :: [[textcite:&arm-rm Section C1.10]] describes the optional feature of a parallel trace port.
-  This is a synchronous trace exfiltration method that uses one pin for the clock and at least one pin for data communication.
+  This is a synchronous trace emission method that uses one pin for the clock and at least one pin for data communication.
   An optional control pin may also be supported by the [[gls:MCU]], but its purpose has not been investigated.
 
   This approach may remove the noise entirely, but may depend on the order in which the pins are configured.
