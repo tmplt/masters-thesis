@@ -569,6 +569,8 @@ There are exceptions to the rules above where a full acronym form or overzealous
 Throughout this text the key words *MUST*, *SHOULD*, and *SHOULD NOT* are used to describe requirements levels;
 these should be interpreted as covered in [[textcite:&rfc2119]].
 
+When register fields are referred to their names are /EMPHASIZED/.
+
 ** Previous and Related Work
 :PROPERTIES:
 :CUSTOM_ID: prev-work
