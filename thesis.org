@@ -61,6 +61,7 @@
 #+latex_header: \tikzset{
 #+latex_header:   block/.style = {draw, rectangle, minimum height=1cm, minimum width=2cm},
 #+latex_header:   ->, % make edges directed
+#+latex_header:   >=latex,
 #+latex_header:   every text node part/.style={align=center}, % allow multiline node descriptions
 #+latex_header: }
 
