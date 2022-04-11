@@ -575,6 +575,17 @@ these should be interpreted as covered in [[textcite:&rfc2119]].
 
 When register fields are referred to, their names are /EMPHASIZED/.
 
+When command line arguments are typeset, square brackets indicate that the argument is optional, whereas angle brackets indicate a required argument.
+For example, in [[cref:lst:argument-typesetting]]:
+=binary= and =feat1= are required arguments, specified without the surrounding angle brackets;
+=feat2= and =feat3= are optional arguments, specified without the surrounding square bracket, separated with a comma, where =[...]= indicate that any number of further arguments can be specified;
+and =[options...]= are any other arguments the invoker may want to pass.
+#+NAME: lst:argument-typesetting
+#+CAPTION: Example invocation of ~cargo build~.
+#+begin_src shell
+  cargo build --bin <binary> --features <feat1>[,feat2[,feat3[...]]] [options...]
+#+end_src
+
 ** Previous and Related Work
 :PROPERTIES:
 :CUSTOM_ID: prev-work
