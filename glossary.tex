@@ -1,6 +1,6 @@
 \newglossaryentry{RS-232}{
   name={RS-232},
-  description={An electrical (physical level) protocol used to communicate data in chunks of 7 or 8 bits. The protocol is asynchronous in that it does not use a line dedicated for the clocking of the data; the \gls{baud-rate} must be communicated out-of-band. Refer to \textcite[Section 14.7.8]{art}.}
+  description={An electrical (physical level) protocol used to communicate data in chunks of up to 8 bits. The protocol is asynchronous in that it does not use a line dedicated for the clocking of the data; the \gls{baud-rate} must be communicated out-of-band. Refer to \textcite[Section 14.7.8]{art}.}
   }
 \newglossaryentry{token}{
   name={token},
@@ -8,7 +8,7 @@
   }
 \newglossaryentry{sample-rate}{
   name={sample rate},
-   description={The frequency at which a control system such as a \gls{regulator} samples sensor input and manipulates the system via actuators.}
+   description={The frequency at which a control system such as a \gls{regulator} samples sensor input and manipulates the system via its actuators.}
   }
 \newglossaryentry{downstream}{
    name={downstream},
@@ -20,7 +20,7 @@
   }
 \newglossaryentry{frontend}{
   name={frontend},
-  description={A piece of software that a user of the program in question interacts with. The frontend maintains a connection with a \gls{backend}. A frontend may also be referred to as a \gls{client}.}
+  description={User-facing software that maintains a connection with a \gls{backend}. May also be referred to as a \gls{client}.}
 }
 \newglossaryentry{client}{
   name={client},
@@ -28,7 +28,7 @@
 }
 \newglossaryentry{backend}{
   name={backend},
-  description={A piece of software that serves a \gls{frontend}. Also referred to as a \gls{daemon}.}
+  description={Software that serves a \gls{frontend}. Also referred to as a \gls{daemon}.}
 }
 \newglossaryentry{daemon}{
   name={daemon},
@@ -40,33 +40,38 @@
 }
 \newacronym{JSONacr}{JSON}{{JavaScript Object Notation}}
 \newglossaryentry{cdylib}{
-  name={cdylib crate},
-  description={A crate that specifies \texttt{crate\_type = ["cdylib"]} in \texttt{Cargo.toml}. Upon building the crate a dynamic library (a shared object file) that targets the stable C ABI is generated. Additionally, it is trivial to find the file location of cdylibs with cargo which is not the case with non-cdylibs crates that instead target the less stable Rust ABI. The only way to directly generate a shared object file with cargo is by building a dylib or a cdylib.}
+  name={cdylib \gls{crate}},
+  description={A crate that specifies \texttt{crate\_type = ["cdylib"]} in \texttt{Cargo.toml}. Upon building the crate a dynamic library (a shared object file) that targets the stable C \gls{ABI} is generated. Additionally, it is trivial to find the file location of cdylibs with \texttt{cargo} which is not the case with non-cdylibs crates that instead target the less stable Rust ABI. The only way to directly generate a shared object file via \texttt{cargo}, as of writing, is by building a dylib or a cdylib.}
 }
 \newacronym{ABI}{ABI}{{Application Binary Interface}}
 \newglossaryentry{JTAG}{
   name={JTAG},
   description={An industry standard that, among other features, offers the ability to program an \gls{MCU} \parencite[Section 14.7.4]{art}.}
 }
+\newacronym{SWDacr}{SWD}{{Serial Wire Debug}}
+\newglossaryentry{SWD}{
+  name={SWD},
+  description={TODO: \acrfull{SWDacr}}
+}
 \newglossaryentry{manglfn}{
   name={mangled function},
-  description={When Rust code is compiled its functions are mangled in order to allow two functions in different namespaces (e.g. different modules) have the same name. Aside from namespace information, mangling is also used to add argument and return type information to the function. This added information adds complexity when resolving the function in a shared object as a result of building a \gls{cdylib}. When mangling is disabled for a function, its name can be directly resolved in the shared object.}
+  description={When Rust code is compiled its \glspl{function} are mangled in order to allow two functions in different namespaces (e.g., \texttt{mod app \{ ... \}} and \texttt{mod aux \{ ... \}}) to have the same name. Aside from namespace information, mangling is also used to describe argument and return type information. This added information adds complexity when resolving the function in a shared object as a result of building a \gls{cdylib}. When mangling is disabled for a function, its name can be directly resolved in the shared object, but its name must be unique in that object.}
   }
 \newglossaryentry{envvar}{
   name={environmental variable},
-  description={A string variable that exists in the environment that programs execute. A change to an environmental variable can change how programs are executed and can be seen as a complement to program argument options.}
+  description={A string variable that exists in the environment that programs execute. A change to an environmental variable can change how programs are executed and can be seen as a complement to program arguments.}
   }
   \newglossaryentry{regulator}{
   name={regulator},
-  description={A control system used to track one or more reference signals. The regulator observes (either directly or by approximation) the internal states of the system under control via sensors and affect the system via actuators.}
+  description={A control system used to track one or more reference signals. The regulator observes (either directly or by approximation) the \gls{system-state} via sensors and affect it via actuators.}
   }
 \newglossaryentry{stdout}{
   name={\texttt{stdout}},
-  description={The standard output of the running program. For example, a ``Hello, World!''-program will write ``Hello, World'' to the standard output.}
+  description={The standard output of a running program. For example, a ``Hello, World!''-program will write ``Hello, World'' to the standard output.}
   }
 \newglossaryentry{sigint}{
   name={SIGINT handler},
-  description={A function that executes when the program receives a SIGINT signal. SIGINT is the interrupt signal. On reception, the program should terminate.}
+  description={A \gls{function} that executes when the program receives a SIGINT signal. SIGINT is the ``interrupt'' signal; on reception the program should terminate.}
 }
 \newglossaryentry{signal}{
   name={signal},
@@ -74,7 +79,7 @@
 }
 \newglossaryentry{thread}{
   name={thread},
-  description={A unit of concurrency available in rich operating systems used to execute multiple functions at the same time.}
+  description={A unit of concurrency available in rich operating systems used to execute multiple \glspl{function} simultaneously.}
   }
 \newglossaryentry{task}{
   name={task},
@@ -86,11 +91,11 @@
 }
 \newglossaryentry{software-task}{
   name={software task},
-  description={A \gls{task} scheduled by software. Not bound to an \gls{interrupt}.}
+  description={A \gls{task} scheduled by software. Not exclusively bound one-to-one to an \gls{interrupt}.}
 }
 \newglossaryentry{interrupt}{
   name={interrupt},
-  description={A hardware resource, a request to which can be requested and subsequently scheduled by hardware, upon which a \gls{hardware-task} executes. An interrupt is the most efficient method for an \gls{MCU} to reach to external stimuli (e.g., by pressing a button.) Can also be referred to as \glspl{IRQ}.}
+  description={A hardware resource, a request to which can be requested and subsequently scheduled by hardware, upon which a \gls{hardware-task} executes. An interrupt is the most efficient method for an \gls{MCU} to react to external stimuli (e.g., by pressing a button.) Can also be referred to as an \gls{IRQ}.}
 }
 \newglossaryentry{socket}{
   name={socket},
@@ -98,15 +103,15 @@
 }
 \newglossaryentry{probe}{
   name={probe},
-  description={Dedicated debugging hardware. Acts as the interface bridge between the host system and the \gls{MCU}.}
+  description={Dedicated debugging hardware. Acts as the interface between the host system and the target \gls{MCU}.}
 }
 \newglossaryentry{task-dispatcher}{
   name={task dispatcher},
-  description={\gls{software-task} executor abstracted upon an \gls{interrupt} handler and thus effectively a \gls{hardware-task} hidden by the user. The task dispatcher keeps tabs on when \glspl{software-task} should be executed.}
+  description={\Gls{software-task} scheduler and executor abstracted upon an \gls{interrupt} handler and thus effectively a \gls{hardware-task} hidden for the user. The task dispatcher keeps tabs on when software tasks should be executed.}
 }
 \newglossaryentry{tracing}{
   name={tracing},
-  description={The act of acquiring continuous insight into the system, with various levels of granularity. Tracing can for example yield information about what is being executed, when, for how long, with what data, and using what intructions.}
+  description={The act of acquiring continuous insight into the system with various levels of granularity. Tracing can for example yield information about what is being executed, when, for how long, with what data, and using what intructions.}
 }
 \newglossaryentry{data-tracing}{
   name={data tracing},
@@ -118,7 +123,7 @@
 }
 \newglossaryentry{exception}{
   name={exception},
-  description={\Gls{interrupt}.},
+  description={An \gls{interrupt}.},
 }
 \newglossaryentry{hardare-event-packet}{
   name={hardware event packet},
@@ -126,7 +131,7 @@
 }
 \newglossaryentry{watch-address}{
   name={watch address},
-  description={Memory address which the \gls{DWT} monitors for changes. When the memory at this address is written to, a \gls{hardware-event-packet} is generated.}
+  description={Memory address which the \gls{DWT} monitors for changes. When the memory at this address is written to a \gls{hardware-event-packet} is generated, presuming appropriate configuration has been previously applied.}
 }
 \newglossaryentry{watch-variable}{
   name={watch variable},
@@ -134,15 +139,15 @@
 }
 \newglossaryentry{system-clock}{
   name={system clock},
-  description={The clock which drives the system. The frequency of this clock is the frequency at which instructions of the \gls{user-application} are executed.}
+  description={A clock which drives (a potentially partial component) of the \gls{MCU}. The frequency of this clock is the frequency at which instructions of the \gls{user-application} are executed.}
 }
 \newglossaryentry{user-application}{
-  name={user-application},
-  description={\Gls{RTIC} application. The \gls{crate} program that is flashed and executed on the \gls{MCU}.}
+  name={user application},
+  description={An \Gls{RTIC} application that is flashed and executed on the \gls{MCU}.}
 }
 \newglossaryentry{baud-rate}{
   name={baud rate},
-  description={The number of signal changes that occur within a second.}
+  description={The speed at which a \gls{RS-232} connection communicates; equivalent to bits per second. \parencite[Section 14.7.8]{art}}
 }
 \newglossaryentry{crate}{
   name={crate},
@@ -158,7 +163,7 @@
 }
 \newglossaryentry{function}{
   name={function},
-  description={A block of statements executed iteratively optionally given a set of parameters. Optionally returns a type at the end of execution.}
+  description={A block of statements executed iteratively optionally given a set of parameters. Optionally returns data at the end of execution.}
 }
 \newglossaryentry{macro}{
   name={macro},
@@ -182,7 +187,7 @@
 }
 \newglossaryentry{trace-packet}{
   name={trace packet},
-  description={A debug \gls{ITM} or \gls{DWT} protocol packet. Refer to \textcite[Part~D4]{arm-rm}.}
+  description={A \gls{ITM} or \gls{DWT} protocol packet. Refer to \textcite[Part~D4]{arm-rm}.}
 }
 \newglossaryentry{hardware-event-packet}{
   name={hardware event packet},
@@ -194,11 +199,11 @@
 }
 \newglossaryentry{unsafe}{
   name={unsafe},
-  description={Context in which code can potentially violate the memory-safety rules of Rust.}
+  description={Context in which Rust code can potentially violate its memory-safety rules.}
 }
 \newglossaryentry{prescaler}{
   name={prescaler},
-  description={A clock divider. For example, a clock frequency of $16~\text{MHz}$ prescaled by $n = 2$ yields a frequency of $8~\text{MHz}$.}
+  description={A clock divider. For example, a clock frequency of $16~\text{MHz}$ prescaled by $2$ yields a frequency of $8~\text{MHz}$.}
 }
 \newglossaryentry{overhead}{
   name={overhead},
@@ -210,7 +215,7 @@
 }
 \newglossaryentry{system-state}{
   name={system state},
-  description={A variable that describe a system component; e.g., the velocity of a vehicle, the heading of an airplane, or the temperature of a chemical mixture.}
+  description={A set of variables that describe a system; e.g., the velocity and acceleration of a vehicle.}
 }
 \newglossaryentry{microcontroller-unit}{
   name={microcontroller unit},
@@ -218,13 +223,13 @@
 }
 
 \newabbreviation{UTID} {UTID} {{Unique Task Identifier}}
-\newabbreviation{PC} {PC} {{program counter}}
-\newabbreviation{CPU} {CPU} {{central processing unit}}
-\newabbreviation{MCU} {MCU} {{\gls{microcontroller-unit}}}
+\newabbreviation{PC} {PC} {{Program Counter}}
+\newabbreviation{CPU} {CPU} {{Central Processing Unit}}
+\newabbreviation{MCU} {MCU} {{\Gls{microcontroller-unit}}}
 \newabbreviation{SWO} {SWO} {{Serial Wire Out}}
-\newabbreviation{RTIC} {RTIC} {\Gls{real-time} \Gls{interrupt}-driven Concurrency}
+\newabbreviation{RTIC} {RTIC} {{\Gls{real-time} \Gls{interrupt}-Driven Concurrency}}
 \newabbreviation{FIFO} {FIFO} {{Fist-In, First-Out}}
-\newabbreviation{RTOS} {RTOS} {{\gls{real-time} operating system}}
+\newabbreviation{RTOS} {RTOS} {{\Gls{real-time} Operating System}}
 \newabbreviation{SRP} {SRP} {{Stack Resource Policy}}
 \newabbreviation{DCB} {DCB} {{Debug Control Block}}
 \newabbreviation{SCS} {SCS} {{System Control Space}}
@@ -252,15 +257,14 @@
 \newabbreviation{DWT_COMPn} {DWT\_COMP$n$} {{Comparator registers}}
 \newabbreviation{DWT_MASKn} {DWT\_MASK$n$} {{Comparator Mask registers}}
 \newabbreviation{AST} {AST} {{Abstract Syntax Tree}}
-\newabbreviation{TLV} {TLV} {{type-length-value}}
+\newabbreviation{TLV} {TLV} {{Type-Length-Value}}
 \newabbreviation{GTS1} {GTS1} {{Global timestamp packet format 1}}
 \newabbreviation{GTS2} {GTS2} {{Global timestamp packet format 2}}
 \newabbreviation{LTS1} {LTS1} {{Local timestamp packet format 1}}
 \newabbreviation{LTS2} {LTS2} {{Local timestamp packet format 2}}
-\newabbreviation{IPSR} {IPSR} {{Interrupt Program Status Register}}
+\newabbreviation{IPSR} {IPSR} {{\Gls{interrupt} Program Status Register}}
 \newabbreviation{USB} {USB} {{Universal Serial Bus}}
-\newabbreviation{SWD} {SWD} {{Serial Wire Debug}}
-\newabbreviation{IRQ} {IRQ} {{Interrupt Request}}
+\newabbreviation{IRQ} {IRQ} {{\Gls{interrupt} Request}}
 \newabbreviation{RFC} {RFC} {{Request for Comments}}
 \newabbreviation{CSV} {CSV} {{Comma Separated Values}}
 \newabbreviation{WG} {WG} {{Working Group}}
