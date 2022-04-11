@@ -244,14 +244,14 @@ This task grows exponentially in difficulty as the number of [[glspl:system-stat
 Similar phenomena are observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
 
 # The observer effect; data emission.
-Unfortunately are embedded systems subject to the observer effect: to observe the internal state of an embedded system (i.e., system variables in memory) its operation must be affected.
+Unfortunately are embedded systems subject to the observer effect: to observe the system state (i.e., variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
 This observation is often realized by emitting data via serial communication which in the best case is subject to bus contention and full output queues.
 It is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation properties of the system if the payload is large.
 In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its regulation procedure and leave data emission to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
 
 # ARM, tracing subsystem and possible exploitation.
-ARM is a company that licenses out designs of ARM [[glspl:CPU]] for embedded systems.
+ARM is a company that licenses out designs of [[glspl:CPU]] for embedded systems.
 ARM CPUs are available via a number of vendors; e.g., STMicroelectrics, Microchip Technology Inc., and Nordic Semiconductors.
 The ARMv7-M platform standard offers debugging facilities that enables the developer to trace the system.
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
