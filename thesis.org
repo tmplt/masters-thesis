@@ -534,7 +534,7 @@ An exhaustive summary of these contributions are described below (listed in no p
 - =rtic-rs/cortex-m-rtic= :: The RTIC implementation for Cortex-M platforms [[parencite:&rtic]].
   Contributions are:
   - book/migration/v5: update init signature, fix example syntax: :: improves documentation for migration to an updated version of RTIC [[parencite:&pr:rtic:480]].
-  - book: detail import resolving for 0.6 migration: :: improves documentation for migration to an updated version[fn:: Now deprecated with the release of RTIC version 1.] of RTIC [[parencite:&pr:rtic:479]].
+  - book: detail import resolving for 0.6 migration: :: improves documentation for migration to a now-deprecated version of RTIC [[parencite:&pr:rtic:479]].
   - book: update outdated required init signature: :: improves RTIC examples in documentation [[parencite:&pr:rtic:478]].
 - =Michael-F-Bryan/include_dir= :: A crate for embedding file trees in a binary [[parencite:&includedir]], utilized to fulfill [[req:rtic]].
   Contributions are:
