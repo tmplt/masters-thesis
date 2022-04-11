@@ -856,7 +856,7 @@ The payload contains three fields of information:
 
 In order to record and interpret the [[gls:trace-stream]] emitted by the target on the host-side the [[gls:RS-232]] on the [[gls:SWO]] pin must be deserialized.
 Commonly, this is realized by use of an FT232H [[gls:IC]] (or equivalent) from FTDI which exposes a [[gls:USB]]-interface for the host.
-When connected to a Linux host, the interface appears as a serial device under =/dev/ttyUSB*=[fn:: On the author's system.] which RTIC Scope can configure and read the trace stream from.
+When connected to a Linux host, the interface appears as a serial device under =/dev/ttyUSB*=[fn:: On the author's host system.] which RTIC Scope can configure and read the trace stream from.
 
 The provision of a schematic that constitutes an RS-232-to-USB converter is outside the scope of this thesis[fn:: In part due to the [[gls:MCU]]-specific voltage levels that constitute the RS-232 signal.];
 refer instead to [[textcite:&ft232]].
