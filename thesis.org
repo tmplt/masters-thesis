@@ -302,7 +302,7 @@ Throughout this text the following Rust terminology is used:
 For sake of decreasing typesetting noise, the relevant glossary entries for these fundamental terms will not be referred to again henceforth.
 For a more detailed description of this terminology, and the Rust programming language and ecosystem in general, refer to [[textcite:&rust-lang]].
 
-Refer to [[textcite:&tjader2021rtic 6--8]] for a summary of Rust in an embedded context,
+Refer to [[textcite:&tjader2021rtic 6--8]] for a summary of Rust in an embedded context.
 
 **** \glsxtrfullpl{PAC}
 :PROPERTIES:
