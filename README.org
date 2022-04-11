@@ -1,8 +1,6 @@
 This repository constitutes my full thesis project, /RTIC Scope —
 Real-Time Tracing Support for the RTIC RTOS Framework/, done at Luleå
-Technical University, Sweden (course number: X7009E) under 2021 in
-cooperation with Grepit AB.
-
-Please refer to resultant project report (TBD) and relevant software.
+Technical University, Sweden (course number: X7009E) under 2021-2022
+in cooperation with [[https://grepit.se][Grepit AB]].
 
 Questions? Contact met at <vikton-6@student.ltu.se>.
