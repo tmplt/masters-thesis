@@ -562,7 +562,11 @@ For acronyms, the first occurrence is written in full form and subsequent in its
 #+begin_quote
 \glsxtrfull{RTIC} is a \textelp{}
 
-\gls{RTIC} also \textelp{}
+RTIC also \textelp{}
+#+end_quote
+and in a subsequent section:
+#+begin_quote
+As previously mentioned, \gls{RTIC} \textelp{}
 #+end_quote
 
 There are exceptions to the rules above where a full acronym form or overzealous term definition is warranted.
@@ -570,7 +574,7 @@ There are exceptions to the rules above where a full acronym form or overzealous
 Throughout this text the keywords *MUST*, *SHOULD*, and *SHOULD NOT* are used to describe requirements levels;
 these should be interpreted as covered in [[textcite:&rfc2119]].
 
-When register fields are referred to their names are /EMPHASIZED/.
+When register fields are referred to, their names are /EMPHASIZED/.
 
 ** Previous and Related Work
 :PROPERTIES:
