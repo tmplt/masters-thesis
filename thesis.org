@@ -733,40 +733,40 @@ Global timestamps come in three flavors: 48-bit, 64-bit, or not at all (omitted.
 Whether global timestamp support is implemented, and the size of this timestamp, depends on the hardware implementation of the [[gls:ITM]].
 
 The two packets that constitute a global timestamp, [[gls:GTS1]] and [[gls:GTS2]], are sent separately and not necessarily in order.
-A [[gls:GTS2]] packet is not emitted unless any of the bits in the 26--47 or 26--64 range have changed.
-The [[gls:GTS1]] packet also contains two flags aside from the lesser significant 25 bits:
-- /ClkCh/ :: Set if the system which the [[gls:ITM]] is tracing has changed clock input to the processor since the last global timestamp packet.
+A GTS2 packet is not emitted unless any of the bits in the 26--47 or 26--64 range have changed.
+The GTS1 packet also contains two flags aside from the lesser significant 25 bits:
+- /ClkCh/ :: Set if the system which the ITM is tracing has changed clock input to the processor since the last global timestamp packet.
   A full global timestamp follows in the stream if this flag is set.
-- /Wrap/ :: Set if the more significant bits above the 25th have changed since the last [[gls:GTS2]] packets.
-If either of the flags are set the [[gls:GTS1]] should be recorded until the next [[gls:GTS2]] is received so that the full timestamp can be decoded.
-[[cref:fig:gts1]], [[cref:fig:gts2-48]], and [[cref:fig:gts2-64]] visually describes the [[gls:GTS1]], [[gls:GTS2]] (48-bit) and [[gls:GTS2]] (64-bit) packets, respectively.
+- /Wrap/ :: Set if the more significant bits above the 25th have changed since the last GTS2 packets.
+If either of the flags are set the GTS1 should be recorded until the next GTS2 is received so that the full timestamp can be decoded.
+[[cref:fig:gts1]], [[cref:fig:gts2-48]], and [[cref:fig:gts2-64]] visually describes the GTS1, GTS2 (48-bit) and GTS2 (64-bit) packets, respectively.
 
 Global timestamps can be generated periodically; or after each packet, if space is available in the queue.
 
 #+NAME: fig:gts1
-#+CAPTION: \glsxtrfull{GTS1} packet format, copied from [[textcite:&arm-rm Figure D4-7]].
+#+CAPTION: \gls{GTS1} packet format, copied from [[textcite:&arm-rm Figure D4-7]].
 [[file:svgs/gts1.pdf]]
 #+NAME: fig:gts2-48
-#+CAPTION: \glsxtrfull{GTS2} 48-bit packet format, copied from [[textcite:&arm-rm Figure D4-8]].
+#+CAPTION: \gls{GTS2} 48-bit packet format, copied from [[textcite:&arm-rm Figure D4-8]].
 [[file:svgs/gts2-48.pdf]]
 #+NAME: fig:gts2-64
-#+CAPTION: \glsxtrfull{GTS2} 64-bit packet format, copied from [[textcite:&arm-rm Figure D4-9]].
+#+CAPTION: \gls{GTS2} 64-bit packet format, copied from [[textcite:&arm-rm Figure D4-9]].
 [[file:svgs/gts2-64.pdf]]
 
 The two local timestamps, [[gls:LTS1]] and [[gls:LTS2]], are not complementary:
 instead they supply a different maximum relative timestamp.
-[[gls:LTS1]] provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included.)
-[[gls:LTS2]] is a single-byte packet with a relative timestamp that can be represented with 3 bits that are provided in the header.
-More specifically, an [[gls:LTS2]] can represent a relative timestamp value of 1--6;
+LTS1 provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included.)
+LTS2 is a single-byte packet with a relative timestamp that can be represented with 3 bits that are provided in the header.
+More specifically, an LTS2 can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
-[[gls:LTS1]] also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
+LTS1 also contain a 2-bit /TC/ field which describes the relationship of the timestamp value with the corresponding non-timestamp packet(s).
 This flag has four possible values, termed /qualities/ throughout this text, described in decreasing quality:
 - /TC/ $=$ 0b00 :: Synchronous: the timestamp value denotes the time when the non-timestamp packet was generated.
 - /TC/ $=$ 0b01 :: Delayed relative: the timestamp value denotes the time when the timestamp packet itself was generated.
   The synchronous timestamp is here unknown but must be between the previous and current timestamp values.
 - /TC/ $=$ 0b10 :: Synchronous, but the corresponding non-timestamp packet generation was delayed relative to the associated event.
 - /TC/ $=$ 0b11 :: Delayed relative, and the corresponding non-timestamp packet generation was delayed relative to the associated event.
-[[gls:LTS2]] packets are always synchronous.
+LTS2 packets are always synchronous.
 
 Local timestamps are emitted after the corresponding non-timestamp packets.
 For example, if the sequence reads
@@ -774,22 +774,22 @@ For example, if the sequence reads
 \begin{multicols}{3}
 #+end_export
 1. data packet 1;
-2. [[gls:LTS1]];
+2. LTS1;
 3. data packet 2;
 4. data packet 3; and
-5. [[gls:LTS2]],
+5. LTS2,
 #+begin_export latex
 \end{multicols}
 \noindent
 #+end_export
-then the [[gls:LTS1]] corresponds to data packet 1;
-and [[gls:LTS2]] to data packet 2 and 3.
+then the LTS1 corresponds to data packet 1;
+and LTS2 to data packet 2 and 3.
 
 #+NAME: fig:lts1
-#+CAPTION: \glsxtrfull{LTS1} packet format, copied from [[textcite:&arm-rm Figure D4-4]].
+#+CAPTION: \gls{LTS1} packet format, copied from [[textcite:&arm-rm Figure D4-4]].
 [[file:svgs/lts1.pdf]]
 #+NAME: fig:lts2
-#+CAPTION: \glsxtrfull{LTS2} packet format, copied from [[textcite:&arm-rm Figure D4-6]].
+#+CAPTION: \gls{LTS2} packet format, copied from [[textcite:&arm-rm Figure D4-6]].
 [[file:svgs/lts2.pdf]]
 
 **** Exception trace packets
@@ -836,17 +836,17 @@ Its payload contains two fields:
 :PROPERTIES:
 :CUSTOM_ID: theory:itm:data-trace
 :END:
-The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a watch address after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]].)
+The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a [[gls:watch-address]] after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]].)
 The payload contains three fields of information:
-- /CMPN/ :: A 2-bit identifier of the [[gls:DWT]] comparator which matched the configured watch address access.
+- /CMPN/ :: A 2-bit identifier of the DWT comparator which matched the configured watch address access.
   This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
 - /WnR/ :: A flag describing whether the access was a read (not set) or write (set).
 - /VALUE/ :: The value that was written to the address.
-  The length of VALUE is the same number of bytes accessed by the target hardware.
-  If only a single byte is read/written by the target, then VALUE is also one byte long.
+  The length of /VALUE/ is the same number of bytes accessed by the target hardware.
+  If only a single byte is read/written by the target, then /VALUE/ is also one byte long.
 
 #+NAME: fig:data-trace-packet
-#+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
+#+CAPTION: Data trace data value packet format, copied from [[textcite:&arm-rm Figure D4-22]].
 [[file:svgs/data-trace.pdf]]
 
 *** Deserializing the \glsxtrfull{SWO}
