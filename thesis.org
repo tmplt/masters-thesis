@@ -436,7 +436,7 @@ Examples of such suites are =openocd=, [[textcite:&openocd]]; and =probe-rs=, [[
 Both [[gls:RTIC]] and the debug peripherals of ARMv7-M operate in an event-based context where RTIC events trigger the debug peripherals to emit [[glspl:trace-packet]].
 Exploiting this relationship is thus sensible; certainly so because these peripherals do not affect the wider system as covered in [[cref:introduction]].
 Hardware-wise, this approach is very cheap to utilize on a supporting [[gls:MCU]]:
-only the [[gls:SWO]] pin needs to be exposed, and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system.
+only the [[gls:SWO]] pin needs to be exposed, and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system ([[cref:theory:swo]]).
 
 The motivation of RTIC Scope is then to provide the necessary software to configure the target for [[gls:tracing]] and interpret the byte stream received on the host.
 With available software, embedded developers can then quickly garner insight into their system to verify that the software behaves as expected, and trivially find out when and where it does not.
@@ -688,17 +688,9 @@ For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]
 # Summarize TPIU functionality
 The [[gls:TPIU]] provides external visibility of the trace packet stream by asynchronously serializing them on a single pin --- the [[gls:SWO]] --- by help of a prescaled reference clock, see [[cref:fig:debug-relations]].
 In order to communicate over an asynchronous serial channel the [[gls:baud-rate]] must be communicated out-of-band: it must be pre-configured both target-side and host-side.
-The signal emitted on the SWO can be configured for either the level-inverted RS-232 serial data-byte protocol [[parencite:&art Section 14.7.8]] or Manchester encoding protocol [[parencite:&art Section 14.7.9]].
+The signal emitted on the SWO can be configured for either the level-inverted [[gls:RS-232]] serial data-byte protocol or Manchester encoding protocol [[parencite:&art Section 14.7.9]].
 
 For more information on the TPIU, refer to [[parencite:&arm-rm Section C1.10]].
-*** The \glsxtrfull{SWO} pin
-:PROPERTIES:
-:CUSTOM_ID: theory:swo
-:END:
-*** Serial devices
-:PROPERTIES:
-:CUSTOM_ID: theory:serial-device
-:END:
 *** The \glsxtrfull{ITM} packet protocol
 :PROPERTIES:
 :CUSTOM_ID: theory:itm-proto
@@ -854,6 +846,18 @@ The payload contains three fields of information:
 #+CAPTION: Data trace data value packet format, copied with permission (?) from [[textcite:&arm-rm Figure D4-22]].
 [[file:svgs/data-trace.pdf]]
 
+*** Deserializing the \glsxtrfull{SWO}
+:PROPERTIES:
+:CUSTOM_ID: theory:swo
+:END:
+
+In order to record and interpret the [[gls:trace-stream]] emitted by the target on the host-side the [[gls:RS-232]] on the [[gls:SWO]] pin must be deserialized.
+Commonly, this is realized by use of an FT232H [[gls:IC]] (or equivalent) from FTDI which exposes a [[gls:USB]]-interface for the host.
+When connected to a Linux host, the interface appears as a serial device under =/dev/ttyUSB*=[fn:: On the author's system.] which RTIC Scope can configure and read the trace stream from.
+
+The provision of a schematic that constitutes an RS-232-to-USB converter is outside the scope of this thesis[fn:: In part due to the [[gls:MCU]]-specific voltage levels that constitute the RS-232 signal.];
+refer instead to [[textcite:&ft232]].
+
 *** Tracing \glsxtrfull{RTIC} tasks
 # How tasks are traced, summarized
 Because [[gls:RTIC]] implements [[glspl:task]] by use of [[gls:exception]] handlers it is only natural to exploit [[gls:exception-tracing]] in order to trace the tasks abstracted above them.
@@ -890,7 +894,7 @@ As mentioned in [[cref:delimitations]], this chapter covers v0.3 of RTIC Scope.
     \node[block] (tpiu) {\gls{TPIU}, \\ \cref{theory:tpiu}; \\ from~\cref{fig:debug-relations}};
     \node[above=0.5cm of tpiu] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}, \\ \cref{impl:rtic-trace}};
     \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=(target.north east), \p2=($(tpiu.south east)+(0.3,-0.3)$) in (target.north west) rectangle (\x1,\y2);
-    \node[block, below=of tpiu] (serial-dev) {serial device, \\ \cref{theory:serial-device}};
+    \node[block, below=of tpiu] (serial-dev) {serial device, \\ \cref{theory:swo}};
     \path[->] (tpiu) edge node {\gls{SWO}, \\ \cref{theory:swo}} (serial-dev);
     \node[block, below=of serial-dev] (itm-crate) {\texttt{itm} crate, \\ \cref{impl:itm}};
     \path[->] (serial-dev) edge node {byte stream; \\ \cref{theory:itm-proto}} (itm-crate);
