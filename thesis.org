@@ -312,7 +312,7 @@ Refer to [[textcite:&tjader2021rtic 6--8]] for a summary of Rust in an embedded 
 A [[gls:PAC]] is a Rust library crate which exposes a convenient and standardized [[gls:API]] to read and write to memory-mapped registers in order to mutate (in order to configure) and query (in order to poll the status of) hardware peripherals.
 
 # Differentiate {architecture,device}-specific PACs
-In the embedded Rust ecosystems, these are two kinds of [[glspl:PAC]]:
+In the embedded Rust ecosystems, there are two kinds of [[glspl:PAC]]:
 - Architecture-specific :: PACs expose an API for hardware peripherals common to all [[glspl:MCU]] that share the same architecture, commonly termed /family/.
   For example, =cortex-m= [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems.
   Of note are the Cortex-M4 and Cortex-M7 families which are based upon ARMv7-M and includes the hardware peripherals that RTIC Scope requires.
