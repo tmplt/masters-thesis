@@ -2370,6 +2370,8 @@ From this proof of concept it is immediately clear that a graphical representati
 further work to this end is warranted.
 Refer to [[textcite:&issue:cargo-rtic-scope:135]] and [[textcite:&issue:cargo-rtic-scope:89]].
 
+A third-party RTIC Scope [[gls:frontend]] has seen some development that graphically plots [[gls:task]] run-times [[parencite:&racer]], but is as of writing not compatible with RTIC Scope v0.3.
+
 ** Conclusion
 :PROPERTIES:
 :CUSTOM_ID: conclusion
