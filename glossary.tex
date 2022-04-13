@@ -71,11 +71,11 @@
   }
 \newglossaryentry{sigint}{
   name={SIGINT handler},
-  description={A \gls{function} that executes when the program receives a SIGINT signal. SIGINT is the ``interrupt'' signal; on reception the program should terminate.}
+  description={A \gls{function} that executes when the program receives a SIGINT \gls{signal}.}
 }
 \newglossaryentry{signal}{
-  name={signal},
-  description={A standardized message sent to a running program by the operating system meant to trigger specific behavior. Some signals can be handled by the program, such as SIGINT (``interrupt'') and SIGHUP (``hang up''.)},
+  name={POSIX signal},
+  description={An asynchronous notification sent to a program by the operating system, meant to trigger specific behavior \parencite[Section 7.5.1]{burns}. Examples or such signals are SIGINT (``interrupt''; on reception the program should terminate) and SIGHUP (``hang up''.)},
 }
 \newglossaryentry{thread}{
   name={thread},
