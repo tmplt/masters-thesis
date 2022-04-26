@@ -1338,7 +1338,7 @@ Together these two lookup maps constitute a full =recovery::TraceLookupMaps= whi
 # Overview: what to we need?
 In order to generate a =recovery::HardwareMap= the [[gls:RTIC]] application declaration must be parsed.
 This is first done when the application is built in [[cref:impl:cargo-rtic-scope:building-rtic-app]] via =rtic::app= macro expansion by =rtic_syntax::parse{,2}= [[parencite:&rtic]] which yields an =rtic_syntax::ast::App= [[parencite:&rtic-syntax]] structure used internally to verify the declaration and ultimately yield expanded code.
-While the structure contains all the information =cargo rtic-scope trace= requires it is not emitted during the built for RTIC Scope.
+While the structure contains all the information =cargo rtic-scope trace= requires it is not emitted during the build by =cargo=.
 This requires the application declaration to be parsed once more after first reading the source file, the path to which is acquired in [[cref:impl:cargo-rtic-scope:building-rtic-app]].
 
 # We must the source for the ASTs
