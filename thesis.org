@@ -2387,7 +2387,7 @@ A third-party RTIC Scope [[gls:frontend]] has seen some development that graphic
 :CUSTOM_ID: conclusion
 :END:
 The RTIC Scope project fulfills all requirements enumerated in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]] in mind.
-While user [[gls:overhead]] has been minimized as much as possible within the allotted development time overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
+While user [[gls:overhead]] has been minimized as much as possible within the allotted development time, overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
 Future work ([[cref:fut]]) is warranted to improve RTIC Scope.
 
 ** Backmatter                                                       :ignore:
