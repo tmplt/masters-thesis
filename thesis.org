@@ -282,12 +282,12 @@ In summary, it is easy to put an embedded system in an incorrect or unknown stat
 In order to lighten the implementation burden one may employ [[gls:RTIC]] (see [[cref:rtic]].)
 
 # Project aim
-The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a tool-set, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilities and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
-RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the tool-set, and allow the replay of traces postmortem (after the system has executed and is no longer active.)
+The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilities and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
+RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the toolset, and allow the replay of traces postmortem (after the system has executed and is no longer active.)
 
 # Thesis summary
-This thesis covers the theory behind relevant ARM peripherals and protocols upon which RTIC Scope relies, a close-to exhaustive enumerations of the contributions made during the project and a detailed description of its implementation, along with discussions on approaches taken and topics of interests regarding the future work that can be done to improve upon the tool-set.
-The tool-set is applied to a trivial RTIC application for demonstration purposes.
+This thesis covers the theory behind relevant ARM peripherals and protocols upon which RTIC Scope relies, a close-to exhaustive enumerations of the contributions made during the project and a detailed description of its implementation, along with discussions on approaches taken and topics of interests regarding the future work that can be done to improve upon the toolset.
+The toolset is applied to a trivial RTIC application for demonstration purposes.
 
 *** Background
 This introductory section covers the software components that have realized RTIC Scope.
@@ -444,7 +444,7 @@ With available software, embedded developers can then quickly garner insight int
 :PROPERTIES:
 :CUSTOM_ID: requirements
 :END:
-This thesis covers the development of an embedded system analysis tool-set, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and emitted by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
+This thesis covers the development of an embedded system analysis toolset, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and emitted by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
 The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
 RTIC Scope *MUST* adhere to, and thus be able to
@@ -463,7 +463,7 @@ Delimitations to the above requirements apply, see [[cref:delimitations]].
 :PROPERTIES:
 :CUSTOM_ID: delimitations
 :END:
-In order to focus on the delivery of a robust tool-set with proper implementation and documentation the scope of this thesis have been limited.
+In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
 These delimitations are related to the requirements described in [[cref:requirements]] and are below enumerated.
 1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all ARMv7-M [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and emission.
    RTIC Scope *SHOULD NOT* apply device-specific configurations.
@@ -592,12 +592,12 @@ and =[options...]= are any other arguments the invoker may want to pass.
 :END:
 This chapter briefly covers previous work upon which RTIC Scope is based and related work.
 *** Previous work
-The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the tool-set within the frame of this thesis.
+The implementation of RTIC Scope stands of the shoulders of countless developers that have enabled the implementation of the toolset within the frame of this thesis.
 Notable libraries are referred to inline throughout this text.
 When citing software, the three authors with the most contributions (in decreasing order) at the time of writing are cited as the authors of that software.
 
 *** Related work
-Some tool-sets similar to RTIC Scope were already available before the start of this thesis, namely:
+Some toolsets similar to RTIC Scope were already available before the start of this thesis, namely:
 - orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
 - Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[glspl:RTOS]] [[parencite:&tracealyzer]].
 Neither of the above tools support [[gls:RTIC]] at the time of writing and were not investigated further.
@@ -2257,7 +2257,7 @@ This dependency is only required for the recovery step in [[cref:impl:cargo-rtic
 RTIC Scope could as well implement support for the user to provide these maps by describing them in an external file passed via a theoretical =cargo rtic-scope trace --maps-file /path/to/extenal-maps-description [...]= invocation.
 Such an approach would enable RTIC Scope to be applied on an application that is not written in RTIC.
 Additionally, RTIC Scope could then also be applied on an application that is not necessarily written in Rust if =--dont-touch-target= and =--trace-dir= are passed to the =trace=[fn:: =--trace-dir= would be required such that =cargo-rtic-scope= would not search through a crate that does not exist. =--dont-touch-target= is would be required because =cargo-rtic-scope= only knows how to build and flash a Rust application.] verb and provided that =cortex-m-rtic-trace= is substituted.
-This would make the tool-set more general and drive development from more than a single front.
+This would make the toolset more general and drive development from more than a single front.
 
 **** Publishing all crates to the crate registry
 In order to publish a crate all of its dependencies must first be published.
@@ -2297,7 +2297,7 @@ A tracking issue has been created that documents the effort to publish RTIC Scop
 :PROPERTIES:
 :CUSTOM_ID: fut:itm-tools
 :END:
-=itm-tools= [[parencite:&itm-tools]] is a tool-set for analyzing [[gls:ITM]] trace streams.
+=itm-tools= [[parencite:&itm-tools]] is a toolset for analyzing [[gls:ITM]] trace streams.
 As of writing, these tools decode the ITM packet standard and offer interpretation of exception traces ([[cref:theory:itm:exceptions]]), [[gls:PC]] samples (via =pcsampl=), and instrumentation packet port demuxing (via =port-demux=.)
 Of certain interest is that =pcsampl= can answer the question of "where is my program spending most if its time?"
 An example invocation of =pcsampl= would yield [[cref:lst:pcsampl]], describing that the program spent almost 92% of its time sleeping during the time the target was traced.
