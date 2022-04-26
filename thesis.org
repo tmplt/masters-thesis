@@ -2274,7 +2274,7 @@ In order to publish a crate all of its dependencies must first be published.
 When a crate has been published, it can be used as a dependency by specifying the crate name and version alone in =Cargo.toml=, as seen in [[cref:lst:cargo-lib-dep]].
 A published crate can also be installed via =cargo= by simply specifying the name of the crate.
 This makes it trivial for users to install a Rust program as long as any non-Rust dependencies are installed.
-Ideally, a user should be able to install RTIC Scope via [[cref:lst:cargo-install-bins]], but as of writing the easiest way to install RTIC Scope is via [[cref:lst:cargo-install-git]], simply because RTIC Scope v0.3 has yet to be published at the time of writing.
+Ideally, a user should be able to install RTIC Scope via [[cref:lst:cargo-install-bins]], but currently the easiest way to install RTIC Scope is via [[cref:lst:cargo-install-git]], simply because RTIC Scope v0.3 has yet to be published.
 
 #+NAME: lst:cargo-lib-dep
 #+CAPTION: Declaring ~cortex-m-rtic-trace~, which is here presumed to be published on the crate repository, as a dependency in a ~Cargo.toml~
@@ -2357,7 +2357,7 @@ Below is a list of possible methods of escaping the transient noise of the [[gls
 
 - Storing trace data on-chip :: [[textcite:&arm-rm Section C1.10]] refers to a [[gls:TPIU]]-alternative dubbed the [[gls:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
   An attached debugger could theoretically read this data, sidestepping the TPIU (and thus any pin transients) completely.
-  =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but as of writing it lacks support for the ETB.
+  =cargo-rtic-scope= relies on =probe-rs=, which can be used to read the on-chip memory, but it currently lacks support for the ETB.
   Refer to [[textcite:&issue:cargo-rtic-scope:128]] for the progress of this approach.
 
 **** Review local and global timestamp clock relationship
@@ -2380,7 +2380,7 @@ From this proof of concept it is immediately clear that a graphical representati
 further work to this end is warranted.
 Refer to [[textcite:&issue:cargo-rtic-scope:135]] and [[textcite:&issue:cargo-rtic-scope:89]].
 
-A third-party RTIC Scope [[gls:frontend]] has seen some development that graphically plots [[gls:task]] run-times [[parencite:&racer]], but is as of writing not compatible with RTIC Scope v0.3.
+A third-party RTIC Scope [[gls:frontend]] has seen some development that graphically plots [[gls:task]] run-times [[parencite:&racer]], but is not yet compatible with RTIC Scope v0.3.
 
 ** Conclusion
 :PROPERTIES:
