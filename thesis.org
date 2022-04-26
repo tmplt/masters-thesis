@@ -2139,7 +2139,7 @@ If overflows are encountered the below description of approaches can be consulte
   /SWOSCALER/ can be calculated via [[cref:eq:prescaler]] and may have any value that fits in the field.
   Increasing the baud rate by lowering /SWOSCALER/ gives the TPIU more time to serialize a packet onto the SWO pin, thus increasing the margin until the internal [[gls:FIFO]] queue fills up prompting an overflow on the next packet.
 
-  While the TPIU can communicate with an arbitrary baud rate the host-side system may not be able to communicate with the same arbitrarity.
+  While the TPIU can communicate with an arbitrary baud rate, the host-side system may not be able to communicate with the same arbitrarity.
   Linux, for example, can only communicate with a set of predefined baud rates as described in =termios.h= [[parencite:&linux:termios]].
   With a sufficiently low error rate, $\left\lvert1 - \frac{\text{Linux baud rate}}{\text{TPIU baud rate}}\right\rvert$, it may be possible to establish a stable communication with non-matched baud rates.
 
@@ -2157,7 +2157,7 @@ If overflows are encountered the below description of approaches can be consulte
   This behavior must be taken into account when changing the clock source.
   It is in any case recommended to always use an asynchronous clock source if available in case the system clock frequency must be changed.
 
-- Lower the system clock :: The frequency at which trace packets are generated is entirely bound to how often tasks are entered and exited and the frequency of the system clock.
+- Lower the system clock :: The frequency at which trace packets are generated is entirely bound to how often tasks are entered and exited, and the frequency of the system clock.
   If the above recommendations have been applied and overflows are still encountered, a last resort before the traced application must be refactored is to lower the system clock frequency.
   This frequency should as per the last recommendation be lower than that of the asynchronous clock frequency which the TPIU sources.
 
