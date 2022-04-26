@@ -279,11 +279,11 @@ Embedded platforms are much more subject to side effects where peripherals are o
 Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of an implementation error.
 In summary, it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
-In order to lighten the implementation burden one may employ [[gls:RTIC]] (see [[cref:rtic]].)
+In order to lighten the implementation burden one may employ [[gls:RTIC]] (see [[cref:rtic]]).
 
 # Project aim
 The aim of this thesis is to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilities and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
-RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the toolset, and allow the replay of traces postmortem (after the system has executed and is no longer active.)
+RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the toolset, and allow the replay of traces postmortem (after the system has executed and is no longer active).
 
 # Thesis summary
 This thesis covers the theory behind relevant ARM peripherals and protocols upon which RTIC Scope relies, a close-to exhaustive enumerations of the contributions made during the project and a detailed description of its implementation, along with discussions on approaches taken and topics of interests regarding the future work that can be done to improve upon the toolset.
@@ -368,7 +368,7 @@ RTIC removes some embedded programming burden out-of-the-box while also
 - being amenable to [[gls:WCET]] analysis [[parencite:&rauk]].
 
 # Oh yeah, and Rust
-RTIC is written in Rust which removes additional developer overhead (see [[cref:rust]].)
+RTIC is written in Rust which removes additional developer overhead (see [[cref:rust]]).
 
 An RTIC application is implemented by statically declaring a set of atomic tasks which are executed and scheduled by help of Cortex-M hardware features.
 This section summarizes the two different task types --- [[glspl:hardware-task]] and [[glspl:software-task]] --- that together constitute an RTIC application.
@@ -436,7 +436,7 @@ Examples of such suites are =openocd=, [[textcite:&openocd]]; and =probe-rs=, [[
 Both [[gls:RTIC]] and the debug peripherals of ARMv7-M operate in an event-based context where RTIC events trigger the debug peripherals to emit [[glspl:trace-packet]].
 Exploiting this relationship is thus sensible; certainly so because these peripherals do not affect the wider system as covered in [[cref:introduction]].
 Hardware-wise, this approach is very cheap to utilize on a supporting [[gls:MCU]]:
-only the [[gls:SWO]] pin needs to be exposed, and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system ([[cref:theory:swo]].)
+only the [[gls:SWO]] pin needs to be exposed, and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system ([[cref:theory:swo]]).
 
 The motivation of RTIC Scope is then to provide the necessary software to configure the target for [[gls:tracing]] and interpret the byte stream received on the host.
 With available software, embedded developers can then quickly garner insight into their system to verify that the software behaves as expected, and trivially find out when and where it does not.
@@ -493,7 +493,7 @@ The development of RTIC Scope has yielded a number of [[gls:downstream]] contrib
   See [[textcite:&rtic-scope:api]].
 - =cortex-m-rtic-trace= :: An auxiliary target-side crate that properly configures the device for [[gls:trace-stream]] generation and emission, which fulfills [[req:itm-gen]].
   See [[cref:impl:rtic-trace]] and [[textcite:&rtic-scope:rtic-trace]].
-- =itm= :: A library crate for decoding the trace stream emitted from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially.)
+- =itm= :: A library crate for decoding the trace stream emitted from the embedded system, which fulfill Requirements [[req:decode]] and [[req:timestamps]] (partially).
   See [[cref:impl:itm]] and [[textcite:&itm]].
 
 Of certain note is =itm= which =cargo-rtic-scope= relies on: its implementation is disjoint from RTIC and can be used independently of RTIC Scope.
@@ -502,7 +502,7 @@ Because of this general nature and detachment from both RTIC and RTIC Scope it m
 See [[cref:disc:itm-embedded-wg]] for a discussion on under what banner =itm= belongs.
 
 Further, a number of [[gls:upstream]] contributions have been made to the crates which RTIC Scope depends on.
-An exhaustive summary of these contributions are described below (listed in no particular order.)
+An exhaustive summary of these contributions are described below (listed in no particular order).
 
 - =probe-rs/probe-rs= ::
   A "a modern, embedded debugging toolkit, written in Rust" [[parencite:&probe-rs]] utilized to partially fulfill [[req:input]].
@@ -667,7 +667,7 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
   \end{tikzpicture}
   \caption{\label{fig:debug-relations}\Gls{downstream} relationship between ARMv7-M debug peripherals used for \gls{tracing}.
     \Glspl{hardware-event-packet} from the \gls{DWT} are forwarded to the \gls{ITM} which are subsequently forwarded to the \gls{TPIU} with an attached timestamp generated by the \gls{ITM}.
-    The \gls{TPIU} serializes the \gls{ITM} protocol packets over \gls{SWO} or a parallel trace output by help of a reference clock divided by a \gls{prescaler} ($n \geq 1$ is an integer.)
+    The \gls{TPIU} serializes the \gls{ITM} protocol packets over \gls{SWO} or a parallel trace output by help of a reference clock divided by a \gls{prescaler} ($n \geq 1$ is an integer).
     In this text only the \gls{SWO} is considered.}
   \end{figure}
 #+END_src
@@ -680,7 +680,7 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
 The [[gls:DWT]] peripheral concerns itself with hardware events and react to these accordingly depending on the applied configuration.
 For the purpose of RTIC Scope the DWT is configured to emit [[glspl:hardware-event-packet]] on two types of events: when
 - a configured range of memory is accessed (known as [[gls:data-tracing]]); and
-- whenever the processor enters, exits, and returns to an [[gls:exception]] handler (known as [[gls:exception-tracing]].)
+- whenever the processor enters, exits, and returns to an [[gls:exception]] handler (known as [[gls:exception-tracing]]).
 Within this text the range of memory used for data tracing is referred to as a [[gls:watch-address]]:
 when a value is written to a watch address --- the [[gls:watch-variable]] --- a data trace packet is generated containing the written value.
 
@@ -750,7 +750,7 @@ When a relative timestamp is generated the relative timestamp counter is reset.
 This type separation is done in order to decrease the required bandwidth to communicate the time on the system.
 Absolute and relative timestamps are further divided into a total of four different packets, summarized above and detailed below.
 
-Global timestamps come in three flavors: 48-bit, 64-bit, or not at all (omitted.)
+Global timestamps come in three flavors: 48-bit, 64-bit, or not at all (omitted).
 Whether global timestamp support is implemented, and the size of this timestamp, depends on the hardware implementation of the [[gls:ITM]].
 
 The two packets that constitute a global timestamp, [[gls:GTS1]] and [[gls:GTS2]], are sent separately and not necessarily in order.
@@ -776,7 +776,7 @@ Global timestamps can be generated periodically; or after each packet, if space 
 
 The two local timestamps, [[gls:LTS1]] and [[gls:LTS2]], are not complementary:
 instead they supply a different maximum relative timestamp.
-LTS1 provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included.)
+LTS1 provide a relative timestamp value that can be represented with 28 bits and is between 2--5 bytes long (header included).
 LTS2 is a single-byte packet with a relative timestamp that can be represented with 3 bits that are provided in the header.
 More specifically, an LTS2 can represent a relative timestamp value of 1--6;
 clashes with headers for other types of packets would occur if the value was 0 or 7.
@@ -857,7 +857,7 @@ Its payload contains two fields:
 :PROPERTIES:
 :CUSTOM_ID: theory:itm:data-trace
 :END:
-The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a [[gls:watch-address]] after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]].)
+The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a [[gls:watch-address]] after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
 The payload contains three fields of information:
 - /CMPN/ :: A 2-bit identifier of the DWT comparator which matched the configured watch address access.
   This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
@@ -1082,7 +1082,7 @@ The steps in \cref{rtic-trace:nofail-conf,rtic-trace:dwt} cannot fail.
 
 Of certain note are the steps in [[cref:rtic-trace:dwt]] because of the dependency of variables in memory to trace software tasks, and how the watch variables in this section are aligned in memory.
 The DWT comparators are configured to match on writes to singular addresses which are represented as =u32= variables.
-However, due to performance reasons (and in order to reduce implementation complexity), the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]].)
+However, due to performance reasons (and in order to reduce implementation complexity), the watch variables are represented as =u8= variables: only a single byte will be written to these 32-bit addresses during run-time tracing (see [[cref:impl:rtic-trace:trace-macro]]).
 Further, because of time constrains no experimentation has been done with a non-zero mask: this requires the watch variables to be aligned to 32-bits. For more on the topic of performance, see [[cref:disc:perf]].
 
 **** Tracing [[glspl:software-task]] with ~trace~
@@ -1377,13 +1377,13 @@ For example, in [[cref:lst:recovery-example]], =device = stm32f4::stm32f401= is 
 #+end_src
 
 In order to isolate the =#[rtic::app(...)] mod app { ... }= section in [[cref:lst:recovery-example]] the =std::String= that represents the content of the source is first converted to an [[gls:AST]], specifically a =proc_macro2::TokenStream2= [[parencite:&proc-macro2]] via =syn= [[parencite:&syn]].
-With a =TokenStream2= structure in hand [[glspl:token]] are skipped until the =proc_macro2::TokenTree::Group(_)= that contains =#[rtic::app(...)]= is found ([[cref:lst:recovery-example]], line 4.)
+With a =TokenStream2= structure in hand [[glspl:token]] are skipped until the =proc_macro2::TokenTree::Group(_)= that contains =#[rtic::app(...)]= is found ([[cref:lst:recovery-example]], line 4).
 The remainder of the source file is then assumed to be the macro input.
 
 The parsing procedure places a few restrictions on otherwise valid declarations:
 1. [[glspl:task]] *SHOULD NOT* be externally declared[fn:: Untested functionality.];
 2. the =rtic::app= macro *MUST* be called via =#[rtic::app]= (i.e. [[cref:lst:invalid-recovery-example]] will fail to parse); and
-3. the =mod app { ... }= token group terminator *MUST* be the last line of the source file ([[cref:lst:recovery-example]], line 27.)
+3. the =mod app { ... }= token group terminator *MUST* be the last line of the source file ([[cref:lst:recovery-example]], line 27).
 Undiscovered restrictions may apply.
 #+NAME: lst:invalid-recovery-example
 #+CAPTION: Valid [[gls:RTIC]] application declaration that cannot be parsed by ~cargo rtic-scope trace~.
@@ -1399,7 +1399,7 @@ Undiscovered restrictions may apply.
 
 # known and unknown maps
 At this point we have the necessary =rtic_syntax::ast::App= structure to continue:
-=App::hardware_tasks= is a collection of \textttBreak{rtic_syntax::HardwareTask}s that lists which [[gls:interrupt]] handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]= ([[cref:lst:recovery-example]]; lines 18, 23.)
+=App::hardware_tasks= is a collection of \textttBreak{rtic_syntax::HardwareTask}s that lists which [[gls:interrupt]] handler each hardware task is bound to via the =binds= argument in =#[task(binds = ...)]= ([[cref:lst:recovery-example]]; lines 18, 23).
 After parsing [[cref:lst:recovery-example]], =hardware_tasks= contains
 #+begin_export latex
 $$
@@ -1414,7 +1414,7 @@ All $N \geq 16$ associations on the other hand are [[gls:MCU]]-specific and thus
 additional recovery must be done to find the /ExceptionNumber/ values associated to these labels.
 
 # PAC::Interrupt and known/unknown partitioning; Rust reflection woes
-For any RTIC application the labels of unknown binds are available in the =PAC::Interrupt= enum ([[cref:background:PAC]].)
+For any RTIC application the labels of unknown binds are available in the =PAC::Interrupt= enum ([[cref:background:PAC]]).
 For [[cref:lst:recovery-example]], =PAC= is =stm32::stm32f401=.
 By consulting this =PAC= for the label its [[gls:IRQ]] number offset $N$ association is found;
 consider [[cref:lst:pac:extirq]].
@@ -1467,11 +1467,11 @@ $$
 :PROPERTIES:
 :CUSTOM_ID: impl:software-map
 :END:
-The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap= in the sense that the [[gls:RTIC]] application declaration must be parsed again (for a third, but last time.)
+The work to generate a =recovery::SoftwareMap= is similar to that of a =recovery::HardwareMap= in the sense that the [[gls:RTIC]] application declaration must be parsed again (for a third, but last time).
 This pass is done via =SoftWareMap::parse_ast= instead of =rtic_syntax::parse2=.
 As the function name implies the [[gls:AST]] is parsed by skipping [[glspl:token]] until the =TokenTree::Group(_)= describing =#[trace]= is found.
 When this token is found the [[gls:software-task]] the macro is used on is associated with the current value of an internal counter for [[glspl:UTID]].
-This counter is maintained in the same manner as the internal counter of the expanding =trace=: UTIDs start at zero and increment by one (c.f. [[cref:impl:rtic-trace:trace-macro]].)
+This counter is maintained in the same manner as the internal counter of the expanding =trace=: UTIDs start at zero and increment by one (c.f. [[cref:impl:rtic-trace:trace-macro]]).
 
 To complete the =SoftwareMap= the identities $n$ of the [[gls:DWT]] comparators ([[cref:theory:dwt]]) and the [[glspl:interrupt]] of the [[glspl:task-dispatcher]] must be recorded.
 The former are acquired from [[cref:impl:cargo-rtic-scope:read-manifest]] via the =dwt_enter_id= and =dwt_exit_id= fields.
@@ -1697,7 +1697,7 @@ This is done in a number of steps in the imaginatively named =run_loop= function
    In order to avoid the generation of overflow packets the thread polls data as fast as possible.
 3. In a loop on the main thread:
    1. Asynchronously polls any buffered trace data from the spawned thread and the eventual SIGINT signal for a duration of $100$ ms.
-      If trace data has been read it is handled by the aply named =handle_packet= function (see below.)
+      If trace data has been read it is handled by the aply named =handle_packet= function (see below).
       If SIGINT is received the loop breaks and =cargo-rtic-trace= terminates.
       If after $100$ ms nothing happens:
    2. a message from the spawned [[glspl:frontend]] is read (if any) and echoed as an error;
@@ -1708,13 +1708,13 @@ This is done in a number of steps in the imaginatively named =run_loop= function
       - how many of these packets that are malformed or unmappable ([[cref:impl:itm]]);
       - for how long the application has been traced;
       - how many ITM packets per second that are being recorded; and
-      - how many /sinks/ that are operational (not marked as broken; see below.)
+      - how many /sinks/ that are operational (not marked as broken; see below).
 
-=handle_packet= handles a single =itm::TimestampedTracePacket= (henceforth referred to as a /packet chunk/.)
+=handle_packet= handles a single =itm::TimestampedTracePacket= (henceforth referred to as a /packet chunk/).
 This is done several steps:
 1. the packet chunk is converted to an =api::EventChunk= via =TraceMetadata::build_event_chunk= (see below);
 2. any unmappable, unknown, or invalid ITM packets in the chunk are printed as warnings for the user; and
-3. chunks are flushed to all /sinks/ (the replay file and all spawned frontends.)
+3. chunks are flushed to all /sinks/ (the replay file and all spawned frontends).
    If a flush fails for any sink, it is marked as broken and an error is printed for the user.
    As long as at least one sink is not marked as broken tracing continues.
    If all sinks are marked as broken =cargo-rtic-scope= prematurely terminates with an error.
@@ -1753,7 +1753,7 @@ While the implementation of =itm= has been influenced by the development of RTIC
 =itm= can thus be considered a wholly separate project, but its inception was a precursor to RTIC Scope in order to fulfill [[req:decode]], and it is thus within the scope of this thesis.
 
 The crate is a green-field implementation of its deprecated v0.3 release branch, [[textcite:&itm-old]], of which this v0.8 (and above) release branch is only trivially influenced[fn:: Namely the implementation of the =std::io::Read= trait.].
-Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]].)
+Another =itm=-downstream crate is =itm-decode= [[parencite:&itm]] which aims to eventually replace the also deprecated =itm-tools= [[parencite:&itm-tools]], but that task is outside the scope if this thesis (see [[cref:fut:itm-tools]]).
 Both =itm-decode= and =itm-tools= are convenient UNIX-like tools for decoding the ITM packet protocol.
 
 =itm= is a packet decoder with state that handles its own data input.
@@ -1951,7 +1951,7 @@ The target-side code of RTIC Scope has a hypothesized negligible performance imp
 - the [[gls:ITM]], [[gls:DWT]], and [[gls:TPIU]] peripherals need only be configured once in [[gls:RTIC]]'s =#[init]= or during some other preparatory stage; and
 - when [[glspl:software-task]] are traced, an =u8= memory write must be done when entering and exiting the task.
 
-Some hardware resources are also required: two DWT comparators for the [[gls:tracing]] functionality and 64 bits of flash storage for [[glspl:watch-variable]] (see [[cref:lst:watch-variable-impl]].)
+Some hardware resources are also required: two DWT comparators for the [[gls:tracing]] functionality and 64 bits of flash storage for [[glspl:watch-variable]] (see [[cref:lst:watch-variable-impl]]).
 These resources are only strictly required if software tasks are traced, but are unconditionally required due to the current [[gls:API]] of =cortex-m-rtic-trace=, implemented as such for simplicity.
 
 #+NAME: lst:watch-variable-impl
@@ -2171,7 +2171,7 @@ This section comments on some choice topics of future work planned for RTIC Scop
 This section is not exhaustive:
 as of writing 31 issues are open for RTIC Scope[fn:: Refer to [[https://github.com/rtic-scope/cargo-rtic-scope/issues][https://github.com/rtic-scope/cargo-rtic-scope/issues]].];
 7 for =itm=[fn:: Refer to [[https://github.com/rtic-scope/itm/issues][https://github.com/rtic-scope/itm/issues]].];
-and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to RTIC Scope functionality.)
+and 10 for =cortex-m=[fn:: Refer to [[https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt][https://github.com/rust-embedded/cortex-m/issues?q=is%3Aopen+author%3Atmplt]].] (which relate to RTIC Scope functionality).
 
 **** [[gls:TPIU]] [[gls:baud-rate]] configuration
 :PROPERTIES:
@@ -2259,7 +2259,7 @@ It may be apt to [[gls:upstream]] portions of its implementations to [[textcite:
 
 Regardless of what the outcome of minimizing overhead is, =cortex-m-rtic-trace= is predicted to eventually be deprecated;
 refer to [[textcite:&issue:cargo-rtic-scope:90]].
-See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero overhead (i.e., no longer requiring the user to modify the crate's =Cargo.toml=.)
+See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero overhead (i.e., no longer requiring the user to modify the crate's =Cargo.toml=).
 
 **** Supporting other [[glspl:RTOS]] than [[gls:RTIC]]
 RTIC Scope v0.3 targets and depends on [[gls:RTIC]] v1.0.0.
@@ -2308,7 +2308,7 @@ A tracking issue has been created that documents the effort to publish RTIC Scop
 :CUSTOM_ID: fut:itm-tools
 :END:
 =itm-tools= [[parencite:&itm-tools]] is a toolset for analyzing [[gls:ITM]] trace streams.
-As of writing, these tools decode the ITM packet standard and offer interpretation of exception traces ([[cref:theory:itm:exceptions]]), [[gls:PC]] samples (via =pcsampl=), and instrumentation packet port demuxing (via =port-demux=.)
+As of writing, these tools decode the ITM packet standard and offer interpretation of exception traces ([[cref:theory:itm:exceptions]]), [[gls:PC]] samples (via =pcsampl=), and instrumentation packet port demuxing (via =port-demux=).
 Of certain interest is that =pcsampl= can answer the question of "where is my program spending most if its time?"
 An example invocation of =pcsampl= would yield [[cref:lst:pcsampl]], describing that the program spent almost 92% of its time sleeping during the time the target was traced.
 
