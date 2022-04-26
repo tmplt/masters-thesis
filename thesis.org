@@ -1742,7 +1742,7 @@ The =itm= library crate, [[textcite:&itm]], is
 #+ATTR_LATEX: :environment quotation
 #+begin_quote
 \noindent
-A decoder for the [[gls:ITM]] and [[gls:DWT]] packet protocol[fn:: DWT packets ([[glspl:hardware-event-packet]]) are included in the ITM packet protocol standard.] as specifed in [[textcite:&arm-rm Part D4]].
+A decoder for the [[gls:ITM]] and [[gls:DWT]] packet protocol[fn:: DWT packets ([[glspl:hardware-event-packet]]) are included in the ITM packet protocol standard.] as specified in [[textcite:&arm-rm Part D4]].
 
 Aside from covering the entirety of the protocol, this crate offers two iterators which reads data from the given =std::io::Read= instance:
 - =iter::Singles= :: which decodes each packet in the stream in sequence, yielding =itm::TracePacket= structures.
