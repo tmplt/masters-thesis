@@ -1768,11 +1768,11 @@ On success an =itm::TracePacket= is emitted.
 On failure --- if a header or payload contains data that is not covered by [[textcite:&arm-rm Part D4]] --- an =itm::MalformedPacket= is emitted, describing why the decode failed.
 
 =iter::Timestamps= intercepts all global and local timestamps ([[cref:theory:itm:timestamps]]) in order to maintain a monotonically increasing duration from when the reference clock start ticking.
-Logically this duration is initially zero before any timestamp packets have been decoded.
+Logically, this duration is initially zero before any timestamp packets have been decoded.
 When a local timestamp is intercepted, its value is added to the current duration and its quality recorded.
 When a global timestamp is intercepted, the duration is reset to this value, discarding information from previously received timestamps.
 
-Any non-timestamp packets will be buffered until a local timestamp is intercepted after which they will be associated to this latest timestamp in an emitted =TimestampedTracePackets=.
+Any non-timestamp packets will be buffered until a local timestamp is intercepted, after which they will be associated to this latest timestamp in an emitted =TimestampedTracePackets=.
 This structure also contains a field describing how many [[gls:ITM]] packets were consumed to generate it, information that is used in [[cref:impl:cargo-rtic-scope:trace-target]].
 
 The maintained and emitted durations are structures with unit information; the timestamp packets themselves contain unit-less time information.
