@@ -331,7 +331,7 @@ An important component of device-specific PACs for RTIC Scope is the [[gls:inter
 An example declaration of such an enum can be seen in [[cref:lst:pac-interrupt-example]].
 Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enum is utilized.
 #+NAME: lst:pac-interrupt-example
-#+CAPTION: Example declaration of a ~PAC::Interrupt~ enum. Left-hand side of ~Interrupt~ is the [[gls:IRQ]] label; right-hand is $N$ in [[cref:tbl:irqns]].
+#+CAPTION: Example declaration of a ~PAC::Interrupt~ (interpreted as per the last paragraph of [[cref:reading-guidelines]]) enum. Left-hand side of ~Interrupt~ is the [[gls:IRQ]] label; right-hand is $N$ in [[cref:tbl:irqns]].
 #+begin_src rust
   pub mod PAC {
       #[derive(Debug)]
@@ -553,6 +553,9 @@ An exhaustive summary of these contributions are described below (listed in no p
  - [[cref:conclusion]], Conclusions :: summarizes the work done in this thesis.
 
 *** Reading guidelines
+:PROPERTIES:
+:CUSTOM_ID: reading-guidelines
+:END:
 # cover important typesetting such as glossary use. When and why not all terms are linked to the glossary.
 Terms that warrant further description in this text are referred to the glossary on its first occurrence in a section, along with their use in the section title and captions of tables, listings, and figures.
 In flowing text some occurrences stray from this pattern.
@@ -585,6 +588,11 @@ and =[options...]= are any other arguments the invoker may want to pass.
 #+begin_src shell
   cargo build --bin <binary> --features <feat1>[,feat2[,feat3[...]]] [options...]
 #+end_src
+
+Namespaces, typeset with the =::=-separator, are interpreted just as they are in Rust.
+For example: =PAC::Interrupt= refers to the =Interrupt= enum in the crate =PAC= (capitalized to denote generalization),
+and =foo::bar= can refer to the function =bar= in the crate =foo=.
+The context of these notations point out whether a function, enum, or some other language construct is referred to.
 
 ** Previous and Related Work
 :PROPERTIES:
