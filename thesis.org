@@ -2352,7 +2352,7 @@ Below is a list of possible methods of escaping the transient noise of the [[gls
 - Using sentinel synchronization packets :: [[textcite:&arm-rm Section D4.2.1]] defines a synchronization packet that "trace capture hardware can [use to] identify the alignment of packet bytes in the bitstream".
   If such a packet is emitted after pin configuration, the decoder may be able to implement support to drop read trace data until this packet is encountered.
   Due to the constitution of this packet (at least 47 zeros followed by a single 1 bit), the possibility of the transient noise generating such a packet may be sufficiently low to ensure a stable trace stream.
-  However, this possibility is difficult to find because the induces noise depends on the internal characteristics of the MCU.
+  However, this possibility is difficult to find because the induced noise depends on the internal characteristics of the MCU.
   Refer to [[textcite:&issue:itm:11]] for the progress and applicability of this approach.
 
 - Storing trace data on-chip :: [[textcite:&arm-rm Section C1.10]] refers to a [[gls:TPIU]]-alternative dubbed the [[gls:ETB]], described in [[textcite:&coresight]], that stores the trace data in on-chip memory.
