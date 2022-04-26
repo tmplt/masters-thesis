@@ -444,7 +444,8 @@ With available software, embedded developers can then quickly garner insight int
 :PROPERTIES:
 :CUSTOM_ID: requirements
 :END:
-This thesis covers the development of an embedded system analysis toolset, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application by exploiting the [[gls:trace-stream]] generated and emitted by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
+This thesis covers the development of an embedded system analysis toolset, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application.
+The toolset accomplishes this by exploiting the [[gls:trace-stream]] generated and emitted by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
 The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
 RTIC Scope *MUST* adhere to, and thus be able to
