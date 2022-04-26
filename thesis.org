@@ -78,10 +78,7 @@
 #+latex_header: }
 #+latex_header: \makeatother
 
-# TODO verify software versions with Cargo.lock from v0.3.0 tag.
-# TODO fix hbox overflows on texttt in list of listings, bibliography, glossary
 # TODO fix second list of listings page saying "list of figures"
-# TODO tweak geometry for last overfull hboxes
 # TODO fix memoir page header to use H:3
 # TODO ask ARM about permission to copy figures/tables?
 # TODO copy more relevant images from ARM spec.
