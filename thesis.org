@@ -237,14 +237,14 @@ For example, one may wish to keep a rocket on a set path to reach orbit, or cont
 
 # On the real-time restrictions of control systems; exponential complexity phenomena.
 A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or inconsistent, the controlled system will end up unstable [[parencite:&franklin]]:
-The rocket may thus fly off course, or the nuclear reactor reach a melt-down.
-This puts a [[gls:real-time]] constrain on the digital controller which greatly limits how it can be implemented.
+The rocket may thus fly off course, or the nuclear reactor reach a meltdown.
+This puts a [[gls:real-time]] constraint on the digital controller which greatly limits how it can be implemented.
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constraint.
 This task grows exponentially in difficulty as the number of [[glspl:system-state]], inputs, and outputs increase.
 Similar phenomena are observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
 
 # The observer effect; data emission.
-Unfortunately are embedded systems subject to the observer effect: to observe the system state (i.e., variables in memory) its operation must be affected.
+Unfortunately, embedded systems are subject to the observer effect: to observe the system state (i.e., variables in memory) its operation must be affected.
 # A proper implementation would not block on a serial write.
 This observation is often realized by emitting data via serial communication which in the best case is subject to bus contention and full output queues.
 It is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation properties of the system if the payload is large.
@@ -261,7 +261,7 @@ These trace facilities allow for an event-based monitoring of
 - read and write access to in-memory address spaces; and
 - [[gls:PC]] samples, among other features.
 The generated trace is then emitted via asynchronous serial using a packet protocol (described in [[cref:debug-periphs]] and [[cref:theory:itm-proto]]), henceforth referred to as the [[gls:trace-stream]].
-These facilities are not wholly disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
+These facilities are not wholly disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system, the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
 
 # Less work, more sleep.
 Further, with non-invasive trace generation, less code must be executed by the [[gls:CPU]], allowing a shorter duty-cycle of the user application.
@@ -271,18 +271,18 @@ With a decreased duty-cycle the system can be put to sleep longer, and thus cons
 The development of embedded systems in general is non-trivial.
 In comparison to general-purpose computers, where one often must not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
 # No rich OS; no two embedded platforms are the same.
-An embedded developer seldom have access to a rich operating systems --- a Linux-based distribution, for example --- which offers general-purpose facilities based on dynamic allocations and a common environment to simplify implementation.
-Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M, due to the different peripherals) and porting an implementation to another platform is no small task.
+An embedded developer seldom have access to a rich operating systems --- a Linux-based distribution, for example --- which offers general-purpose facilities based on dynamic allocations and a common environment to simplify the program implementation.
+Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M, due to the different peripherals) and porting a program to another platform is no small task.
 This compares to general-purpose computers where a program written on one computer can be executed on another one, as long as the operating environment remains the same or are compatible.
 # Side effects and priority inversions.
 Embedded platforms are much more subject to side effects where peripherals are operated by writing data to memory-mapped registers.
-Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of implementation error.
+Of certain importance is the problem of priority inversions, where a task of lower priority executes instead of a higher prioritized task because of an implementation error.
 In summary, it is easy to put an embedded system in an incorrect or unknown state.
 # Enter RTIC.
 In order to lighten the implementation burden one may employ [[gls:RTIC]] (see [[cref:rtic]].)
 
 # Project aim
-The aim of this thesis is thus to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilities and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
+The aim of this thesis is to employ and extend upon [[gls:RTIC]] with a toolset, aptly named RTIC Scope, to trace [[glspl:task][tasks]] --- recording their states over time off-target --- by leveraging [[Citeauthor:&arm-cortex-learn][ARM]]'s non-intrusive tracing facilities and thus provide a suite of software convenient for embedded control system engineers to verify design characteristic adherence.
 RTIC Scope will aim for minimal user [[gls:overhead]] in order to apply the toolset, and allow the replay of traces postmortem (after the system has executed and is no longer active.)
 
 # Thesis summary
