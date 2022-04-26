@@ -1998,7 +1998,7 @@ These resources are only strictly required if software tasks are traced, but are
   }
 #+end_src
 
-Theoretically a single DWT comparator could be utilized to handle both software task enters and exit by reserving a bit in the written =u8= to denote the new state.
+Theoretically, a single DWT comparator could be utilized to handle both software task enters and exit by reserving a bit in the written =u8= to denote the new state.
 Further, because only 8 of the 32 bits (in conjunction with a change to only use a single comparator) are effectively used, only 8 bit should need to be allocated for the singular watch variable.
 This overzealous resource allocation was done for implementation simplicity.
 A future release of RTIC Scope can offer a lower resource requirement.
