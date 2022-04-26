@@ -300,6 +300,7 @@ Rust is a system programming language that guarantees defined run-time behavior 
 Throughout this text the following Rust terminology is used:
 [[gls:crate]], [[gls:enum]], [[gls:struct]], [[gls:function]], [[gls:macro]], [[gls:manifest]], [[gls:feature]], and [[gls:trait]].
 For sake of decreasing typesetting noise, the relevant glossary entries for these fundamental terms will not be referred to again henceforth.
+Further, it is presumed that Rust's build system, =cargo=, is understood by the reader; it is not covered in this text.
 For a more detailed description of this terminology, and the Rust programming language and ecosystem in general, refer to [[textcite:&rust-lang]].
 
 Refer to [[textcite:&tjader2021rtic 6--8]] for a summary of Rust in an embedded context.
