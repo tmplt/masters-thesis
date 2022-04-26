@@ -630,7 +630,7 @@ See [[cref:theory:itm-proto]] for a description of the ITM packet protocol.
 # DWT -> ITM -> TPIU -> ETB.
 RTIC Scope utilizes the [[gls:DWT]], ITM, and [[gls:TPIU]] peripherals for on-target trace generation and emission.
 The DWT and ITM peripherals are sources of ITM protocol packets which are forwarded to the TPIU for device emission.
-The ITM multiplexes packets emitted by itself and the DWT and generates timestamp packets in order to establish a time-line of events that occurred on the traced target.
+The ITM multiplexes packets emitted by itself and the DWT, and generates timestamp packets in order to establish a time-line of events that occurred on the traced target.
 The relationship of these peripherals are visualized in [[cref:fig:debug-relations]].
 
 #+BEGIN_src latex
