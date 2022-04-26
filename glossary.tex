@@ -71,11 +71,11 @@
   }
 \newglossaryentry{sigint}{
   name={SIGINT handler},
-  description={A function that executes when the program receives a SIGINT signal. SIGINT is the ``interrupt'' signal; on reception the program should terminate.}
+  description={A function that executes when the program receives a SIGINT \gls{signal}.}
 }
 \newglossaryentry{signal}{
-  name={signal},
-  description={A standardized message sent to a running program by the operating system meant to trigger specific behavior. Some signals can be handled by the program, such as SIGINT (``interrupt'') and SIGHUP (``hang up'').},
+  name={POSIX signal},
+  description={An asynchronous notification sent to a program by the operating system, meant to trigger specific behavior \parencite[Section 7.5.1]{burns}. Examples or such signals are SIGINT (``interrupt''; on reception the program should terminate) and SIGHUP (``hang up'').},
 }
 \newglossaryentry{thread}{
   name={thread},
@@ -83,7 +83,7 @@
   }
 \newglossaryentry{task}{
   name={task},
-  description={An \acrshort{RTIC} task. Refer to \cref{rtic}.}
+  description={A unit of concurrency \parencite[Section 4.1]{burns}. In this text, a task specifically refers to an \acrshort{RTIC} task (\cref{rtic}).}
 }
 \newglossaryentry{hardware-task}{
   name={hardware task},
@@ -206,8 +206,9 @@
   description={Necessary work that must be done to enable functionality or start a process (such as emitting trace packets).}
 }
 \newglossaryentry{real-time}{
-  name={real-time},
-  description={TODO}
+  name={real-time system},
+  text={real-time},
+  description={Any system which must respond to externally generated input stimuli, or perform a periodic (or aperiodic) function, within a finite and specified period \parencite[Chapter 1.1]{burns}.}
 }
 \newglossaryentry{system-state}{
   name={system state},
