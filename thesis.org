@@ -1323,7 +1323,7 @@ This flag only deletes files with the =.trace= file extension.
 # Introduction: we must translate raw ITM data to RTIC run-time information.
 As covered in [[cref:theory:itm-proto]], the [[gls:ITM]] packet protocol is used to trace [[gls:RTIC]] [[glspl:task]].
 This protocol is not designed with RTIC in mind:
-instead of information that can be directly associated to RTIC tasks the protocol describes the identity of the [[gls:DWT]] comparator that signaled a write to a [[gls:watch-address]] along with the data written, used to signal a software task enter or exit.
+instead of information that can be directly associated to RTIC tasks, the protocol describes the identity of the [[gls:DWT]] comparator that signaled a write to a [[gls:watch-address]] along with the data written, used to signal a software task enter or exit.
 Additionally, the protocol describes the [[gls:IRQ]] of the hardware tasks that enter or exit.
 These pieces of information must be associated back to the tasks responsible for their emission in a preparatory recovery step.
 This section covers this step which is divided into two parts:
