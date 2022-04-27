@@ -311,7 +311,7 @@ A [[gls:PAC]] is a Rust library crate which exposes a convenient and standardize
 
 # Differentiate {architecture,device}-specific PACs
 In the embedded Rust ecosystems, there are two kinds of [[glspl:PAC]]:
-- Architecture-specific :: PACs expose an API for hardware peripherals common to all [[glspl:MCU]] that share the same architecture, commonly termed /family/.
+- Architecture-specific :: PACs expose an API for hardware peripherals common to all [[glspl:MCU]] that share the same architecture, commonly termed [[gls:family]].
   For example, =cortex-m= [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems.
   Of note are the Cortex-M4 and Cortex-M7 families which are based upon ARMv7-M and includes the hardware peripherals that RTIC Scope requires.
 - Device-specific :: PACs expose an API for hardware peripherals available on a smaller subset family of embedded systems.
@@ -1610,7 +1610,7 @@ This is the default behavior in order to simplify an iterative development proce
 The memory layout is described via the =--chip= option; see the example in [[cref:lst:chip-opt-example]].
 The list of chips that =probe-rs= supports can be queried by specifying the =--list-chips= flag; [[cref:lst:chips-supported]].
 #+NAME: lst:chip-opt-example
-#+CAPTION: Flashing and [[gls:tracing]] an [[gls:MCU]] from the STMicroelectronics STM32F401 family.
+#+CAPTION: Flashing and [[gls:tracing]] an [[gls:MCU]] from the STMicroelectronics STM32F401 [[gls:family]].
 #+begin_src shell
   $ cargo rtic-scope trace --chip stm32f401ret
 #+end_src
