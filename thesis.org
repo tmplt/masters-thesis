@@ -721,7 +721,7 @@ For more information on the TPIU, refer to [[parencite:&arm-rm Section C1.10]].
 :CUSTOM_ID: theory:itm-proto
 :END:
 The [[gls:ITM]] packet protocol is used by RTIC Scope to garner insight about the executing RTIC application.
-This protocol defines packets that contain a one-byte /header/, which describes what type of data a certain packet contains; how long the packet /payload/ is, a byte multiple; and the packet payload.
+This protocol defines packets that contain a one-byte header, which describes what type of data a certain packet contains; how long the packet payload is, a byte multiple; and the packet payload.
 Some headers also contain payload.
 The protocol effectively implements a [[gls:TLV]] encoding scheme.
 This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[crefrange:fig:lts1,fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
