@@ -250,7 +250,7 @@ In a perfect implementation the user application --- the program that executes o
 # ARM, tracing subsystem and possible exploitation.
 ARM is a company that licenses out designs of [[glspl:CPU]] for embedded systems.
 ARM CPUs are available via a number of vendors; e.g., STMicroelectrics, Microchip Technology Inc., and Nordic Semiconductors.
-The ARMv7-M platform standard offers debugging facilities that enables the developer to trace the system.
+The [[gls:armv7-m]] platform standard offers debugging facilities that enables the developer to trace the system.
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
 These trace facilities allow for an event-based monitoring of
@@ -313,7 +313,7 @@ A [[gls:PAC]] is a Rust library crate which exposes a convenient and standardize
 In the embedded Rust ecosystems, there are two kinds of [[glspl:PAC]]:
 - Architecture-specific :: PACs expose an API for hardware peripherals common to all [[glspl:MCU]] that share the same architecture, commonly termed [[gls:family]].
   For example, =cortex-m= [[parencite:&cortex-m]] is a PAC that targets the ARM Cortex-M family of embedded systems.
-  Of note are the Cortex-M4 and Cortex-M7 families which are based upon ARMv7-M and includes the hardware peripherals that RTIC Scope requires.
+  Of note are the Cortex-M4 and Cortex-M7 families which are based upon [[gls:armv7-m]] and includes the hardware peripherals that RTIC Scope requires.
 - Device-specific :: PACs expose an API for hardware peripherals available on a smaller subset family of embedded systems.
   For example, =stm32-rs= [[parencite:&stm32-pac]] is a collection of PACs targeting all microcontrollers in the STMicroelectronics STM32 family.
 
@@ -430,7 +430,7 @@ In order to interface with a probe a software suite is required on the host.
 Examples of such suites are =openocd=, [[textcite:&openocd]]; and =probe-rs=, [[textcite:&probe-rs]].
 
 *** Motivation
-Both [[gls:RTIC]] and the debug peripherals of ARMv7-M operate in an event-based context where RTIC events trigger the debug peripherals to emit [[glspl:trace-packet]].
+Both [[gls:RTIC]] and the debug peripherals of [[gls:armv7-m]] operate in an event-based context where RTIC events trigger the debug peripherals to emit [[glspl:trace-packet]].
 Exploiting this relationship is thus sensible; certainly so because these peripherals do not affect the wider system as covered in [[cref:introduction]].
 Hardware-wise, this approach is very cheap to utilize on a supporting [[gls:MCU]]:
 only the [[gls:SWO]] pin needs to be exposed, and a general-purpose bridge provided to deserialize the [[gls:trace-stream]] signal for the host system ([[cref:theory:swo]]).
@@ -443,7 +443,7 @@ With available software, embedded developers can then quickly garner insight int
 :CUSTOM_ID: requirements
 :END:
 This thesis covers the development of an embedded system analysis toolset, RTIC Scope, that enables an [[gls:RTIC]] application developer to gain non-invasive insight into the run-time of said application.
-The toolset accomplishes this by exploiting the [[gls:trace-stream]] generated and emitted by debug facilities made available by the ARMv7-M standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
+The toolset accomplishes this by exploiting the [[gls:trace-stream]] generated and emitted by debug facilities made available by the [[gls:armv7-m]] standard[fn:: See [[cref:debug-periphs]].] which RTIC supports by targeting the Cortex-M platforms.
 
 The set of requirements RTIC Scope must fulfill within the scope of this thesis follows:
 RTIC Scope *MUST* adhere to, and thus be able to
@@ -464,7 +464,7 @@ Delimitations to the above requirements apply, see [[cref:delimitations]].
 :END:
 In order to focus on the delivery of a robust toolset with proper implementation and documentation the scope of this thesis have been limited.
 These delimitations are related to the requirements described in [[cref:requirements]] and are below enumerated.
-1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all ARMv7-M [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and emission.
+1. [[req:itm-gen]]: RTIC Scope *MUST* apply the device configuration that are common to all [[gls:armv7-m]] [[glspl:MCU]] in order to enable [[gls:trace-stream]] generation and emission.
    RTIC Scope *SHOULD NOT* apply device-specific configurations.
 2. [[req:input]]: RTIC Scope *SHOULD NOT* have to ensure that a trace stream is actually read from the device:
    it falls on the RTIC Scope end-user to establish a connection between the target and the host.
@@ -545,7 +545,7 @@ An exhaustive summary of these contributions are described below (listed in no p
  - [[cref:introduction]], Introduction :: provides a background introduction to Rust, the embedded Rust ecosystem and [[gls:RTIC]].
    Subsequently, covers the project motivation, problem definition, delimitations and contributions made within the scope of this thesis, and guidelines on how to read this text.
  - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
- - [[cref:theory]], Theory :: covers the ARMv7-M debug facilities, the [[gls:ITM]] packet protocol and how RTIC [[glspl:task]] are traced in theory via RTIC Scope.
+ - [[cref:theory]], Theory :: covers the [[gls:armv7-m]] debug facilities, the [[gls:ITM]] packet protocol and how RTIC [[glspl:task]] are traced in theory via RTIC Scope.
  - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the auxiliary =itm= crate.
  - [[cref:results]], Results :: covers the results of this thesis and applies RTIC Scope to a trivial RTIC application.
  - [[cref:discussion]], Discussion :: discusses some topics of interests regarding RTIC Scope, and a choice selection of topics for further development.
@@ -613,8 +613,8 @@ Neither of the above tools support [[gls:RTIC]] at the time of writing and were 
 :PROPERTIES:
 :CUSTOM_ID: theory
 :END:
-This chapter covers the purpose and usage of the utilized ARMv7-M debug peripherals, relevant sections of the [[gls:ITM]] packet protocol and how [[gls:RTIC]] [[glspl:task]] are traced.
-*** ARMv7-M debug facilities
+This chapter covers the purpose and usage of the utilized [[gls:armv7-m]] debug peripherals, relevant sections of the [[gls:ITM]] packet protocol and how [[gls:RTIC]] [[glspl:task]] are traced.
+*** [[gls:armv7-m]] debug facilities
 :PROPERTIES:
 :CUSTOM_ID: debug-periphs
 :END:
@@ -662,7 +662,7 @@ The relationship of these peripherals are visualized in [[cref:fig:debug-relatio
     \path[->] (parallel-anchor.center) edge (parallel);
 
   \end{tikzpicture}
-  \caption{\label{fig:debug-relations}\Gls{downstream} relationship between ARMv7-M debug peripherals used for \gls{tracing}.
+  \caption{\label{fig:debug-relations}\Gls{downstream} relationship between \gls{armv7-m} debug peripherals used for \gls{tracing}.
     \Glspl{hardware-event-packet} from the \gls{DWT} are forwarded to the \gls{ITM} which are subsequently forwarded to the \gls{TPIU} with an attached timestamp generated by the \gls{ITM}.
     The \gls{TPIU} serializes the \gls{ITM} protocol packets over \gls{SWO} or a parallel trace output by help of a reference clock divided by a \gls{prescaler} ($n \geq 1$ is an integer).
     In this text only the \gls{SWO} is considered.}
@@ -682,7 +682,7 @@ Within this text the range of memory used for data tracing is referred to as a [
 when a value is written to a watch address --- the [[gls:watch-variable]] --- a data trace packet is generated containing the written value.
 
 In order to monitor a watch address a DWT hardware comparator must be used.
-An ARMv7-M [[gls:MCU]] offers $0 \leq n \leq 15$ such comparators, where $n$ is the index of the comparator in memory and the DWT comparator identity number.
+An [[gls:armv7-m]] [[gls:MCU]] offers $0 \leq n \leq 15$ such comparators, where $n$ is the index of the comparator in memory and the DWT comparator identity number.
 RTIC Scope v0.3 requires two comparators for the purpose of [[gls:tracing]] [[glspl:software-task]].
 
 Refer to [[textcite:&arm-rm Section C1.8]] for more information on the DWT unit.
@@ -828,7 +828,7 @@ Its payload contains two fields:
 #+NAME: fig:exception-packet
 #+CAPTION: Exception trace packet format, copied from [[textcite:&arm-rm Figure D4-16]].
 [[file:svgs/exception-trace.pdf]]
-#+CAPTION: ARMv7-M [[gls:exception]] numbers their corresponding labels. From [[textcite:&arm-rm Table B1-4]].
+#+CAPTION: [[gls:armv7-m]] [[gls:exception]] numbers their corresponding labels. From [[textcite:&arm-rm Table B1-4]].
 #+NAME: tbl:irqns
 | Exception number | Exception label        |
 |------------------+------------------------|
@@ -1406,7 +1406,7 @@ $$
 Of these, the =app::task1= bind is considered a [[gls:known-bind]], and the =app::task2= bind is considered an [[gls:unknown-bind]].
 A known bind is one that no more recovery work must be applied on.
 This follows from [[cref:tbl:irqns]] in [[cref:theory:itm-proto]] which enumerates all numbers that can be in the exception trace packets' /ExceptionNumber/ field ([[cref:theory:itm:exceptions]]):
-$N < 16$ label associations are common to all ARMv7-M targets and can be directly mapped to the RTIC task that binds it.
+$N < 16$ label associations are common to all [[gls:armv7-m]] targets and can be directly mapped to the RTIC task that binds it.
 All $N \geq 16$ associations on the other hand are [[gls:MCU]]-specific and thus unknown without further consulting;
 additional recovery must be done to find the /ExceptionNumber/ values associated to these labels.
 
@@ -2046,7 +2046,7 @@ It is thus recommended to only use the =trace= macro on [[gls:RTIC]] task declar
 :CUSTOM_ID: disc:swo-transient
 :END:
 During the development of RTIC Scope considerate focus was put on trace emission using asynchronous serial communication.
-This approach saw focus due to the minimal hardware design required to enable [[gls:tracing]] of a product based on an ARMv7-M [[gls:MCU]]:
+This approach saw focus due to the minimal hardware design required to enable [[gls:tracing]] of a product based on an [[gls:armv7-m]] [[gls:MCU]]:
 the base requirement is to expose the single [[gls:SWO]] pin, after which the remaining work is done by device-external hardware (in order to convert the electrical signal to a byte stream) and software.
 A single MCU pin commonly multiplex features, however.
 In theory features be selected via hardware or software:
@@ -2215,7 +2215,7 @@ Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically 
 [[textcite:&arm-rm p. C1-718]] documents:
 #+begin_quote
 If a system supports multiple trace streams, the debugger must write a nonzero value to the [[gls:ITM_TCR]].TraceBusID field.
-\textelp{} An example of a system with multiple trace streams is an ARMv7-M core with [[gls:ETM]] trace stream.
+\textelp{} An example of a system with multiple trace streams is an [[gls:armv7-m]] core with [[gls:ETM]] trace stream.
 #+end_quote
 However, no documentation covers the use-case when ETM should be disabled and only the [[gls:ITM]] trace stream is of interest.
 From brief communication with the ARM errata team, it seems that writing zero to this field is valid if the device does not support [[gls:ETM]], but anecdotally it also seems valid when ETM packets are dropped ([[cref:impl:rtic-trace:peripheral-config]]) on a device that does offer an ETM, particularly the Microchip ATSAME51N20A.
