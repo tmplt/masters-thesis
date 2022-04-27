@@ -1403,7 +1403,7 @@ $$
 \langle \text{\texttt{app::task1} binds to \texttt{SysTick}} \rangle,\quad\langle \text{\texttt{app::task2} binds to \texttt{EXTI1}} \rangle\text{.}
 $$
 #+end_export
-Of these, the =app::task1= bind is considered /known/, and the =app::task2= bind is considered /unknown/.
+Of these, the =app::task1= bind is considered a [[gls:known-bind]], and the =app::task2= bind is considered an [[gls:unknown-bind]].
 A known bind is one that no more recovery work must be applied on.
 This follows from [[cref:tbl:irqns]] in [[cref:theory:itm-proto]] which enumerates all numbers that can be in the exception trace packets' /ExceptionNumber/ field ([[cref:theory:itm:exceptions]]):
 $N < 16$ label associations are common to all ARMv7-M targets and can be directly mapped to the RTIC task that binds it.
@@ -1473,7 +1473,7 @@ This counter is maintained in the same manner as the internal counter of the exp
 To complete the =SoftwareMap= the identities $n$ of the [[gls:DWT]] comparators ([[cref:theory:dwt]]) and the [[glspl:interrupt]] of the [[glspl:task-dispatcher]] must be recorded.
 The former are acquired from [[cref:impl:cargo-rtic-scope:read-manifest]] via the =dwt_enter_id= and =dwt_exit_id= fields.
 The latter are acquired via =rtic_syntax::ast::AppArgs::extern_interrupts= from the =rtic_syntax::ast::App= acquired in [[cref:impl:hardware-map]].
-If the task dispatcher is an unknown bind =recovery::resolve_int_nrs= in [[cref:impl:hardware-map]] is utilized.
+If the task dispatcher is an [[gls:unknown-bind]] =recovery::resolve_int_nrs= in [[cref:impl:hardware-map]] is utilized.
 
 For the example in [[cref:lst:rtic-scope:trace-software-task]], =SoftwareMap= would contain the information denoting =EXTI2= as the task dispatcher and
 #+begin_export latex
