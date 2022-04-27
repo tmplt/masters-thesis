@@ -1297,12 +1297,12 @@ For this purpose the optional =--trace-dir <dir>= option overrides the output di
 
 The trace filename contains three sections of information:
 - the name of the RTIC application :: which associates the trace with the application that generated it, useful when a crate contains more than one application;
-- the git revision of the local repository :: to associate the trace with the source code of the application; and
+- the [[gls:git-rev]] of the local repository :: to associate the trace with the source code of the application; and
 - a second-accurate timestamp :: to associate the trace with environmental factors that cannot be derived from the application name and revision.
 
 For example, after some tracing and development during January 13th and 14th, 2022, the trace directory contains the files in [[cref:lst:cargo-rtic-scope:trace-example-files]].
 #+NAME: lst:cargo-rtic-scope:trace-example-files
-#+CAPTION: Example of recorded trace filenames after two traces. ~blinky~ is the name of the [[gls:RTIC]] application; ~124b3c5~ the git revision; and the remainder (sans ~.trace~) is the timestamp of the trace. The second trace file was recoded from an RTIC application with uncommitted changes, hence the ~-dirty~ suffix to the git revision.
+#+CAPTION: Example of recorded trace filenames after two traces. ~blinky~ is the name of the [[gls:RTIC]] application; ~124b3c5~ the [[gls:git-rev]]; and the remainder (sans ~.trace~) is the timestamp of the trace. The second trace file was recoded from an RTIC application with uncommitted changes, hence the ~-dirty~ suffix to the git revision.
 #+begin_src text
   $ ls -ogh target/rtic-traces
   total 8.0K
