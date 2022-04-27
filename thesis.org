@@ -713,7 +713,7 @@ For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]
 # Summarize TPIU functionality
 The [[gls:TPIU]] provides external visibility of the trace packet stream by asynchronously serializing them on a single pin --- the [[gls:SWO]] --- by help of a prescaled reference clock, see [[cref:fig:debug-relations]].
 In order to communicate over an asynchronous serial channel the [[gls:baud-rate]] must be communicated out-of-band: it must be pre-configured both target-side and host-side.
-The signal emitted on the SWO can be configured for either the level-inverted [[gls:RS-232]] serial data-byte protocol or Manchester encoding protocol [[parencite:&art Section 14.7.9]].
+The signal emitted on the SWO is a [[gls:UART]] signal, using either the [[gls:NRZ]] or Manchester[fn:: Refer to  [[parencite:&art Section 14.7.9]].] encoding protocol.
 
 For more information on the TPIU, refer to [[parencite:&arm-rm Section C1.10]].
 *** The \glsxtrfull{ITM} packet protocol
@@ -876,11 +876,11 @@ The payload contains three fields of information:
 :CUSTOM_ID: theory:swo
 :END:
 
-In order to record and interpret the [[gls:trace-stream]] emitted by the target on the host-side the [[gls:RS-232]] on the [[gls:SWO]] pin must be deserialized.
+In order to record and interpret the [[gls:trace-stream]] emitted by the target on the host-side the [[gls:UART]] on the [[gls:SWO]] pin must be deserialized.
 Commonly, this is realized by use of an FT232H [[gls:IC]] (or equivalent) from FTDI which exposes a [[gls:USB]]-interface for the host.
 When connected to a Linux host, the interface appears as a serial device under =/dev/ttyUSB*=[fn:: On the author's host system.] which RTIC Scope can configure and read the trace stream from.
 
-The provision of a schematic that constitutes an RS-232-to-USB converter is outside the scope of this thesis[fn:: In part due to the [[gls:MCU]]-specific voltage levels that constitute the RS-232 signal.];
+The provision of a schematic that constitutes an UART-to-USB converter is outside the scope of this thesis;
 refer instead to [[textcite:&ft232]].
 
 *** Tracing \glsxtrfull{RTIC} tasks

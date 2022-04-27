@@ -1,6 +1,8 @@
-\newglossaryentry{RS-232}{
-  name={RS-232},
-  description={An electrical (physical level) protocol used to communicate data in chunks of up to 8 bits. The protocol is asynchronous in that it does not use a line dedicated for the clocking of the data; the \gls{baud-rate} must be communicated out-of-band. Refer to \textcite[Section 14.7.8]{art}.}
+\newacronym{USARTacr}{USART}{{Universal Asynchronous Receiver-Transmitter}}
+\newglossaryentry{UART}{
+  name={\acrfull{USARTacr} signal},
+  text={UART},
+  description={An electrical (physical level) protocol used to communicate data bytes. The protocol is asynchronous in that it does not use a line dedicated for the clocking of the data; the \gls{baud-rate} must be communicated out-of-band. Refer to \textcite[Section 14.7.8]{art}.}
   }
 \newglossaryentry{token}{
   name={token},
@@ -148,7 +150,7 @@
 }
 \newglossaryentry{baud-rate}{
   name={baud rate},
-  description={The speed at which a \gls{RS-232} connection communicates; equivalent to bits per second. \parencite[Section 14.7.8]{art}}
+  description={The speed at which a \gls{UART} connection communicates; equivalent to bits per second. \parencite[Section 14.7.8]{art}}
 }
 \newglossaryentry{crate}{
   name={crate},
@@ -267,6 +269,7 @@
 \newabbreviation{CSV} {CSV} {{Comma Separated Values}}
 \newabbreviation{WG} {WG} {{Working Group}}
 \newabbreviation{IC} {IC} {{Integrated Circuit}}
+\newabbreviation{NRZ} {NRZ} {{Non-Return-to-Zero}}
 
 
 \newglossaryentry{armv7-m}{
