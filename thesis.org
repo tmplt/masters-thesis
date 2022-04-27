@@ -858,7 +858,7 @@ Its payload contains two fields:
 :PROPERTIES:
 :CUSTOM_ID: theory:itm:data-trace
 :END:
-The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the /data trace packet/, are emitted when the processor accesses a [[gls:watch-address]] after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
+The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the "data trace packet", are emitted when the processor accesses a [[gls:watch-address]] after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
 The payload contains three fields of information:
 - /CMPN/ :: A 2-bit identifier of the DWT comparator which matched the configured watch address access.
   This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
