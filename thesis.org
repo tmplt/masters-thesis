@@ -203,11 +203,11 @@ Here be an abstract...
 \newpage
 \tableofcontents
 \newpage
+\listoflistings
+\newpage
 \listoftables
 \newpage
 \listoffigures
-\newpage
-\listoflistings
 \newpage
 
 % Start counting with arabic numbers
