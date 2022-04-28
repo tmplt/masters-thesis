@@ -355,7 +355,7 @@ Refer to [[cref:impl:cargo-rtic-scope:generating-metadata-maps]] on how this enu
 :CUSTOM_ID: rtic
 :END:
 [[gls:RTIC]] [[parencite:&rtic]] is a novel [[gls:RTOS]] targeting the ARM Cortex-M platform.
-It began development at Luleå Technical University[fn:: Under the previous name of "RTFM".] based on the extensively studied [[gls:SRP]][fn:: Refer to [[textcite:&srp]].], which
+It began development at Luleå Technical University[fn:: Under the previous name of "RTFM".] based on the extensively studied [[gls:SRP]][fn:: Refer to [[textcite:&srp]] and [[textcite:&rtfm-step1]].], which
 - prevents deadlocks;
 - mitigates priority inversions; and
 - is compatible with [[gls:EDF]] scheduling.
