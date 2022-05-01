@@ -39,6 +39,7 @@
 ** What do I do?
 - I work at Grepit AB on embedded systems. Hired in 2018, full-time since November.
 - We use embedded Rust and RTIC on Cortex-M MCUs.
+- Grepit has helped with the bankrolling of this project.
 
 ** The problem
 How do we verify the operation of our embedded systems?
