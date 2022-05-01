@@ -1,0 +1,121 @@
+#+options: ':nil *:t -:t ::t <:t H:2 \n:nil ^:t arch:headline
+#+options: author:t broken-links:nil c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:t f:t inline:t num:t
+#+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+options: timestamp:t title:t toc:t todo:t |:t
+#+title: RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework
+#+author: Viktor Sonesten
+#+email: vikson-6@student.ltu.senn
+#+language: en
+#+select_tags: export
+#+exclude_tags: noexport
+#+creator: Emacs 29.0.50 (Org mode 9.5.1)
+#+cite_export:
+
+#+latex_class: article
+#+latex_class_options:
+#+latex_header:
+#+latex_header_extra:
+#+description:
+#+keywords:
+#+subtitle:
+#+latex_compiler: pdflatex
+#+date: \today
+
+#+startup: beamer
+#+latex_class: beamer
+#+latex_class_options: [bigger]
+
+#+latex_header: \usepackage{tikz}
+#+latex_header: \usetikzlibrary{automata, positioning, arrows, shapes, calc}
+#+latex_header: \tikzset{
+#+latex_header:   block/.style = {draw, rectangle, minimum height=1cm, minimum width=2cm},
+#+latex_header:   ->, % make edges directed
+#+latex_header:   >=latex,
+#+latex_header:   every text node part/.style={align=center}, % allow multiline node descriptions
+#+latex_header: }
+
+* Introduction
+** What do I do?
+- I work at Grepit AB on embedded systems. Hired in 2018, full-time since November.
+- We use embedded Rust and RTIC on Cortex-M MCUs.
+
+** The problem
+How do we verify the operation of our embedded systems?
+
+Commonly, "printf-debugging" is applied. Required when we cannot halt the processor for debugging.
+
+From this a log of activities are recorded.
+
+** Possible solutions?
+- Logging via semi-hosting? Very slow.
+- RTT? Possible I/O block.
+- Defmt? Possible I/O block.
+
+** /The/ solution: tracing
+Hardware-assisted logging via ARMv7-M debug peripherals:
+- Free-of-charge tracing for hardware tasks.
+- Cheap tracing of software tasks.
+- Minimal changes to code-base.
+- /A lot/ of unexploited features for future work (more on that at the end).
+
+
+* The ARMv7-M debug peripherals
+** The /Data Watchpoint and Trace/ (DWT) unit
+** The /Intrumentation Macrocell/ (ITM) unit
+** The /Trace Port Interface Unit/ (TPIU)
+# Use a frame here to show how a signal can be read on a host system.
+** Peripheral relationship
+#+begin_export latex
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance = 1cm, auto]
+  \node[block] (clock) {timestamp clock};
+  \node[block, below=0.5cm of clock] (itm) {ITM \\ (timestamps, \\ multiplexing, etc.)};
+  \node[block, left=of itm] (dwt) {DWT \\ (hardware events)};
+  \node[block, right=of itm] (tpiu) {TPIU \\ (serialization)};
+  \node[block, above=0.5cm of tpiu] (prescaler) {prescaler: $/n$};
+  \node[block, above=0.5cm of prescaler] (freq) {reference \\ clock $\left[\text{Hz}\right]$};
+  \node[below=of tpiu.south east] (swo) {SWO};
+  \node[below=of tpiu.south west] (parallel) {parallel trace \\ output};
+  \path[->]
+  (dwt) edge (itm)
+  (clock) edge (itm)
+  (itm) edge (tpiu)
+  (freq) edge (prescaler)
+  (prescaler) edge (tpiu);
+
+  %% box
+  \node[above=0.5cm of clock] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}};
+  \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=($(dwt.west)+(-0.3,0)$), \p2=($(target.north)+(0.0,0.3)$), \p3=($(tpiu.south east)+(0.3,-0.3)$), \p4=($(itm.south)+(0,-0.3)$) in (\x1, \y2) rectangle (\x3, \y4);
+
+  %% anchors
+  \node[below=0.2cm of tpiu.south west] (parallel-anchor) {};
+  \node[below=0.2cm of tpiu.south east] (swo-anchor) {};
+  \draw[-] ($(tpiu.south west)!0.5!(tpiu.south)$) |- (parallel-anchor.center);
+  \draw[-] ($(tpiu.south east)!0.5!(tpiu.south)$) |- (swo-anchor.center);
+  \path[->] (swo-anchor.center) edge (swo);
+  \path[->] (parallel-anchor.center) edge (parallel);
+
+\end{tikzpicture}
+\caption{\label{fig:debug-relations}Downstream relationship between ARMv-7M debug peripherals used for tracing.}
+\end{figure}
+#+end_export
+
+
+* RTIC Scope: debug peripheral configuration and host-side trace collection
+
+** ~cortex_m_rtic_trace~
+
+** ~cargo rtic-scope~
+*** Information recovery
+*** The ~itm~ decoding library
+*** Utilizing the recovered information
+
+** RTIC Scope frontends
+
+*** The ~dummy~ reference implementation
+
+*** Example: Plotting a run-time graph
+
+* Future work
