@@ -5,7 +5,7 @@
 #+options: timestamp:t title:t toc:t todo:t |:t
 #+title: RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework
 #+author: Viktor Sonesten
-#+email: vikson-6@student.ltu.senn
+#+email: vikson-6@student.ltu.se
 #+language: en
 #+select_tags: export
 #+exclude_tags: noexport
