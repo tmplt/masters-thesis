@@ -136,19 +136,59 @@ Serializes ITM packets and emits them on the SWO pin, by help of a reference clo
 
 
 
-* RTIC Scope: debug peripheral configuration and host-side trace collection
+* Theory
+** Tracing RTIC tasks
+- Hardware tasks :: bound to interrupts: traced "for free" when tracing enabled.
+- Software tasks :: Bound non-exclusively to an interrupt via task dispatcher, write /Unique Task ID/ (UTID) to monitored memory address via /watch variables/.
 
-** ~cortex_m_rtic_trace~
+** The ITM packet protocol
 
-** ~cargo rtic-scope~
-*** Information recovery
-*** The ~itm~ decoding library
-*** Utilizing the recovered information
+*** Execption trace packets
 
-** RTIC Scope frontends
+*** Data trace value packets
+# DWT comparators
 
-*** The ~dummy~ reference implementation
+*** Timestamp packets
+Two types:
+- Global timestamps :: image of reference clock register value.
+- Local timestamps :: relative/delta: denotes time since last local timestamp.
 
-*** Example: Plotting a run-time graph
+* Implementation
+Five crates created. We'll cover them in a down-stream fashion.
 
+** Crates
+- =cortex_m_rtic_trace= :: Target-side crate for debug peripheral configuration (via =configure= function) and software task tracing (via =trace= macro).
+- =cargo-rtic-scope= :: Host-side =cargo= subcommand daemon/backend that recovers trace metadata and records emitted trace packets. Enables portmortem replays.
+- =itm= :: A library crate for trace stream decoding into Rust structures.
+- =rtc-scope-frontend-dummy= :: Reference implementation of a RTIC Scope frontend. Simply prints the trace stream to =stdout=.
+- =rtic-scope-api= :: JSON-API used for communication between the RTIC Scope backend to frontends.
+** Debug peripheral configuration via ~cortex_m_rtic_trace~
+#+begin_src rust
+  // configure tracing
+  cortex_m_rtic_trace::configure(
+      &mut ctx.core.DCB,
+      &mut ctx.core.TPIU,
+      &mut ctx.core.DWT,
+      &mut ctx.core.ITM,
+      1, // task enter DWT comparator ID
+      2, // task exit DWT comparator ID
+      &TraceConfiguration {
+          delta_timestamps: LocalTimestampOptions::Enabled, // enabled with a bypassed (= 1) prescaler
+          absolute_timestamps: GlobalTimestampOptions::Disabled, // disable absolute timestamps
+          timestamp_clk_src: TimestampClkSrc::AsyncTPIU,
+          tpiu_freq: trace_clk.freq().0, // Hz
+          tpiu_baud: 1_000_000,          // B/s
+          protocol: TraceProtocol::AsyncSWONRZ,
+      },
+  )
+  .unwrap();
+#+end_src
+** Tracing software task via ~trace~ macro
+** Decoding the trace stream
+TLV: very simple to pattern match.
+** Resolving raw trace data back to RTIC tasks (recovery)
+
+* Example application
+** Example: Tracing the ATSAME
+** Example: Plotting a run-time graph
 * Future work
