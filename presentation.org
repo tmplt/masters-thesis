@@ -25,7 +25,7 @@
 
 #+startup: beamer
 #+latex_class: beamer
-#+latex_class_options: []
+#+latex_class_options: [aspectratio=169,12pt]
 #+BEAMER_THEME: Berkeley
 
 #+latex_header: \usepackage{tikz}
