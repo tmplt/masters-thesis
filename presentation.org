@@ -40,68 +40,100 @@
 - I work at Grepit AB on embedded systems. Hired in 2018, full-time since November.
 - We use embedded Rust and RTIC on Cortex-M MCUs.
 - Grepit has helped with the bankrolling of this project.
+- Chief interests are safety-critical systems and embedded control systems.
 
 ** The problem
 How do we verify the operation of our embedded systems?
 
-Commonly, "printf-debugging" is applied. Required when we cannot halt the processor for debugging.
+We cannot halt the processor for inspection, especially for control system applications.
 
-From this a log of activities are recorded.
+"printf-debugging" is applied: payloads are written such that the system state over time is logged.
 
+** The problem (cont.)
+How do we log RTIC tasks without affecting the program?
+
+Observer effect says we cannot remove the overhead, but how can we minimize the effect?
+
+* Live debugging methods
 ** Possible solutions?
-- Logging via semi-hosting? Very slow.
-- RTT? Possible I/O block.
-- Defmt? Possible I/O block.
+*** Semi-hosting                                              :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.3
+:BEAMER_env: block
+:END:
+Very slow, esp. formatting.
 
-** /The/ solution: tracing
+*** RTT                                                       :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.3
+:BEAMER_env: block
+:END:
+Possible I/O block.
+
+*** Defmt                                                     :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.3
+:BEAMER_env: block
+:END:
+Best approach, but can we do better?
+
+** /The/ solution: "tracing"
 Hardware-assisted logging via ARMv7-M debug peripherals:
-- Free-of-charge tracing for hardware tasks.
-- Cheap tracing of software tasks.
-- Minimal changes to code-base.
-- /A lot/ of unexploited features for future work (more on that at the end).
+- Available on e.g. Cortex-M4 and Cortex-M7
+- No effect on wider system
+- Subsystem that monitors:
+  - enters/exits/returns of hardware interrupts;
+  - configurable monitoring of arbitrary memory accesses;
+  - arbitrary payload registers ("instrumentation data");
+  - program counter values; etc.
 
+On subsystem trigger, a trace packet is generated and emitted on the /Serial Wire Out/ (SWO) pin that speaks UART.
+Can be decoded with your standard FT232 variant (UART-to-USB circuit).
 
 * The ARMv7-M debug peripherals
-** The /Data Watchpoint and Trace/ (DWT) unit
-** The /Intrumentation Macrocell/ (ITM) unit
-** The /Trace Port Interface Unit/ (TPIU)
+** Debug peripheral functions
+*** The /Data Watchpoint and Trace/ (DWT) unit
+Monitors hardware events:
+- interrupt enters/exits/returns;
+- memory accesses;
+- program counter values; etc.
+*** The /Intrumentation Macrocell/ (ITM) unit
+Muxes DWT packets with its own:
+- instrumentation data when written;
+- timestamps (absolute and relative); and
+forwards these to the TPIU.
+*** The /Trace Port Interface Unit/ (TPIU)
+Serializes ITM packets and emits them on the SWO pin, by help of a reference clock.
 # Use a frame here to show how a signal can be read on a host system.
 ** Peripheral relationship
 #+begin_export latex
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[node distance = 1cm, auto]
+\begin{tikzpicture}[node distance = 1cm, auto, scale = 0.6]
   \node[block] (clock) {timestamp clock};
   \node[block, below=0.5cm of clock] (itm) {ITM \\ (timestamps, \\ multiplexing, etc.)};
   \node[block, left=of itm] (dwt) {DWT \\ (hardware events)};
   \node[block, right=of itm] (tpiu) {TPIU \\ (serialization)};
   \node[block, above=0.5cm of tpiu] (prescaler) {prescaler: $/n$};
   \node[block, above=0.5cm of prescaler] (freq) {reference \\ clock $\left[\text{Hz}\right]$};
-  \node[below=of tpiu.south east] (swo) {SWO};
-  \node[below=of tpiu.south west] (parallel) {parallel trace \\ output};
+  \node[below=of tpiu.south] (swo) {SWO};
   \path[->]
   (dwt) edge (itm)
   (clock) edge (itm)
   (itm) edge (tpiu)
   (freq) edge (prescaler)
-  (prescaler) edge (tpiu);
+  (prescaler) edge (tpiu)
+  (tpiu) edge (swo);
 
   %% box
   \node[above=0.5cm of clock] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}};
   \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=($(dwt.west)+(-0.3,0)$), \p2=($(target.north)+(0.0,0.3)$), \p3=($(tpiu.south east)+(0.3,-0.3)$), \p4=($(itm.south)+(0,-0.3)$) in (\x1, \y2) rectangle (\x3, \y4);
 
-  %% anchors
-  \node[below=0.2cm of tpiu.south west] (parallel-anchor) {};
-  \node[below=0.2cm of tpiu.south east] (swo-anchor) {};
-  \draw[-] ($(tpiu.south west)!0.5!(tpiu.south)$) |- (parallel-anchor.center);
-  \draw[-] ($(tpiu.south east)!0.5!(tpiu.south)$) |- (swo-anchor.center);
-  \path[->] (swo-anchor.center) edge (swo);
-  \path[->] (parallel-anchor.center) edge (parallel);
-
 \end{tikzpicture}
 \caption{\label{fig:debug-relations}Downstream relationship between ARMv-7M debug peripherals used for tracing.}
 \end{figure}
 #+end_export
+
 
 
 * RTIC Scope: debug peripheral configuration and host-side trace collection
