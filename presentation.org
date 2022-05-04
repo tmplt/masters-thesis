@@ -74,10 +74,12 @@ Disrupts operation (esp. control system applications).
 - Emitted data is collected host-side and inspected.
 - Does not disrupt operation, but overhead is added.
 
-** The problem (cont.)
-How do we log RTIC tasks without affecting the program?
+** The exact problem
+How do we log the run-time status of RTIC tasks without affecting them?
 
-Observer effect says we cannot remove the overhead, but how can we minimize the effect?
+- We want to acquire information on when tasks enter, exit, and are preempted.
+- Observer effect says we cannot remove the overhead, but how can we minimize the effect?
+- And how should we go about timestamping this information?
 
 * Live debugging methods
 ** Possible solutions?
