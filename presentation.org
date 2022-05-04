@@ -39,10 +39,21 @@
 
 * Introduction
 ** What do I do?
+*** Summary                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.6
+:END:
 - I work at Grepit AB on embedded systems. Hired in 2018, full-time since November.
 - We use embedded Rust and RTIC on Cortex-M MCUs.
-- Grepit has helped with the bankrolling of this project.
-- Chief interests are safety-critical systems and embedded control systems.
+- Funded part of this thesis, for later application on products.
+- My chief interests are safety-critical systems and embedded control systems.
+*** Grepit logo                                                       :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.4
+:END:
+[[./svgs/grepit.png]]
+
+
 
 ** The problem
 How do we verify the operation of our embedded systems?
