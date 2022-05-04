@@ -130,26 +130,38 @@ Hardware-assisted logging via ARMv7-M debug peripherals:
 :END:
 Asynchronous emission of a /trace packet/ unto the /Serial Wire Out/ (SWO) pin that speaks UART.
 
-** The ARMv7-M debug peripherals
-*** Debug peripheral functions
-**** The /Data Watchpoint and Trace/ (DWT) unit
+** Debug peripheral functions
+*** The /Data Watchpoint and Trace/ (DWT) unit                :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.31
+:BEAMER_env: block
+:END:
 Monitors hardware events:
-- interrupt enters/exits/returns;
-- memory accesses;
-- program counter values; etc.
-**** The /Intrumentation Macrocell/ (ITM) unit
+- interrupt (task) enters, exits, and returns;
+- memory accesses; etc.
+*** The /Intrumentation Macrocell/ (ITM) unit                 :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.31
+:BEAMER_env: block
+:BEAMER_act: <2->
+:END:
 Muxes DWT packets with its own:
-- instrumentation data when written;
-- timestamps (absolute and relative); and
+- instrumentation packets;
+- timestamps (absolute, relative); and
 forwards these to the TPIU.
-**** The /Trace Port Interface Unit/ (TPIU)
-Serializes ITM packets and emits them on the SWO pin, by help of a reference clock.
-# Use a frame here to show how a signal can be read on a host system.
-*** Peripheral relationship
+*** The /Trace Port Interface Unit/ (TPIU)                    :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.31
+:BEAMER_env: block
+:BEAMER_act: <3->
+:END:
+Emits packets unto the SWO pin, by help of a reference clock.
+
+** Debug peripheral relationship
 #+begin_export latex
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[node distance = 1cm, auto, scale = 0.6]
+\begin{tikzpicture}[node distance = 1cm, auto, scale = 0.4]
   \node[block] (clock) {timestamp clock};
   \node[block, below=0.5cm of clock] (itm) {ITM \\ (timestamps, \\ multiplexing, etc.)};
   \node[block, left=of itm] (dwt) {DWT \\ (hardware events)};
@@ -164,31 +176,22 @@ Serializes ITM packets and emits them on the SWO pin, by help of a reference clo
   (freq) edge (prescaler)
   (prescaler) edge (tpiu)
   (tpiu) edge (swo);
-
-  %% box
-  \node[above=0.5cm of clock] (target) {target configured with \\ \texttt{cortex-m-rtic-trace}};
-  \draw[dotted,fill=yellow,fill opacity=0.2] let \p1=($(dwt.west)+(-0.3,0)$), \p2=($(target.north)+(0.0,0.3)$), \p3=($(tpiu.south east)+(0.3,-0.3)$), \p4=($(itm.south)+(0,-0.3)$) in (\x1, \y2) rectangle (\x3, \y4);
-
 \end{tikzpicture}
-\caption{\label{fig:debug-relations}Downstream relationship between ARMv-7M debug peripherals used for tracing.}
 \end{figure}
 #+end_export
 
-
-
-
-*** Tracing RTIC tasks
+** Tracing RTIC tasks
 - Hardware tasks :: bound to interrupts: traced "for free" when tracing enabled.
 - Software tasks :: Bound non-exclusively to an interrupt via task dispatcher, write /Unique Task ID/ (UTID) to monitored memory address via /watch variables/.
 
-*** The ITM packet protocol
+** The ITM packet protocol
 
-**** Execption trace packets
+*** Execption trace packets
 
-**** Data trace value packets
+*** Data trace value packets
 # DWT comparators
 
-**** Timestamp packets
+*** Timestamp packets
 Two types:
 - Global timestamps :: image of reference clock register value.
 - Local timestamps :: relative/delta: denotes time since last local timestamp.
