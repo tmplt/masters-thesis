@@ -180,21 +180,43 @@ Emits packets unto the SWO pin, by help of a reference clock.
 \end{figure}
 #+end_export
 
-** Tracing RTIC tasks
-- Hardware tasks :: bound to interrupts: traced "for free" when tracing enabled.
-- Software tasks :: Bound non-exclusively to an interrupt via task dispatcher, write /Unique Task ID/ (UTID) to monitored memory address via /watch variables/.
-
 ** The ITM packet protocol
+Packets of interest:
 
-*** Execption trace packets
+*** Exception trace packets                                   :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.48
+:BEAMER_env: block
+:END:
+Numerical value of interrupt, and the event type: enter, exit, or return.
+*** Data trace value packets                                  :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.48
+:BEAMER_env: block
+:END:
+The written data, and what DWT /hardware comparator/ saw the write.
 
-*** Data trace value packets
-# DWT comparators
-
-*** Timestamp packets
+*** Timestamp packets                                               :B_block:
+:PROPERTIES:
+:BEAMER_env: block
+:END:
+Emitted after non-timestamp packets.
 Two types:
 - Global timestamps :: image of reference clock register value.
 - Local timestamps :: relative/delta: denotes time since last local timestamp.
+
+** Tracing RTIC tasks
+- Hardware tasks :: bound to interrupts: traced for free when tracing enabled.
+- Software tasks :: Bound non-exclusively to an interrupt via task dispatchers, write a /Unique Task ID/ (UTID) to monitored memory address via /watch variables/.
+
+*** Requests fulfilled?                                             :B_block:
+:PROPERTIES:
+:BEAMER_env: block
+:BEAMER_act: <2->
+:END:
+- R1 :: "No effect on wider system" — ARM.
+- R2 :: Handled by the ITM.
+- R3 :: Trace packets contain no RTIC metadata, how much work can we automate?
 
 * Implementation
 Five crates created. We'll cover them in a down-stream fashion.
