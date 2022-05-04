@@ -56,11 +56,23 @@
 
 
 ** The problem
-How do we verify the operation of our embedded systems?
+How are embedded systems verified while they are running?
 
-We cannot halt the processor for inspection, especially for control system applications.
+*** Halt and inspect?                                          :B_alertblock:
+:PROPERTIES:
+:BEAMER_env: alertblock
+:BEAMER_act: <2->
+:END:
+Disrupts operation (esp. control system applications).
 
-"printf-debugging" is applied: payloads are written such that the system state over time is logged.
+*** Continuously emit internal system state?                        :B_block:
+:PROPERTIES:
+:BEAMER_env: block
+:BEAMER_act: <3>
+:END:
+- Known as /logging/ or /tracing/.
+- Emitted data is collected host-side and inspected.
+- Does not disrupt operation, but overhead is added.
 
 ** The problem (cont.)
 How do we log RTIC tasks without affecting the program?
