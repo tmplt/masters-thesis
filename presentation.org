@@ -114,18 +114,21 @@ What methods can we apply without re-inventing the wheel?
 - *R2, R3 fulfilled?*
 
 * Theory
-** /The/ solution: "tracing"
+** The solution: exploit hardware features
 Hardware-assisted logging via ARMv7-M debug peripherals:
 - Available on e.g. Cortex-M4 and Cortex-M7
 - No effect on wider system
 - Subsystem that monitors:
   - enters/exits/returns of hardware interrupts;
   - configurable monitoring of arbitrary memory accesses;
-  - arbitrary payload registers ("instrumentation data");
-  - program counter values; etc.
+  - arbitrary payload registers (/instrumentation data/); etc.
 
-On subsystem trigger, a trace packet is generated and emitted on the /Serial Wire Out/ (SWO) pin that speaks UART.
-Can be decoded with your standard FT232 variant (UART-to-USB circuit).
+*** On subsystem trigger                                            :B_block:
+:PROPERTIES:
+:BEAMER_env: block
+:BEAMER_act: <2->
+:END:
+Asynchronous emission of a /trace packet/ unto the /Serial Wire Out/ (SWO) pin that speaks UART.
 
 ** The ARMv7-M debug peripherals
 *** Debug peripheral functions
