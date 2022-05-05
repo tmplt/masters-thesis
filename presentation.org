@@ -40,7 +40,7 @@
 #+latex_header: \hypersetup{colorlinks,linkcolor=,urlcolor=blue}
 
 #+LATEX_HEADER: \usepackage{minted}
-#+LATEX_HEADER: \setminted{breaklines,breakafter=/.:,fontsize=\footnotesize,numbersep=4pt}
+#+LATEX_HEADER: \setminted{breaklines,breakafter=/.:,fontsize=\scriptsize,numbersep=4pt}
 
 #+latex_header: \setbeamertemplate{navigation symbols}{}
 
@@ -297,6 +297,67 @@ Five crates created. We'll cover them in a down-stream fashion.
   }
 #+end_src
 
+** Host-side configuration
+*** Crate manifest metadata
+#+begin_src toml
+[package.metadata.rtic-scope]
+pac_name = "atsame70n21b"
+pac_features = []
+pac_version = "0.12"
+interrupt_path = "atsame70n21b::Interrupt"
+tpiu_freq = 16000000
+tpiu_baud = 1000000
+dwt_enter_id = 1
+dwt_exit_id = 2
+lts_prescaler = 1
+expect_malformed = false
+#+end_src
+** Recovering trace information
+*** IRQ-to-label mapping                                      :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.4
+:BEAMER_env: block
+:END:
+#+begin_export latex
+\fontsize{6pt}{8pt}\selectfont
+#+end_export
+| Number in packet | Label on task          |
+|------------------+------------------------|
+|                1 | Reset                  |
+|                2 | NMI                    |
+|                3 | HardFault              |
+|                4 | MemManage              |
+|                5 | BusFault               |
+|             7-10 | Reserved               |
+|               11 | SVCall                 |
+|               12 | DebugMonitor           |
+|               13 | Reserved               |
+|               14 | PendSV                 |
+|               15 | SysTick                |
+|               16 | External interrupt 0   |
+|                . | .                      |
+|                . | .                      |
+|                . | .                      |
+|         16 + $N$ | External interrupt $N$ |
+|------------------+------------------------|
+*** RTIC example                                              :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:BEAMER_env: block
+:END:
+#+begin_src rust
+  #[rtic::app(.., dispatchers = [DMA0])]
+  mod app {
+      // ...
+
+      #[task(bind = SysTick)]
+      fn foo(_: foo::Context) { }
+
+      #[task]
+      #[trace]
+      fn bar(_: bar::Context) { }
+  }
+#+end_src
 
 ** Decoding the trace stream
 TLV: very simple to pattern match.
