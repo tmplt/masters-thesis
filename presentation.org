@@ -39,6 +39,20 @@
 
 #+latex_header: \hypersetup{colorlinks,linkcolor=,urlcolor=blue}
 
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \setminted{breaklines,breakafter=/.:,fontsize=\footnotesize,numbersep=4pt}
+
+#+latex_header: \setbeamertemplate{navigation symbols}{}
+
+* Org setup                                                        :noexport:
+  #+begin_src emacs-lisp :result output :session :exports both
+    ;; minted code listings
+    (require 'ox-latex)
+    (setq org-latex-listings 'minted)
+  #+end_src
+#+RESULTS:
+
+
 * Introduction
 ** What do I do?
 *** Summary                                                           :BMCOL:
@@ -234,28 +248,56 @@ Five crates created. We'll cover them in a down-stream fashion.
 #+BEAMER: \pause
 - =rtic-scope-api= :: JSON-API used for communication between the RTIC Scope backend to frontends.
 
-** Debug peripheral configuration via ~cortex_m_rtic_trace~
+** Applying ~cortex_m_rtic_trace~: ~#[init]~ modifications
+*** ~#[init]~ addition
 #+begin_src rust
-  // configure tracing
   cortex_m_rtic_trace::configure(
-      &mut ctx.core.DCB,
-      &mut ctx.core.TPIU,
-      &mut ctx.core.DWT,
-      &mut ctx.core.ITM,
+      &mut ctx.core.DCB, &mut ctx.core.TPIU, &mut ctx.core.DWT, &mut ctx.core.ITM,
       1, // task enter DWT comparator ID
       2, // task exit DWT comparator ID
       &TraceConfiguration {
-          delta_timestamps: LocalTimestampOptions::Enabled, // enabled with a bypassed (= 1) prescaler
-          absolute_timestamps: GlobalTimestampOptions::Disabled, // disable absolute timestamps
+          delta_timestamps: LocalTimestampOptions::Enabled,
+          absolute_timestamps: GlobalTimestampOptions::Disabled,
           timestamp_clk_src: TimestampClkSrc::AsyncTPIU,
-          tpiu_freq: trace_clk.freq().0, // Hz
-          tpiu_baud: 1_000_000,          // B/s
+          tpiu_freq: 16_000_000, // Hz; MCU-specific
+          tpiu_baud: 1_000_000,  // bps
           protocol: TraceProtocol::AsyncSWONRZ,
-      },
-  )
-  .unwrap();
+      }).unwrap();
 #+end_src
-** Tracing software task via ~trace~ macro
+** Applying ~cortex_m_rtic_trace~: tracing software tasks
+*** Applying the ~trace~ macro                                :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.55
+:BEAMER_env: block
+:END:
+#+begin_src rust
+  #[rtic::app(...)]
+  mod app {
+      use cortex_m_rtic_trace::{self, trace};
+      // #[init] and everything else...
+
+      #[task]
+      fn foo(_: foo::Context) { }
+
+      #[task]
+      #[trace]
+      fn bar(_: bar::Context) { }
+  }
+#+end_src
+*** ~trace~ expanded                                          :B_block:BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.4
+:BEAMER_env: block
+:BEAMER_act: <2->
+:END:
+#+begin_src rust
+  fn bar(_: bar::Context) {
+      ::cortex_m_rtic_trace::__write_enter_id(0);
+      ::cortex_m_rtic_trace::__write_exit_id(0);
+  }
+#+end_src
+
+
 ** Decoding the trace stream
 TLV: very simple to pattern match.
 ** Resolving raw trace data back to RTIC tasks (recovery)
