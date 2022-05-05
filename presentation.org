@@ -43,10 +43,10 @@
 :PROPERTIES:
 :BEAMER_col: 0.6
 :END:
-- I work at Grepit AB on embedded systems. Hired in 2018, full-time since November.
+- I work at Grepit AB with embedded real-time systems. Hired in 2018, full-time since November.
 - We use embedded Rust and RTIC on Cortex-M MCUs.
 - Funded part of this thesis, for later application on products.
-- My chief interests are safety-critical systems and embedded control systems.
+- My chief interests are safety-critical systems embedded control systems.
 *** Grepit logo                                                       :BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.4
@@ -65,7 +65,7 @@ How are embedded systems verified while they are running?
 :END:
 Disrupts operation (esp. control system applications).
 
-*** Continuously emit internal system state?                        :B_block:
+*** Continuous emission of the internal system state                :B_block:
 :PROPERTIES:
 :BEAMER_env: block
 :BEAMER_act: <3>
