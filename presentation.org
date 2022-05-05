@@ -221,14 +221,19 @@ Two types:
 - R3 :: Trace packets contain no RTIC metadata, how much work can we automate?
 
 * Implementation
-Five crates created. We'll cover them in a down-stream fashion.
-
 ** Crates
+Five crates created. We'll cover them in a down-stream fashion.
+#+BEAMER: \pause
 - =cortex_m_rtic_trace= :: Target-side crate for debug peripheral configuration (via =configure= function) and software task tracing (via =trace= macro).
+#+BEAMER: \pause
 - =cargo-rtic-scope= :: Host-side =cargo= subcommand daemon/backend that recovers trace metadata and records emitted trace packets. Enables portmortem replays.
+#+BEAMER: \pause
 - =itm= :: A library crate for trace stream decoding into Rust structures.
+#+BEAMER: \pause
 - =rtc-scope-frontend-dummy= :: Reference implementation of a RTIC Scope frontend. Simply prints the trace stream to =stdout=.
+#+BEAMER: \pause
 - =rtic-scope-api= :: JSON-API used for communication between the RTIC Scope backend to frontends.
+
 ** Debug peripheral configuration via ~cortex_m_rtic_trace~
 #+begin_src rust
   // configure tracing
