@@ -301,18 +301,18 @@ Five crates created. We'll cover them in a down-stream fashion.
 *** Crate manifest metadata
 #+begin_src toml
 [package.metadata.rtic-scope]
-pac_name = "atsame70n21b"
-pac_features = []
-pac_version = "0.12"
-interrupt_path = "atsame70n21b::Interrupt"
-tpiu_freq = 16000000
-tpiu_baud = 1000000
-dwt_enter_id = 1
-dwt_exit_id = 2
-lts_prescaler = 1
+pac_name         = "atsame70n21b" # svd2rust crate
+pac_features     = []
+pac_version      = "0.12"
+interrupt_path   = "atsame70n21b::Interrupt"
+tpiu_freq        = 16000000
+tpiu_baud        = 1000000
+dwt_enter_id     = 1
+dwt_exit_id      = 2
+lts_prescaler    = 1
 expect_malformed = false
 #+end_src
-** Recovering trace information
+** Information recovery: why?
 *** IRQ-to-label mapping                                      :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.4
@@ -356,6 +356,18 @@ expect_malformed = false
       #[task]
       #[trace]
       fn bar(_: bar::Context) { }
+  }
+#+end_src
+** Information recovery: how?
+*** Adhoc crate
+#+begin_src rust
+  // "use ${interrupt_path};"
+  use atsame70n21b::Interrupt;
+
+  // label found from AST parsing (via rtic_syntax)
+  #[no_mangle]
+  pub extern fn DMA0() -> u16 {
+      Interrupt::DMA0.number()
   }
 #+end_src
 
