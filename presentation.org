@@ -37,6 +37,8 @@
 #+latex_header:   every text node part/.style={align=center}, % allow multiline node descriptions
 #+latex_header: }
 
+#+latex_header: \hypersetup{colorlinks,linkcolor=,urlcolor=blue}
+
 * Introduction
 ** What do I do?
 *** Summary                                                           :BMCOL:
@@ -116,10 +118,10 @@ What methods can we apply without re-inventing the wheel?
 * Theory
 ** The solution: exploit hardware features
 Hardware-assisted logging via ARMv7-M debug peripherals:
-- Available on e.g. Cortex-M4 and Cortex-M7
-- No effect on wider system
+- Available on e.g. Cortex-M4/M7.
+- No effect on wider system[fn:: As per [[https://documentation-service.arm.com/static/601d64b2d3a18035d13aa72e?token=][ARM's /Understanding Trace/]], p. 24.]
 - Subsystem that monitors:
-  - enters/exits/returns of hardware interrupts;
+  - enters/exits/returns of interrupts (or /exceptions/);
   - configurable monitoring of arbitrary memory accesses;
   - arbitrary payload registers (/instrumentation data/); etc.
 
@@ -180,7 +182,7 @@ Emits packets unto the SWO pin, by help of a reference clock.
 \end{figure}
 #+end_export
 
-** The ITM packet protocol
+** Trace packets: the ITM packet protocol
 Packets of interest:
 
 *** Exception trace packets                                   :B_block:BMCOL:
@@ -188,13 +190,13 @@ Packets of interest:
 :BEAMER_col: 0.48
 :BEAMER_env: block
 :END:
-Numerical value of interrupt, and the event type: enter, exit, or return.
+Numerical value of interrupt, and the event type: enter, exit, or returned to.
 *** Data trace value packets                                  :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.48
 :BEAMER_env: block
 :END:
-The written data, and what DWT /hardware comparator/ saw the write.
+The read/written data, and what DWT /hardware comparator/ saw the access.
 
 *** Timestamp packets                                               :B_block:
 :PROPERTIES:
@@ -206,8 +208,8 @@ Two types:
 - Local timestamps :: relative/delta: denotes time since last local timestamp.
 
 ** Tracing RTIC tasks
-- Hardware tasks :: bound to interrupts: traced for free when tracing enabled.
-- Software tasks :: Bound non-exclusively to an interrupt via task dispatchers, write a /Unique Task ID/ (UTID) to monitored memory address via /watch variables/.
+- Hardware tasks :: Exclusively bound to interrupts: traced for free when tracing enabled.
+- Software tasks :: Non-exclusively bound to an interrupt via task dispatchers: write a /Unique Task ID/ (UTID) to monitored memory address via /watch variables/.
 
 *** Requests fulfilled?                                             :B_block:
 :PROPERTIES:
