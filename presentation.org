@@ -1,12 +1,8 @@
 #+options: ':nil *:t -:t ::t <:t H:2 \n:nil ^:t arch:headline
-#+options: author:t broken-links:nil c:nil creator:nil
-#+options: d:(not "LOGBOOK") date:t e:t email:t f:t inline:t num:t
+#+options: title:t author:nil broken-links:nil c:nil creator:nil
+#+options: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
 #+options: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
-#+options: timestamp:t title:t toc:t todo:t |:t
 #+title: RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework
-#+subtitle: Hardware-assisted logging for minimized observer effect
-#+author: Viktor Sonesten
-#+email: vikson-6@student.ltu.se
 #+language: en
 #+select_tags: export
 #+exclude_tags: noexport
@@ -44,14 +40,23 @@
 
 #+latex_header: \setbeamertemplate{navigation symbols}{}
 
+#+latex_header: \author{{Viktor Sonesten\thanks{vikson-6@student.ltu.se}} \\ {\and} \\ {\textit{As supervised by}} \\ {Per Lindgren\thanks{Per.Lindgren@ltu.se}}}
+#+latex_header: \institute{Luleå Techical University}
+
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
-    ;; minted code listings
-    (require 'ox-latex)
-    (setq org-latex-listings 'minted)
+        ;; minted code listings
+        (require 'ox-latex)
+        (setq org-latex-listings 'minted)
+
+        ;; ignore some headlines
+        (require 'ox-extra)
+        (ox-extras-activate '(ignore-headlines))
+
+        ;; dont export \hypersetup
+        (setq org-latex-with-hyperref nil)
   #+end_src
 #+RESULTS:
-
 
 * Introduction
 ** What do I do?
