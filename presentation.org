@@ -410,11 +410,35 @@ Yields lookup maps internally to map trace packets to RTIC events.
   }
 #+end_src
 
-* Example application
-** Example: Tracing the Microchip ATSAME70N21B
-TODO
-** Example: Plotting a run-time graph
-TODO
+* Example trace
+** Recovering information
+Post-recovery we have:
+   #+begin_export latex
+   \begin{align*}
+    \langle \text{IRQ} &= 15 \mapsto \texttt{app::foo} \rangle \\
+    \langle \text{IRQ} &= 23 \mapsto \text{task dispatcher} \rangle \\
+    \langle \text{UTID} &= 0 \mapsto \texttt{app::bar} \rangle
+   \end{align*}
+   #+end_export
+** Decoding and mapping a trace stream
+We receive some trace packets:
+#+begin_export latex
+\fontsize{10pt}{12pt}\selectfont
+#+end_export
+1. =ExceptionTrace { exception: 15, action: Entered }=: @@latex:{\color{blue}\texttt{app::foo} entered}@@;
+   #+BEAMER: \pause
+2. =ExceptionTrace { exception: 23, action: Entered }=: @@latex:{\color{blue}task dispatcher preempted \texttt{app::foo}}@@;
+   #+BEAMER: \pause
+3. =DataTraceValue { comparator: 1, value: 0, .. }=: @@latex:{\color{blue}\texttt{app::bar} entered}@@;
+   #+BEAMER: \pause
+4. =DataTraceValue { comparator: 2, value: 0, .. }=: @@latex:{\color{blue}\texttt{app::bar} exiting}@@;
+   #+BEAMER: \pause
+5. =ExceptionTrace { exception: 23, action: Exited }=: @@latex:{\color{blue}task dispatcher exited}@@;
+   #+BEAMER: \pause
+6. =ExceptionTrace { exception: 15, action: Returned }=: @@latex:{\color{blue}\texttt{app::foo} resumed}@@;
+   #+BEAMER: \pause
+7. =ExceptionTrace { exception: 15, action: Exited }=: @@latex:{\color{blue}\texttt{app::foo} exited}@@;
+
 * Future work
 ** Future work
 - Improve =configure= API.
