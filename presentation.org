@@ -409,8 +409,29 @@ Yields lookup maps internally to map trace packets to RTIC events.
       Interrupt::DMA0.number()
   }
 #+end_src
+** The mainsake trace loop
+- The target continuously emits trace packets.
+- Host-side runs =cargo rtic-scope trace= which after recovery:
+  1. reads trace stream from the target;
+  2. deserializes byte stream to packet structures via =itm=;
+  3. saves packets to a replay file for later analysis;
+  4. maps packets to RTIC events; and
+  5. forwards these to the spawned RTIC Scope frontend using the =rtic-scop-api= JSON API.
 
-* Example trace
+Tracing stops when user sends =SIGINT=.
+
+** The replay loop
+- +The target continuously emits trace packets.+
+- Host-side runs =cargo rtic-scope replay= +which after recovery+:
+  1. reads trace packets from the replay file;
+  2. +deserializes byte stream to packet structures via =itm=;+
+  3. +saves packets to a replay file for later analysis;+
+  4. maps packets to RTIC events; and
+  5. forwards these to the spawned RTIC Scope frontend using the =rtic-scop-api= JSON API.
+
+Replay stops when end-of-file reached.
+
+* Example
 ** Recovering information
 Post-recovery we have:
    #+begin_export latex
