@@ -312,6 +312,8 @@ User-supplied metadata:
 - UART baud rate; and
 - information necessary to interpret timestamps.
 Mirrors the information set via =configure=.
+
+- *Overhead*, but required for now.
 *** Crate manifest metadata                                   :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_env: block
