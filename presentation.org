@@ -390,7 +390,9 @@ Mirrors the information set via =configure=.
 
 - Build adhoc crate to find IRQ number of unknown binds (hidden from user).
 
-*** Info-recovery crate for unknown bind                      :B_block:BMCOL:
+Yields lookup maps internally to map trace packets to RTIC events.
+
+*** Info-recovery crate for unknown binds                     :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.5
 :BEAMER_env: block
