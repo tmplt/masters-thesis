@@ -43,6 +43,8 @@
 #+latex_header: \author{{Viktor Sonesten\thanks{vikson-6@student.ltu.se}} \\ {\and} \\ {\textit{As supervised by}} \\ {Per Lindgren\thanks{Per.Lindgren@ltu.se}}}
 #+latex_header: \institute{Luleå Techical University}
 
+#+latex_header: \usepackage{svg}
+
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
         ;; minted code listings
@@ -459,6 +461,20 @@ We receive some trace packets:
 6. =ExceptionTrace { exception: 15, action: Returned }=: @@latex:{\color{blue}\texttt{app::foo} resumed}@@;
    #+BEAMER: \pause
 7. =ExceptionTrace { exception: 15, action: Exited }=: @@latex:{\color{blue}\texttt{app::foo} exited}@@;
+** Program output example
+#+begin_src text
+  $ cargo rtic-scope trace --serial /path/to/dev/tty --dont-touch-target
+      Building RTIC target application...
+    Recovering metadata for rtic-scope-atsame-example (/path/to/rtic-scope-atsame-example/src/main.rs)...
+     Recovered 2 task(s) from rtic-scope-atsame-example: 1 hard, 1 soft.
+      Frontend dummy: @2000 ns (+2000 ns) [good]: [Task { name: "app::hardware", action: Entered }]
+      Frontend dummy: @5750 ns (+3750 ns) [good]: [Task { name: "app::software", action: Entered }]
+      Frontend dummy: @6167 ns (+417 ns) [good]: [Task { name: "app::software", action: Exited }]
+      Frontend dummy: @6334 ns (+167 ns) [good]: [Task { name: "app::hardware", action: Returned }, Task { name: "app::hardware", action: Exited }]
+        Traced rtic-scope-atsame-example: 10 packets processed in 10s (~1.0 packets/s; 0 malformed, 0 non-mappable); 2/2 sinks operational.
+#+end_src
+** Graphical output example
+[[file:svgs/auto-plot-example.svg]]
 
 * Future work
 ** Future work
