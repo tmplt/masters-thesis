@@ -331,6 +331,7 @@ Mirrors the information set via =configure=.
   expect_malformed = false
 #+end_src
 ** Information recovery: why?
+/Known/ and /unknown/ binds.
 *** IRQ-to-label mapping                                      :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.4
@@ -383,7 +384,7 @@ Mirrors the information set via =configure=.
 :PROPERTIES:
 :BEAMER_col: 0.5
 :END:
-- Parse source code for /known/ and /unknown/ binds.
+- Parse source code for known and unknown binds.
 
 - Read PAC information from manifest metadata.
 
