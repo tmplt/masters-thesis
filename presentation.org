@@ -408,15 +408,18 @@ Yields lookup maps internally to map trace packets to RTIC events.
   }
 #+end_src
 
-** Decoding the trace stream
-TLV: very simple to pattern match.
-** Resolving raw trace data back to RTIC tasks (recovery)
-
 * Example application
-** Example: Tracing the ATSAME
+** Example: Tracing the Microchip ATSAME70N21B
+TODO
 ** Example: Plotting a run-time graph
+TODO
 * Future work
-** Blah
+** Future work
+- Improve =configure= API.
+- Deprecating =cortex_m_rtic_trace= by merging functionality into RTIC itself.
+- Removing further end-user overhead.
+- Exploiting more trace features: arbitrary data (e.g. emit messages sent to tasks), PC samples, etc.
+- Continue the work on a frontend that plots the trace.
 * Questions?
 ** Questions?
 Where is all the work?
