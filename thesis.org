@@ -2480,7 +2480,7 @@ Refer to [[cref:fig:auto-plot-example]].
 #+CAPTION: Graphical representation of the trace yielded by [[textcite:&rtic-scope:dummy-auto-plot]], equivalent to [[cref:lst:app-atsame-example-trace-scope-replay]]. ~app::software~ preempts ~app::hardware~ after approximately 5600 ns. At approximately 6100 ns ~app::hardware~ resumes execution. Task context switch overhead not plotted.
 [[file:svgs/auto-plot-example.svg]]
 * Footnotes
-[fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.1.
+[fn:not-of-concern] Functionality not of concern for RTIC Scope v0.3.
 
 [fn:exception-number-0] During experimentation packets with a zero in this field were encountered. [[textcite:&arm-rm Section B1.3.1]] notes that a /Thread mode/ is entered on target reset.  [[gls:RTIC]] executes its task by help of exceptions which warrant an enter into a /Handler mode/. [[textcite:&arm-rm p. B1-517]] comments that a value of [[gls:IPSR]] is zero if no exception handler is executing. These Thread mode changes were always observed before and after non-preempted [[gls:RTIC]] tasks entered and exited. An exception number of 0 is then ultimately ignored by RTIC Scope v0.3.
 
