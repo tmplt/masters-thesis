@@ -265,8 +265,8 @@ Further, with non-invasive trace generation, less code must be executed by the [
 With a decreased duty-cycle the system can be put to sleep longer, and thus conserve energy.
 
 # On real-time implementation restrictions, embedded implementation difficulties in general.
-The development of embedded systems in general is non-trivial.
-In comparison to general-purpose computers, where one often must not worry about resource limitations, embedded systems are constrained in all manners such that costs can be minimized for their non-general applications.
+The development of embedded systems in general is non-trivial:
+in comparison to general-purpose computers, embedded systems are constrained such that costs can be minimized for their non-general applications.
 # No rich OS; no two embedded platforms are the same.
 An embedded developer seldom have access to a rich operating systems --- a Linux-based distribution, for example --- which offers general-purpose facilities based on dynamic allocations and a common environment to simplify the program implementation.
 Two embedded platforms usually differ significantly (even if both platforms are based upon ARMv7-M, due to the different peripherals) and porting a program to another platform is no small task.
