@@ -2263,7 +2263,7 @@ It may be apt to [[gls:upstream]] portions of its implementations to [[textcite:
 
 Regardless of what the outcome of minimizing overhead is, =cortex-m-rtic-trace= is predicted to eventually be deprecated;
 refer to [[textcite:&issue:cargo-rtic-scope:90]].
-See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero overhead (i.e., no longer requiring the user to modify the crate's =Cargo.toml=).
+See also [[textcite:&issue:cargo-rtic-scope:100]], a tracking issue on the realization of zero end-user overhead (i.e., no longer requiring the user to modify the crate's =Cargo.toml=).
 
 **** Supporting other [[glspl:RTOS]] than [[gls:RTIC]]
 RTIC Scope v0.3 targets and depends on [[gls:RTIC]] v1.0.0.
