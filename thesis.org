@@ -541,7 +541,7 @@ An exhaustive summary of these contributions are described below (listed in no p
   - dir/extract: add mode for overwriting existing files: :: implements functionality for overwriting existing files when extracting embedded file trees to disk [[parencite:&pr:includedir:65]].
 
 *** Outline
- This paper is structured as follows:
+ This thesis is structured as follows:
  - [[cref:introduction]], Introduction :: provides a background introduction to Rust, the embedded Rust ecosystem and [[gls:RTIC]].
    Subsequently, covers the project motivation, problem definition, delimitations and contributions made within the scope of this thesis, and guidelines on how to read this text.
  - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
