@@ -593,6 +593,9 @@ For example: =PAC::Interrupt= refers to the =Interrupt= enum in the crate =PAC= 
 and =foo::bar= can refer to the function =bar= in the crate =foo=.
 The context of these notations point out whether a function, enum, or some other language construct is referred to.
 
+In contexts where two or more language contructs are equivalent or relate to eachother, curly brackets (={= and =}=) are used.
+For example, =foo::bar{,2}= indicate that =bar= and =bar2= from =foo= relate in some manner.
+
 Finally, the two heavily used terms "host" and "target" are here defined to lower typesetting noise:
 the latter is the [[gls:MCU]] which is traced via RTIC Scope;
 the former is the system upon which the [[gls:daemon]] of RTIC Scope runs, and the system that programs the target.
