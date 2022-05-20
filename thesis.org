@@ -227,7 +227,7 @@ Here be an abstract...
 :CUSTOM_ID: introduction
 :END:
 # What are embedded systems, regulators, and how do they relate?
-Embedded systems --- a unit combination of a central processing unit, system memory, and input/output peripheral devices (commonly known as [[glspl:MCU]]) --- serve a key role in the operation of systems with electronic components where computations must be made.
+Embedded systems [[parencite:&burns Chapter 1.1]] --- a unit combination of a central processing unit, system memory, and input/output peripheral devices (commonly known as [[glspl:MCU]]) --- serve a key role in the operation of systems with electronic components where computations must be made.
 Prime examples of such systems are digital control systems which regulate one or more control quantities such that they adhere to design characteristics.
 Often the goal is to track a reference signal; such a control system is known as a [[gls:regulator]].
 For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output while keeping the plant within safe operation boundaries.
