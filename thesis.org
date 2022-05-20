@@ -238,7 +238,7 @@ The rocket may thus fly off course, or the nuclear reactor reach a meltdown.
 This puts a [[gls:real-time]] constraint on the digital controller which greatly limits how it can be implemented [[parencite:&burns Chapter 1.3]].
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and realize the real-time constraint.
 This task grows exponentially in difficulty as the number of [[glspl:system-state]], inputs, and outputs increase.
-Similar phenomena are observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press.
+Similar phenomena are observed for embedded systems with an increasing number of responsibilities, such as handling firmware updates or switching modes of operation on a button press [[parencite:&burns Chapter 11]].
 
 # The observer effect; data emission.
 Unfortunately, embedded systems are subject to the observer effect: to observe the system state (i.e., variables in memory) its operation must be affected.
