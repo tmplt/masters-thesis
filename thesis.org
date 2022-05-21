@@ -728,19 +728,24 @@ This protocol defines packets that contain a one-byte header, which describes wh
 Some headers also contain payload.
 The protocol effectively implements a [[gls:TLV]] encoding scheme.
 This section covers the packet types that RTIC Scope exploits and provide graphical representations ([[crefrange:fig:lts1,fig:data-trace-packet]]) of these packets, sourced from [[textcite:&arm-rm]].
+
 Within all of these representations, the /C/ flag indicate whether a decoder should interpret the next byte in the trace stream as a part of the current packet:
 if /C/ is not set, the next byte in the stream is a header for the next packet.
+For example, in [[cref:fig:gts1]], if /C/ is zero on the first payload byte only /TS[4:0]/ will have changed, the remaining two bits being reserved for /Wrap/ and /ClkCh/.
+If a /C/ flag is not present in the packet, the length of the packet is either static or denoted by a size field, /SS/.
 
 For other packet types, and a full description of the protocol, see [[textcite:&arm-rm Part D4]].
 
 RTIC Scope v0.3 concerns itself with six packets:
-- [[gls:GTS1]] :: A timestamp packet containing the lower 26 bits of the absolute timestamp.
-- [[gls:GTS2]] :: A timestamp packet containing the upper 22 or 38 bits of the absolute timestamp, depending on the hardware implementation.
-- [[gls:LTS1]] :: A multi-byte timestamp packet containing the relative timestamp.
-- [[gls:LTS2]] :: A single-byte timestamp packet containing the relative timestamp.
-- Exception trace packet :: A [[gls:hardware-event-packet]] describing the status of an interrupt handler. See [[cref:theory:itm:exceptions]]
-- Data trace data value packet format :: A [[gls:hardware-event-packet]] describing the value read or written to a [[gls:watch-address]] monitored by a [[gls:DWT]] comparator. See [[cref:theory:itm:data-trace]].
+- \glsxtrfull{GTS1} :: A timestamp packet containing the lower 26 bits of the absolute timestamp.
+- \glsxtrfull{GTS2} :: A timestamp packet containing the upper 22 or 38 bits of the absolute timestamp, depending on the hardware implementation.
+- \glsxtrfull{LTS1} :: A multi-byte timestamp packet containing the relative timestamp.
+- \glsxtrfull{LTS2} :: A single-byte timestamp packet containing the relative timestamp.
+- \glsxtrfull{ETP} :: A [[gls:hardware-event-packet]] describing the status of an interrupt handler. See [[cref:theory:itm:exceptions]]
+- \glsxtrfull{DTP} :: A [[gls:hardware-event-packet]] describing the value read or written to a [[gls:watch-address]] monitored by a [[gls:DWT]] comparator. See [[cref:theory:itm:data-trace]].
 For timestamp packets, see [[cref:theory:itm:timestamps]].
+
+We differentiate these packets in this section by denoting GTS1, GTS2, LTS1 and LTS2 aptly as "timestamp packets", whereas ETP and DTP as "event packets".
 
 **** Timestamp packets
 :PROPERTIES:
@@ -795,20 +800,13 @@ LTS2 packets are always synchronous.
 
 Local timestamps are emitted after the corresponding non-timestamp packets.
 For example, if the sequence reads
-#+begin_export latex
-\begin{multicols}{3}
-#+end_export
-1. data packet 1;
-2. LTS1;
-3. data packet 2;
-4. data packet 3; and
-5. LTS2,
-#+begin_export latex
-\end{multicols}
-\noindent
-#+end_export
-then the LTS1 corresponds to data packet 1;
-and LTS2 to data packet 2 and 3.
+1. first event packet;
+2. first timestamp packet: LTS1;
+3. second event packet;
+4. third event packet; and
+5. second timestamp packet: LTS2,
+then the LTS1 corresponds to the first data packet;
+and LTS2 to the second and third event packets.
 
 #+NAME: fig:lts1
 #+CAPTION: \gls{LTS1} packet format, copied from [[textcite:&arm-rm Figure D4-4]].
@@ -817,11 +815,11 @@ and LTS2 to data packet 2 and 3.
 #+CAPTION: \gls{LTS2} packet format, copied from [[textcite:&arm-rm Figure D4-6]].
 [[file:svgs/lts2.pdf]]
 
-**** Exception trace packets
+**** \glsxtrfullpl{ETP}
 :PROPERTIES:
 :CUSTOM_ID: theory:itm:exceptions
 :END:
-The exception trace packet ([[cref:fig:exception-packet]]) describes the state of the system's interrupt handlers and are emitted upon such a state change.
+The [[gls:ETP]] ([[cref:fig:exception-packet]]) describes the state of the system's interrupt handlers and are emitted upon such a state change.
 Its payload contains two fields:
 - /ExceptionNumber/ :: A 7-bit field describing which interrupt handler changed state.
   This field it decoded via [[cref:tbl:irqns]].[fn:exception-number-0]
@@ -833,7 +831,7 @@ Its payload contains two fields:
     This action indicates that exception was previously preempted by an exception of higher priority which has now exited.
 
 #+NAME: fig:exception-packet
-#+CAPTION: Exception trace packet format, copied from [[textcite:&arm-rm Figure D4-16]].
+#+CAPTION: [[gls:ETP]] format, copied from [[textcite:&arm-rm Figure D4-16]].
 [[file:svgs/exception-trace.pdf]]
 #+CAPTION: [[gls:armv7-m]] [[gls:exception]] numbers their corresponding labels. From [[textcite:&arm-rm Table B1-4]].
 #+NAME: tbl:irqns
@@ -857,22 +855,27 @@ Its payload contains two fields:
 |         16 + $N$ | External interrupt $N$ |
 |------------------+------------------------|
 
-**** Data trace data value packets
+**** \glsxtrfullpl{DTP}
 :PROPERTIES:
 :CUSTOM_ID: theory:itm:data-trace
 :END:
-The data trace data value packet format packet ([[cref:fig:data-trace-packet]]), henceforth referred to as the "data trace packet", are emitted when the processor accesses a [[gls:watch-address]] after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
+#+NAME: fig:data-trace-packet
+#+CAPTION: [[gls:DTP]], copied from [[textcite:&arm-rm Figure D4-22]].
+[[file:svgs/data-trace.pdf]]
+
+The [[gls:DTP]] ([[cref:fig:data-trace-packet]]) are emitted when the processor accesses a [[gls:watch-address]] after appropriate [[gls:DWT]] comparator configuration (see [[cref:impl:rtic-trace]]).
 The payload contains three fields of information:
+- /SS/ :: A 2-bit flag denoting the number of payload bytes; from [[textcite:&arm-rm Section D4.2.7]]:
+  - /SS/ = 0b01 :: 1-byte payload, 2-byte packet;
+  - /SS/ = 0b10 :: 2-byte payload, 3-byte packet; or
+  - /SS/ = 0b11 :: 4-byte payload, 5-byte packet.
+  /SS/ cannot have the value of zero: this would clash with another packet header.
 - /CMPN/ :: A 2-bit identifier of the DWT comparator which matched the configured watch address access.
   This identifier is the same as the comparator offset specified in [[cref:impl:rtic-trace]].
 - /WnR/ :: A flag describing whether the access was a read (not set) or write (set).
 - /VALUE/ :: The value that was written to the address.
   The length of /VALUE/ is the same number of bytes accessed by the target hardware.
   If only a single byte is read/written by the target, then /VALUE/ is also one byte long.
-
-#+NAME: fig:data-trace-packet
-#+CAPTION: Data trace data value packet format, copied from [[textcite:&arm-rm Figure D4-22]].
-[[file:svgs/data-trace.pdf]]
 
 *** Deserializing the \glsxtrfull{SWO}
 :PROPERTIES:
