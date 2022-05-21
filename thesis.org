@@ -2211,6 +2211,9 @@ A sufficiently large error will induce communication problems.
   \left\lvert 1 - \left(\frac{115942}{115200}\right)\right\rvert = 0.00644
 \end{equation}
 
+Note also from [[textcite:&arm-rm Section C1.10.4]]: "The supported scalar value range is implementation defined [...] Unused bits of the /SWOSCALER/ field are [[gls:RAZ-WI]]".
+This limitation is not currently handled.
+
 An issue that further documents the erroneous implementation and offers improvements is available at [[textcite:&issue:cortex-m:388]].
 
 Ideally, errors such as [[cref:eq:baud-rate-error]] should be caught statically during compilation, but such a feature would require non-trivial changes to the embedded Rust ecosystem because =cortex-m= currently has no idea about the clock configuration of the target device.[fn:: This would require changes to all [[glspl:HAL]] to statically hold information about the device-specific clock hierarchy that can then be passed to and inspected by =cortex-m=.]
