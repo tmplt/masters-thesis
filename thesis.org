@@ -1029,7 +1029,7 @@ After applying device-specific configurations for trace generation and querying 
               absolute_timestamps: GlobalTimestampOptions::Disabled,
               timestamp_clk_src: TimestampClkSrc::AsyncTPIU,
               tpiu_freq: freq, // Hz
-              tpiu_baud: 9600, // B/s; the baud rate of the SWO
+              tpiu_baud: 1_000_000, // Bd; the baud rate of the SWO
               protocol: TraceProtocol::AsyncSWONRZ,
           },
       )
