@@ -545,6 +545,7 @@ An exhaustive summary of these contributions are described below (listed in no p
  - [[cref:introduction]], Introduction :: provides a background introduction to Rust, the embedded Rust ecosystem and [[gls:RTIC]].
    Subsequently, covers the project motivation, problem definition, delimitations and contributions made within the scope of this thesis, and guidelines on how to read this text.
  - [[cref:prev-work]], Previous and Related work :: presents work previously done in the same domain, which this thesis builds upon, and some tools with similar feature sets of RTIC Scope.
+ - [[cref:method]], Method :: summarizes how RTIC Scope has been developed.
  - [[cref:theory]], Theory :: covers the [[gls:armv7-m]] debug facilities, the [[gls:ITM]] packet protocol and how RTIC [[glspl:task]] are traced in theory via RTIC Scope.
  - [[cref:impl]], Implementation :: covers the implementation of RTIC Scope and the auxiliary =itm= crate.
  - [[cref:results]], Results :: covers the results of this thesis and applies RTIC Scope to a trivial RTIC application.
@@ -615,6 +616,20 @@ Some toolsets similar to RTIC Scope were already available before the start of t
 - orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
 - Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[glspl:RTOS]] [[parencite:&tracealyzer]].
 Neither of the above tools support [[gls:RTIC]] at the time of writing and were not investigated further.
+
+** Method
+:PROPERTIES:
+:CUSTOM_ID: method
+:END:
+This thesis is a work of applied computer science that expands the feature set of [[gls:RTIC]], following its research and development covered in [[textcite:&rtfm-step1]] and [[textcite:&rtic]], and embedded real-time system work previously done by the author at Luleå Technical University and Grepit AB[fn:: Refer to [[https://grepit.se]].].
+The work targets ARM's Cortex-M [[gls:family]] of [[glspl:MCU]] which provide the [[gls:tracing]] peripherals previously introduced.
+
+Throughout this thesis several documents by ARM have been consulted for theory and the resultant implementation: [[parencite:&arm-rm]], [[parencite:&arm-cortex-learn]], and [[parencite:&coresight]].
+
+During implementation the code-base and relevant documentation has been continuously tracked via version control, and is publicly available at [[textcite:&rtic-scope]] for review, application, and modification under a non-strict license.
+Work done [[gls:upstream]] on components which RTIC Scope utilizes are enumerated in [[cref:contribs]].
+
+RTIC Scope has been implemented in such a way that it is beneficial not only for internal project at Grepit AB, but also for the embedded Rust community in general.
 
 ** Theory
 :PROPERTIES:
