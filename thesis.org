@@ -15,7 +15,7 @@
 #+latex_header: \usepackage{kpfonts}[maths]
 #+latex_header: \usepackage{libertine}
 #+latex_header: \usepackage{inconsolata}
-#+latex_header: \usepackage[style=apa,hyperref=true,url=true,backend=biber]{biblatex}
+#+latex_header: \usepackage[style=alphabetic,hyperref=true,url=true,backend=biber]{biblatex}
 #+latex_header: \addbibresource{./ref.bib}
 #+LATEX_HEADER: \usepackage[T1]{fontenc}
 #+LATEX_HEADER: \usepackage{bm}
