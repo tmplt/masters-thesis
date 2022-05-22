@@ -295,3 +295,15 @@
   name={known bind},
   description={An \gls{IRQ} which can be directly associated with an \gls{RTIC} \gls{task} event.}
 }
+\newglossaryentry{instrumentation}{
+  name={instrumentation},
+  description={A collective term for the measurement of quantities. In this thesis the quantities of interest are those of \glspl{task} run-times.}
+}
+\newglossaryentry{logging-based-instrumentation}{
+  name={logging-based \gls{instrumentation}},
+  description={Explicit instrumentation opportunely injected by the end-user in the code-base. Can severely affect the run-time of \glspl{task} if applied without care.}
+}
+\newglossaryentry{event-based-instrumentation}{
+  name={event-based \gls{instrumentation}},
+  description={Implicit instrumentation enabled by the end-user where the relevant subsystem --- i.e., the \gls{armv7-m} debug peripherals covered in \cref{debug-periphs} --- reacts to system events such as a \gls{task} entering or exiting. Event-based instrumentation is an ideal approach to gain sysem insight due to its hardware-assisted nature.}
+}

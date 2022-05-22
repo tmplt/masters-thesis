@@ -245,23 +245,24 @@ Unfortunately, embedded systems are subject to the observer effect: to observe t
 # A proper implementation would not block on a serial write.
 This observation is often realized by emitting data via serial communication which in the best case is subject to bus contention and full output queues.
 It is not uncommon that a program blocks until the data has been serialized, severely affecting the regulation properties of the system if the payload is large.
-In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its regulation procedure and leave data emission to a completely disjoint system, minimizing the observer effect and thus the effect on the underlying control system.
+In a perfect implementation the user application --- the program that executes on the embedded system --- would only concern itself with its regulation procedure and leave [[gls:instrumentation]] to a completely disjoint reactive system, minimizing the observer effect and thus the effect on the underlying control system.
+We thus differentiate between two methods of instumentation: [[gls:logging-based-instrumentation]] and [[gls:event-based-instrumentation]].
 
 # ARM, tracing subsystem and possible exploitation.
 ARM is a company that licenses out designs of [[glspl:CPU]] for embedded systems.
 ARM CPUs are available via a number of vendors; e.g., STMicroelectrics, Microchip Technology Inc., and Nordic Semiconductors.
-The [[gls:armv7-m]] platform standard offers debugging facilities that enables the developer to trace the system.
+The [[gls:armv7-m]] platform standard offers debugging peripherals that enables the developer to trace the system.
 From [[textcite:&arm-cortex-learn]]: "Trace refers to the process of capturing data that illustrates how the components in a design are operating, executing, and performing".
 Additionally, "[Trace generation is] almost entirely non-invasive. [Trace generation] does not influence the wider system".
-These trace facilities allow for an event-based monitoring of
+These trace peripherals allow for an event-based monitoring of
 - [[gls:interrupt]] handler enters and exits;
 - read and write access to in-memory address spaces; and
 - [[gls:PC]] samples, among other features.
 The generated trace is then emitted via asynchronous serial using a packet protocol (described in [[cref:debug-periphs]] and [[cref:theory:itm-proto]]), henceforth referred to as the [[gls:trace-stream]].
-These facilities are not wholly disjoint (if they were, no insight into the system could be offered) but because the generation of the trace stream does not influence the wider system, the trace stream with system-external collection is a suitable candidate for exploitation to realize insight into a control system with minimal observer effect.
+Because the generation of this trace stream does not influence the wider system, as per ARM, recording this trace via an external system is a suitable candidate to realize event-based instumentation with minimal observer effect.
 
 # Less work, more sleep.
-Further, with non-invasive trace generation, less code must be executed by the [[gls:CPU]], allowing a shorter duty-cycle of the user application.
+In comparison to logging-based instrumentation, event-based instrumentation requires less code to be executed by the [[gls:CPU]], allowing a shorter duty-cycle of the user application.
 With a decreased duty-cycle the system can be put to sleep longer, and thus conserve energy.
 
 # On real-time implementation restrictions, embedded implementation difficulties in general.
@@ -616,6 +617,9 @@ Some toolsets similar to RTIC Scope were already available before the start of t
 - orbuculum :: an "[ARM] Cortex-M trace stream demuxer and post-processor" [[parencite:&orbuculum]];
 - Percepio Tracealyzer :: a proprietary visual trace diagnostic tool that supports a multitude of platforms and [[glspl:RTOS]] [[parencite:&tracealyzer]].
 Neither of the above tools support [[gls:RTIC]] at the time of writing and were not investigated further.
+
+Several tools are also available to optimize the use of [[gls:logging-based-instrumentation]].
+Of note is =defmt= [[parencite:&defmt]] which utilizes deferred formatting and string compression to reduce the payload emitted by the target under instrumentation.
 
 ** Method
 :PROPERTIES:
