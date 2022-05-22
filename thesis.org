@@ -2415,9 +2415,10 @@ A third-party RTIC Scope [[gls:frontend]] has seen some development that graphic
 :PROPERTIES:
 :CUSTOM_ID: conclusion
 :END:
-The RTIC Scope project fulfills all requirements enumerated in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]] in mind.
+RTIC Scope has extended upon the work done at Luleå Technical University in [[parencite:&rtfm-step1]] and [[parencite:&rtic]] by exploiting the [[gls:armv7-m]] debug peripherals covered in [[cref:debug-periphs]] to realize [[gls:event-based-instrumentation]] in order to gain system insight of an executing [[gls:RTIC]] application.
+The resultant toolset fulfills all requirements enumerated in [[cref:requirements]] with the delimitations enumerated in [[cref:delimitations]] in mind.
 While user [[gls:overhead]] has been minimized as much as possible within the allotted development time, overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
-Future work ([[cref:fut]]) is warranted to improve RTIC Scope.
+Future work ([[cref:fut]]) is warranted in order to improve RTIC Scope to a state that makes it the natural choice for the intrumentation of RTIC applications.
 
 ** Backmatter                                                       :ignore:
 [[printglossaries:]]
