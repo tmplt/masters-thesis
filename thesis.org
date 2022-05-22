@@ -511,6 +511,7 @@ An exhaustive summary of these contributions are described below (listed in no p
 - =probe-rs/probe-rs= ::
   A "a modern, embedded debugging toolkit, written in Rust" [[parencite:&probe-rs]] utilized to partially fulfill [[req:input]].
   Contributions are:
+  #+ATTR_LATEX: :options [style=unboxed]
   - Reintroduce CargoOptions in mod common\textunderscore options: :: patch set included in a larger refactor [[parencite:&pr:probe-rs:760]].
   - arm: enable exception trace on setup\textunderscore swv: :: improves tracing support for ARM targets [[parencite:&pr:probe-rs:758]].
   - cargo: bump bitvec: :: updates a dependency [[parencite:&pr:probe-rs:757]].
@@ -520,12 +521,13 @@ An exhaustive summary of these contributions are described below (listed in no p
 
   Refer to [[cref:impl:cargo-rtic-scope]] for how RTIC Scope applies this toolkit.
 - =probe-rs/cargo-flash= ::
-  A "cargo extension for programming microcontrollers" [[parencite:&cargo-flash]], functionality of which is used by =cargo-rtic-scope=.
+  A "cargo extension for programming microcontrollers" \linebreak[4] [[parencite:&cargo-flash]], functionality of which is used by =cargo-rtic-scope=.
   Contributions are:
   - move probe, session logic, flash downloader to probe-rs-cli-util: :: moves functionality from =cargo-flash= to an auxiliary =probe-rs= library crate such that they can be utilized by =cargo-rtic-scope= [[parencite:&pr:cargo-flash:188]].
 
 - =rust-embedded/cortex-m= :: A library crate that enables "low level access to Cortex-M processors" [[parencite:&cortex-m]], utilized to fulfill [[req:itm-gen]], [[req:decode]] and [[req:record]].
   Contributions are:
+  #+ATTR_LATEX: :options [style=unboxed]
   - scb: derive serde, Hash, PartialOrd for VectActive behind gates: :: adds features used by =itm= [[parencite:&pr:cortex-m:363]].
   - Implement various interfaces for trace configuration: :: adds features used by =cortex-m-rtic-trace= [[parencite:&pr:cortex-m:342]].
   - TPIU: swo\textunderscore supports: make struct fields public, improve documentation; :: fixes an issue in a library module and improves documentation [[parencite:&pr:cortex-m:381]].
@@ -1097,7 +1099,7 @@ After applying device-specific configurations for trace generation and querying 
          0 to /EMITRANGE/, disabling trace address packet generation;[fn:: We are not interested in the address that contains the watch variable.]
          0 to /DATAVMATCH/, to disable data value comparison[fn:not-of-concern];
          0 to /CYCMATCH/, to disable cycle counter comparison[fn:not-of-concern];
-         and 0 to /DATAVSIZE/, /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[gls:SBZ]] [[parencite:&arm-rm p. Glossary-855]] in address comparison context.
+         and 0 to /DATAVSIZE/, \linebreak[4] /DATAVADDR0/, and /DATAVADDR1/ because these fields are [[gls:SBZ]] [[parencite:&arm-rm p. Glossary-855]] in address comparison context.
       2. writes the first watch variable address to [[gls:DWT_COMPn]][fn:dwt-n] (with $n = 1$), in order for the comparator to match on that address access; and
       3. writes 0 to [[gls:DWT_MASKn]][fn:dwt-n] ($n=1$), such that the comparator does not match on a range of addresses.
    4. Lastly, the second comparator is configured in the same manner as the first, but with the second watch variable address in mind and $n=2$.
