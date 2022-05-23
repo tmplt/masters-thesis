@@ -40,7 +40,8 @@
 
 #+latex_header: \setbeamertemplate{navigation symbols}{}
 
-#+latex_header: \author{{Viktor Sonesten\thanks{vikson-6@student.ltu.se}} \\ {\and} \\ {\textit{As supervised by}} \\ {Per Lindgren\thanks{Per.Lindgren@ltu.se}}}
+#+beamer_header: \title[RTIC Scope]{RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework}
+#+latex_header: \author[Viktor Vilhelm Sonesten\\ \rule{\textwidth}{0.4pt}]{{Viktor Vilhelm Sonesten \texttt{<vikson-6@student.ltu.se>}} \\ {\and} \\ {\textit{As supervised by}} \\ {Per Lindgren \texttt{<Per.Lindgren@ltu.se>}}}
 #+latex_header: \institute{Luleå Techical University}
 
 #+latex_header: \usepackage{svg}
