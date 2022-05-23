@@ -9,6 +9,8 @@
 #+creator: Emacs 29.0.50 (Org mode 9.5.1)
 #+cite_export:
 
+#+LATEX_COMPILER: xelatex
+
 #+latex_class: article
 #+latex_class_options:
 #+latex_header:
@@ -38,13 +40,21 @@
 #+LATEX_HEADER: \usepackage{minted}
 #+LATEX_HEADER: \setminted{breaklines,breakafter=/.:,fontsize=\scriptsize,numbersep=4pt}
 
-#+latex_header: \setbeamertemplate{navigation symbols}{}
+#+latex_header: \setbeamertemplate{page number in head/foot}[totalframenumber]
+#+latex_header: \setbeamertemplate{navigation symbols}{\footnotesize\usebeamertemplate{page number in head/foot}}
 
 #+beamer_header: \title[RTIC Scope]{RTIC Scope — Real-Time Tracing Support for the RTIC RTOS Framework}
 #+latex_header: \author[Viktor Vilhelm Sonesten\\ \rule{\textwidth}{0.4pt}]{{Viktor Vilhelm Sonesten \texttt{<vikson-6@student.ltu.se>}} \\ {\and} \\ {\textit{As supervised by}} \\ {Per Lindgren \texttt{<Per.Lindgren@ltu.se>}}}
 #+latex_header: \institute{Luleå Techical University}
 
 #+latex_header: \usepackage{svg}
+
+#+beamer_header: \usepackage[T1]{fontenc}
+#+beamer_header: \usepackage{kpfonts}[maths]
+#+beamer_header: \usepackage{libertine}
+#+beamer_header: \usepackage{inconsolata}
+#+beamer_header: \setbeamerfont{section in sidebar}{size=\fontsize{7}{12}\selectfont}
+#+beamer_header: \setbeamerfont{title in sidebar}{size=\fontsize{8}{12}\selectfont}
 
 * Org setup                                                        :noexport:
   #+begin_src emacs-lisp :result output :session :exports both
