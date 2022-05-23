@@ -494,6 +494,7 @@ We receive some trace packets:
 - Removing further end-user overhead.
 - Exploiting more trace features: arbitrary data (e.g. emit messages sent to tasks), PC samples, etc.
 - Continue the work on a frontend that plots the trace.
+- Battle-test on real-world systems: find and fix bugs.
 * Questions?
 ** Questions?
 Where is all the work?
