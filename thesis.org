@@ -186,11 +186,11 @@
 #+begin_abstract
 Work done at Luleå Technical University regarding the RTIC RTOS framework is expanded upon to yield a convenient toolset for event-based instrumentation by exploiting debug peripherals available on the ARMv7-M platform.
 
-By parsing the source of an RTIC application and recovering instrumentation metadata from user-supplied information the target-emitted trace stream is decoded and mapped to RTIC task events, yielding a timeline of events that can be analyzed live and postmortem by help of a recording host-side daemon.
+By parsing the source of an RTIC application and recovering instrumentation metadata from user-supplied information, the target-emitted trace stream is decoded and mapped to RTIC task events, yielding a timeline of events that can be analyzed live and postmortem by help of a recording host-side daemon.
 
-Relevant sections of the ARMv7-M standard are covered and peripheral configuration covered in detail.
+Relevant sections of the ARMv7-M standard are covered, and peripheral configuration covered in detail.
 
-An instumentation result of a trivial RTIC application are presented and graphically plotted to exemplify the value of the toolset, and topics of future work to improve the toolset are outlined.
+An instrumentation result of a trivial RTIC application is presented and graphically plotted to exemplify the value of the toolset, and topics of future work to improve the toolset are outlined.
 #+end_abstract
 #+begin_export latex
 \newlist{inline-enum}{enumerate*}{1}
