@@ -137,7 +137,7 @@ Disrupts operation (esp. control system applications).
 :BEAMER_env: block
 :BEAMER_act: <3>
 :END:
-- Known as /logging/ or /tracing/.
+- Known as /logging/, /tracing/, or /instrumentation/.
 - Emitted data is collected host-side and inspected.
 - Does not disrupt operation, but overhead is added.
 
