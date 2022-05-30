@@ -95,8 +95,9 @@
 :END:
 Features:
 - preemptive multitasking via hardware;
-- tasks as units of concurrency;
+- static tasks as units of concurrency;
 - light-weight;
+- support for all Cortex-M MCUs;
 - and much more: see [[https://rtic.rs]].
 
 *** RTIC example                                                      :BMCOL:
@@ -115,9 +116,9 @@ Features:
       #[init]
       fn init(_: init::Context) -> (..) { }
 
-      #[task(binds = SysTick)]
+      #[task(binds = SysTick, prio = 1)]
       fn hardware(_: foo::Context) { }
-      #[task]
+      #[task(prio = 2)]
       fn software(_: bar::Context) { }
   }
 #+end_src
@@ -157,7 +158,7 @@ How do we log the run-time status of RTIC tasks without affecting them?
 
 - R3 :: Easy application: no end-user overhead, please.
 
-** Contemporary logging methods
+** Contemporary *logging-based* instrumentation methods
 What methods can we apply without re-inventing the wheel?
 
 *** Semihosting?                                         :B_alertblock:BMCOL:
@@ -169,10 +170,10 @@ What methods can we apply without re-inventing the wheel?
 - *Halts the CPU* to give temporary control to the debug agent.
 - *R1 unfulfilled.*
 
-*** Regular UART?                                        :B_alertblock:BMCOL:
+*** Regular UART?                                             :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.48
-:BEAMER_env: alertblock
+:BEAMER_env: block
 :BEAMER_act: <3->
 :END:
 - Potentially non-blocking, real-time.
@@ -182,13 +183,13 @@ What methods can we apply without re-inventing the wheel?
 
 * Theory
 ** The solution: exploit hardware features
-Hardware-assisted logging via ARMv7-M debug peripherals:
+Hardware-assisted instrumentation via ARMv7-M debug peripherals:
 - Available on e.g. Cortex-M4/M7.
 - No effect on wider system[fn:: As per [[https://documentation-service.arm.com/static/601d64b2d3a18035d13aa72e?token=][ARM's /Understanding Trace/]], p. 24.]
-- Event-based subsystem that monitors:
+- @@latex:{\color{blue}Event-based}@@ subsystem that reacts to:
   - enters/exits/returns of interrupts (or /exceptions/);
   - configurable monitoring of arbitrary memory accesses;
-  - arbitrary payload registers (/instrumentation data/); etc.
+  - arbitrary payload registers; etc.
 
 *** On subsystem trigger                                            :B_block:
 :PROPERTIES:
@@ -213,7 +214,7 @@ Monitors hardware events:
 :BEAMER_act: <2->
 :END:
 Muxes DWT packets with its own:
-- instrumentation packets;
+- arbitrary payload packets;
 - timestamps (absolute, relative); and
 forwards these to the TPIU.
 *** The /Trace Port Interface Unit/ (TPIU)                    :B_block:BMCOL:
