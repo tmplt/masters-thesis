@@ -482,9 +482,9 @@ Replay stops when end-of-file reached.
 Post-recovery we have:
    #+begin_export latex
    \begin{align*}
-    \langle \text{IRQ} &= 15 \mapsto \texttt{app::foo} \rangle \\
-    \langle \text{IRQ} &= 23 \mapsto \text{task dispatcher} \rangle \\
-    \langle \text{UTID} &= 0 \mapsto \texttt{app::bar} \rangle
+    \langle \text{IRQ} &= 15 \mapsto \texttt{app::hardware} \rangle \\
+    \langle \text{IRQ} &= 23 \mapsto \text{software task dispatcher} \rangle \\
+    \langle \text{UTID} &= 0 \mapsto \texttt{app::software} \rangle
    \end{align*}
    #+end_export
 ** Decoding and mapping a trace stream
@@ -492,19 +492,19 @@ We receive some trace packets:
 #+begin_export latex
 \fontsize{10pt}{12pt}\selectfont
 #+end_export
-1. =ExceptionTrace { exception: 15, action: Entered }=: @@latex:{\color{blue}\texttt{app::foo} entered}@@;
+1. =ExceptionTrace { exception: 15, action: Entered }=: @@latex:{\color{blue}\texttt{app::hardware} entered}@@;
    #+BEAMER: \pause
-2. =ExceptionTrace { exception: 23, action: Entered }=: @@latex:{\color{blue}task dispatcher preempted \texttt{app::foo}}@@;
+2. =ExceptionTrace { exception: 23, action: Entered }=: @@latex:{\color{blue}task dispatcher preempted \texttt{app::hardware}}@@;
    #+BEAMER: \pause
-3. =DataTraceValue { comparator: 1, value: 0, .. }=: @@latex:{\color{blue}\texttt{app::bar} entered}@@;
+3. =DataTraceValue { comparator: 1, value: 0, .. }=: @@latex:{\color{blue}\texttt{app::software} entered}@@;
    #+BEAMER: \pause
-4. =DataTraceValue { comparator: 2, value: 0, .. }=: @@latex:{\color{blue}\texttt{app::bar} exiting}@@;
+4. =DataTraceValue { comparator: 2, value: 0, .. }=: @@latex:{\color{blue}\texttt{app::software} exiting}@@;
    #+BEAMER: \pause
 5. =ExceptionTrace { exception: 23, action: Exited }=: @@latex:{\color{blue}task dispatcher exited}@@;
    #+BEAMER: \pause
-6. =ExceptionTrace { exception: 15, action: Returned }=: @@latex:{\color{blue}\texttt{app::foo} resumed}@@;
+6. =ExceptionTrace { exception: 15, action: Returned }=: @@latex:{\color{blue}\texttt{app::hardware} resumed}@@;
    #+BEAMER: \pause
-7. =ExceptionTrace { exception: 15, action: Exited }=: @@latex:{\color{blue}\texttt{app::foo} exited}@@;
+7. =ExceptionTrace { exception: 15, action: Exited }=: @@latex:{\color{blue}\texttt{app::hardware} exited}@@;
 ** Program output example
 #+begin_src text
   $ cargo rtic-scope trace --serial /path/to/dev/tty --dont-touch-target
