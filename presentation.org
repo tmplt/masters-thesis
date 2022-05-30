@@ -291,7 +291,7 @@ Two types:
 ** Crates
 Five crates created. We'll cover them in a down-stream fashion.
 #+BEAMER: \pause
-- =cortex_m_rtic_trace= :: Target-side crate for debug peripheral configuration (via =configure= function) and software task tracing (via =trace= macro).
+- =cortex-m-rtic-trace= :: Target-side crate for debug peripheral configuration (via =configure= function) and software task tracing (via =trace= macro).
 #+BEAMER: \pause
 - =cargo-rtic-scope= :: Host-side =cargo= subcommand daemon/backend that recovers trace metadata and records emitted trace packets. Enables portmortem replays.
 #+BEAMER: \pause
@@ -301,7 +301,7 @@ Five crates created. We'll cover them in a down-stream fashion.
 #+BEAMER: \pause
 - =rtic-scope-api= :: JSON-API used for communication between the RTIC Scope backend to frontends.
 
-** Applying ~cortex_m_rtic_trace~: ~#[init]~ modifications
+** Applying ~cortex-m-rtic-trace~: ~#[init]~ modifications
 *** ~#[init]~ addition
 #+begin_src rust
   cortex_m_rtic_trace::configure(
@@ -317,7 +317,7 @@ Five crates created. We'll cover them in a down-stream fashion.
           protocol: TraceProtocol::AsyncSWONRZ,
       }).unwrap();
 #+end_src
-** Applying ~cortex_m_rtic_trace~: tracing software tasks
+** Applying ~cortex-m-rtic-trace~: tracing software tasks
 *** Applying the ~trace~ macro                                :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.55
