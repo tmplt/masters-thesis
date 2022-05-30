@@ -520,6 +520,15 @@ We receive some trace packets:
 ** Graphical output example
 [[file:svgs/auto-plot-example.svg]]
 
+** Application summary
+1. Add =cortex-m-rtic-trace= as a crate dependency;
+2. flip MCU specific tracing-switches;
+3. =configure= tracing using API;
+4. write out-of-band information to crate manifest;
+5. install RTIC Scope daemon and frontend; and
+6. trace!
+
+
 * Future work
 ** Future work
 - Improve =configure= API.
