@@ -353,13 +353,13 @@ Five crates created. We'll cover them in a down-stream fashion.
 :PROPERTIES:
 :BEAMER_col: 0.4
 :END:
-User-supplied metadata:
+User-supplied out-of-band metadata:
 - PAC;
 - UART baud rate; and
 - information necessary to interpret timestamps.
 Mirrors the information set via =configure=.
 
-- *Overhead*, but required for now.
+- *End-user overhead*, but required for now.
 *** Crate manifest metadata                                   :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_env: block
