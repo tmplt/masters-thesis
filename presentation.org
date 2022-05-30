@@ -88,6 +88,39 @@
 [[./svgs/grepit.png]]
 
 
+** RTIC - Real-Time Interrupt-driven Concurrency
+*** Summary                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.4
+:END:
+Features:
+- preemptive multitasking via hardware;
+- tasks as units of concurrency;
+- light-weight;
+- and much more: see [[https://rtic.rs]].
+
+*** RTIC example                                                      :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.6
+:BEAMER_env: block
+:END:
+#+begin_src rust
+  #[rtic::app(device = .., dispatchers = [DMA0])]
+  mod app {
+      #[shared]
+      struct Shared {}
+      #[local]
+      struct Local {}
+
+      #[init]
+      fn init(_: init::Context) -> (..) { }
+
+      #[task(binds = SysTick)]
+      fn hardware(_: foo::Context) { }
+      #[task]
+      fn software(_: bar::Context) { }
+  }
+#+end_src
 
 ** The problem
 How are embedded systems verified while they are running?
