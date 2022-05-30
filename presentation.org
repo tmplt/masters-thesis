@@ -519,7 +519,8 @@ We receive some trace packets:
         Traced rtic-scope-atsame-example: 10 packets processed in 10s (~1.0 packets/s; 0 malformed, 0 non-mappable); 2/2 sinks operational.
 #+end_src
 ** Graphical output example
-[[file:svgs/auto-plot-example.svg]]
+#+CAPTION: Experimental graphical plot example of a simple trace.
+[[file:svgs/auto-plot-example.png]]
 
 ** Application summary
 1. Add =cortex-m-rtic-trace= as a crate dependency;
@@ -540,6 +541,16 @@ We receive some trace packets:
 - Battle-test on real-world systems: find and fix bugs.
 * Questions?
 ** Questions?
+*** Summary                                                           :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
 Where is all the work?
 - RTIC Scope at [[https://github.com/rtic-scope]]. Contributions welcome!
 - Related thesis (and this presentation) at [[https://github.com/tmplt/masters-thesis]].
+*** Image                                                             :BMCOL:
+:PROPERTIES:
+:BEAMER_col: 0.5
+:END:
+#+CAPTION: RTIC Scope logo: RTIC logo on an oscilloscope. T$n$ are tasks.
+[[file:svgs/rtic-scope.png]]
