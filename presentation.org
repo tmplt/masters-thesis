@@ -185,7 +185,7 @@ What methods can we apply without re-inventing the wheel?
 Hardware-assisted logging via ARMv7-M debug peripherals:
 - Available on e.g. Cortex-M4/M7.
 - No effect on wider system[fn:: As per [[https://documentation-service.arm.com/static/601d64b2d3a18035d13aa72e?token=][ARM's /Understanding Trace/]], p. 24.]
-- Subsystem that monitors:
+- Event-based subsystem that monitors:
   - enters/exits/returns of interrupts (or /exceptions/);
   - configurable monitoring of arbitrary memory accesses;
   - arbitrary payload registers (/instrumentation data/); etc.
