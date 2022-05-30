@@ -227,16 +227,16 @@ Emits packets unto the SWO pin, by help of a reference clock.
 
 ** Debug peripheral relationship
 #+begin_export latex
-\begin{figure}[htbp]
+\begin{figure}
 \centering
-\begin{tikzpicture}[node distance = 1cm, auto, scale = 0.4]
+\begin{tikzpicture}[node distance = 1cm, auto, scale = 0.3]
   \node[block] (clock) {timestamp clock};
   \node[block, below=0.5cm of clock] (itm) {ITM \\ (timestamps, \\ multiplexing, etc.)};
   \node[block, left=of itm] (dwt) {DWT \\ (hardware events)};
   \node[block, right=of itm] (tpiu) {TPIU \\ (serialization)};
   \node[block, above=0.5cm of tpiu] (prescaler) {prescaler: $/n$};
   \node[block, above=0.5cm of prescaler] (freq) {reference \\ clock $\left[\text{Hz}\right]$};
-  \node[below=of tpiu.south] (swo) {SWO};
+  \node[below=0.5cm of tpiu.south] (swo) {SWO};
   \path[->]
   (dwt) edge (itm)
   (clock) edge (itm)
@@ -245,6 +245,7 @@ Emits packets unto the SWO pin, by help of a reference clock.
   (prescaler) edge (tpiu)
   (tpiu) edge (swo);
 \end{tikzpicture}
+\caption{Relationship between event-based debug peripherals.}
 \end{figure}
 #+end_export
 
@@ -380,7 +381,6 @@ Mirrors the information set via =configure=.
   expect_malformed = false
 #+end_src
 ** Information recovery: why?
-/Known/ and /unknown/ binds.
 *** IRQ-to-label mapping                                      :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.4
