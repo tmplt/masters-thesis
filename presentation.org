@@ -78,7 +78,7 @@
 :BEAMER_col: 0.6
 :END:
 - I work at Grepit AB with embedded real-time systems. Hired in 2018, full-time since November.
-- We use embedded Rust and RTIC on Cortex-M MCUs.
+- We use embedded Rust and RTIC on ARM Cortex-M MCUs.
 - Funded part of this thesis, for later application on products.
 - My chief interests are safety-critical systems and embedded control systems.
 *** Grepit logo                                                       :BMCOL:
@@ -525,7 +525,7 @@ We receive some trace packets:
 
 ** Application summary
 1. Add =cortex-m-rtic-trace= as a crate dependency;
-2. flip MCU specific tracing-switches;
+2. flip MCU-specific tracing-switches;
 3. =configure= tracing using API;
 4. write out-of-band information to crate manifest;
 5. install RTIC Scope daemon and frontend; and
