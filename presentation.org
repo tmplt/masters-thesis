@@ -488,6 +488,7 @@ Post-recovery we have:
     \langle \text{UTID} &= 0 \mapsto \texttt{app::software} \rangle
    \end{align*}
    #+end_export
+DWT comparators 1 and 2 used for software task tracing.
 ** Decoding and mapping a trace stream
 We receive some trace packets:
 #+begin_export latex
@@ -534,7 +535,7 @@ We receive some trace packets:
 * Future work
 ** Future work
 - Improve =configure= API.
-- Deprecating =cortex_m_rtic_trace= by merging functionality into RTIC itself.
+- Deprecating =cortex-m-rtic-trace= by merging functionality into RTIC itself.
 - Removing further end-user overhead.
 - Exploiting more trace features: arbitrary data (e.g. emit messages sent to tasks), PC samples, etc.
 - Continue the work on a frontend that plots the trace.
