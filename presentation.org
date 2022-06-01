@@ -257,7 +257,7 @@ Packets of interest:
 :BEAMER_col: 0.48
 :BEAMER_env: block
 :END:
-Numerical value of interrupt, and the event type: enter, exit, or returned to.
+Numerical value of interrupt (/IRQ/: interrupt request), and the event type: enter, exit, or returned to.
 *** Data trace value packets                                  :B_block:BMCOL:
 :PROPERTIES:
 :BEAMER_col: 0.48
@@ -269,7 +269,7 @@ The read/written data, and what DWT /hardware comparator/ saw the access.
 :PROPERTIES:
 :BEAMER_env: block
 :END:
-Emitted after non-timestamp packets.
+Emitted after event packets.
 Two types:
 - Global timestamps :: image of reference clock register value.
 - Local timestamps :: relative/delta: denotes time since last local timestamp.
@@ -297,7 +297,7 @@ Five crates created. We'll cover them in a down-stream fashion.
 #+BEAMER: \pause
 - =itm= :: A library crate for trace stream decoding into Rust structures.
 #+BEAMER: \pause
-- =rtc-scope-frontend-dummy= :: Reference implementation of a RTIC Scope frontend. Simply prints the trace stream to =stdout=.
+- =rtic-scope-frontend-dummy= :: Reference implementation of a RTIC Scope frontend. Simply prints the trace stream to =stdout=.
 #+BEAMER: \pause
 - =rtic-scope-api= :: JSON-API used for communication between the RTIC Scope backend to frontends.
 
@@ -463,7 +463,7 @@ Yields lookup maps internally to map trace packets to RTIC events.
   2. deserializes byte stream to packet structures via =itm=;
   3. saves packets to a replay file for later analysis;
   4. maps packets to RTIC events; and
-  5. forwards these to the spawned RTIC Scope frontend using the =rtic-scop-api= JSON API.
+  5. forwards these to the spawned RTIC Scope frontend using the =rtic-scope-api= JSON API.
 
 Tracing stops when user sends =SIGINT=.
 
@@ -474,7 +474,7 @@ Tracing stops when user sends =SIGINT=.
   2. +deserializes byte stream to packet structures via =itm=;+
   3. +saves packets to a replay file for later analysis;+
   4. maps packets to RTIC events; and
-  5. forwards these to the spawned RTIC Scope frontend using the =rtic-scop-api= JSON API.
+  5. forwards these to the spawned RTIC Scope frontend using the =rtic-scope-api= JSON API.
 
 Replay stops when end-of-file reached.
 
