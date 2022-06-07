@@ -1,0 +1,25 @@
+* Last draft TODO list [3/8]
+
+** TODO Fixup results                                               :results:
+That is, use some small snippets of interest in this section, and then
+refer to the whole code in the appendix.
+
+** TODO Reference to memory lane PR                                :fut:disc:
+
+** DONE Enumerate what works and what does not                   :conclusion:
+CLOSED: [2022-06-07 Tue 21:51]
+GTS, for example, could use some additional verifications.
+
+** TODO CI/CD                                                      :disc:fut:
+Additionally, with HIL (korken89 RF; =embedded-ci=). See also the HIL applied to =cortex-m=.
+
+** DONE What is generic and what is not                          :conclusion:
+CLOSED: [2022-06-07 Tue 22:18]
+
+** DONE Highligt =probe-rs= PRs                                  :conclusion:
+CLOSED: [2022-06-07 Tue 22:18]
+
+** TODO Generated ASM for software task traces                         :impl:
+Show how ~=opt-level = 3~ and ~opt-level = 's'~ differ, as well.
+
+** TODO test interrupt chaining                                     :results:
