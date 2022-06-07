@@ -1361,8 +1361,8 @@ instead of information that can be directly associated to RTIC tasks, the protoc
 Additionally, the protocol describes the [[gls:IRQ]] of the hardware tasks that enter or exit.
 These pieces of information must be associated back to the tasks responsible for their emission in a preparatory recovery step.
 This section covers this step which is divided into two parts:
-1. the generation a =recovery::HardwareMap= for hardware tasks association, [[cref:impl:hardware-map]]; and
-2. the generation a =recovery::SoftwareMap= for software tasks association, [[cref:impl:software-map]].
+1. the generation of a =recovery::HardwareMap= for hardware tasks association, [[cref:impl:hardware-map]]; and
+2. the generation of a =recovery::SoftwareMap= for software tasks association, [[cref:impl:software-map]].
 Together these two lookup maps constitute a full =recovery::TraceLookupMaps= which is used by =recovery::TraceMetadata= in order to fulfill [[req:rtic]].
 
 ***** Generating the ~recovery::HardwareMap~
