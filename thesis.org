@@ -741,7 +741,7 @@ For more information on the ITM unit, refer to [[parencite:&arm-rm Section C1.7]
 :CUSTOM_ID: theory:tpiu
 :END:
 # Summarize TPIU functionality
-The [[gls:TPIU]] provides external visibility of the trace packet stream by asynchronously serializing them on a single pin --- the [[gls:SWO]] --- by help of a prescaled reference clock, see [[cref:fig:debug-relations]].
+The [[gls:TPIU]] provides external visibility of the trace packet stream by asynchronously serializing them on a single pin --- the [[gls:SWO]] --- by help of a [[gls:MCU]]-specific prescaled reference clock, see [[cref:fig:debug-relations]].
 In order to communicate over an asynchronous serial channel the [[gls:baud-rate]] must be communicated out-of-band: it must be pre-configured both target-side and host-side.
 The signal emitted on the SWO is a [[gls:UART]] signal, using either the [[gls:NRZ]] or Manchester[fn:: Refer to  [[parencite:&art Section 14.7.9]].] encoding protocol.
 
@@ -2433,6 +2433,14 @@ The two details that warrant further verification and testing are those concerni
 - global timestamps ([[cref:theory:itm:timestamps]]) :: because this timestamp type is not required to establish and event timeline; and
 - [[glspl:watch-variable]] :: because its implementation has only been verified on a single [[gls:MCU]].
 These two details then warrant further testing on a span of different [[glspl:family]].
+
+Further, it is worth summarizing the implementation details which are not generic for all [[gls:armv7-m]] families, and are thus considered MCU-specific; namely:
+- valid values of the [[gls:trace-stream]] ID ([[cref:fut:TraceBusID]]);
+- the character and setup of the [[gls:ITM]] and [[gls:TPIU]] input clocks ([[cref:theory:tpiu]] and [[cref:fut:review-timestamp-relation]]);
+- the configuration of any MCU-specific master switches that enables tracing (on top of the configuration documented in this thesis, which is handled by RTIC Scope); and
+- a procedure to filter out any transient noise seen on the [[gls:SWO]]-pin ([[cref:fut:espace-swo-transient]]).
+All other details covered in this thesis are generic for all ARMv7-M families.
+
 
 ** Backmatter                                                       :ignore:
 [[printglossaries:]]
