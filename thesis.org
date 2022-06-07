@@ -2428,6 +2428,12 @@ The resultant toolset fulfills all requirements enumerated in [[cref:requirement
 While user [[gls:overhead]] has been minimized as much as possible within the allotted development time, overhead may still be considered significant depending on factors of [[gls:HAL]] availability and complexity of the embedded system.
 Future work ([[cref:fut]]) is warranted in order to improve RTIC Scope to a state that makes it the natural choice for the intrumentation of RTIC applications.
 
+While testing the implementation of RTIC Scope, all details covered in this thesis except two are considered sufficiently tested by the author.
+The two details that warrant further verification and testing are those concerning:
+- global timestamps ([[cref:theory:itm:timestamps]]) :: because this timestamp type is not required to establish and event timeline; and
+- [[glspl:watch-variable]] :: because its implementation has only been verified on a single [[gls:MCU]].
+These two details then warrant further testing on a span of different [[glspl:family]].
+
 ** Backmatter                                                       :ignore:
 [[printglossaries:]]
 [[printbibliography:]]
