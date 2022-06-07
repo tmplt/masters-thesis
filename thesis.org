@@ -2441,6 +2441,7 @@ Further, it is worth summarizing the implementation details which are not generi
 - a procedure to filter out any transient noise seen on the [[gls:SWO]]-pin ([[cref:fut:espace-swo-transient]]).
 All other details covered in this thesis are generic for all ARMv7-M families.
 
+Lastly, the contributions made to =probe-rs= during the implementation of RTIC Scope ([[cref:contribs]]) warrants being highlighed due to their improvements to the embedded Rust ecosystem, particularly regarding tracing.
 
 ** Backmatter                                                       :ignore:
 [[printglossaries:]]
