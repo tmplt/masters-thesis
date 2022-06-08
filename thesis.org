@@ -2482,6 +2482,14 @@ Refer to [[textcite:&issue:cargo-rtic-scope:135]] and [[textcite:&issue:cargo-rt
 
 A third-party RTIC Scope [[gls:frontend]] has seen some development that graphically plots [[gls:task]] run-times [[parencite:&racer]], but is not yet compatible with RTIC Scope v0.3.
 
+**** Implement a \glsxtrfull{CI} test bench
+RTIC Scope is a non-trivial project with a lot of moving parts that would greatly benefit from a proper \acrshort{CI} test bench.
+When implemented, it would allow each code base modification to be exhaustively tested before the changes are released in a new RTIC Scope version.
+Ideally, this bench would offer [[gls:HIL]] testing: a collection of [[glspl:family]] would be connected to the test system and would ensure that RTIC Scope changes work on them all.
+HIL testing is by itself a non-trivial problem, but tools [[gls:downstream]] of =probe-rs= [[parencite:&probe-rs]], for example =probe-run= [[parencite:&probe-run]] would simplity the procedure due to its flexible nature and wide target support.
+
+Some work has already been done to realize a HIL bench for embedded Rust projects: refer to [[textcite:&pr:cortex-m:355]] and [[textcite:&embedded-ci]].
+
 ** Conclusion
 :PROPERTIES:
 :CUSTOM_ID: conclusion
