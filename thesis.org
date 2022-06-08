@@ -2490,6 +2490,12 @@ HIL testing is by itself a non-trivial problem, but tools [[gls:downstream]] of 
 
 Some work has already been done to realize a HIL bench for embedded Rust projects: refer to [[textcite:&pr:cortex-m:355]] and [[textcite:&embedded-ci]].
 
+**** Implementing zero-cost [[gls:logging-based-instrumentation]]
+Building on top of [[cref:fut:rm-rtic-trace]], [[gls:RTIC]] could be further modified to allocate buffers for the purpose of efficient [[gls:logging-based-instrumentation]] and allow a host system to asynchronously poll the status of these buffers in order to receive target logs.
+However, such an approach can be further improved by utilizing the [[glspl:trace-packet]] emitted by the [[gls:DWT]]:
+when the target modifies these buffers, RTIC Scope could react to the resultant packet by reading the written payload from the target for recording.
+For more information, refer to [[textcite:&rfc:rtic-rs:memory-lanes]].
+
 ** Conclusion
 :PROPERTIES:
 :CUSTOM_ID: conclusion
