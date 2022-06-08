@@ -1,16 +1,20 @@
-* Last draft TODO list [3/8]
+* Last draft TODO list [6/8]
 
-** TODO Fixup results                                               :results:
+** DONE Fixup results                                               :results:
+CLOSED: [2022-06-08 Wed 20:08]
 That is, use some small snippets of interest in this section, and then
 refer to the whole code in the appendix.
 
-** TODO Reference to memory lane PR                                :fut:disc:
+** DONE Reference to memory lane PR                                :fut:disc:
+CLOSED: [2022-06-08 Wed 21:12]
+
 
 ** DONE Enumerate what works and what does not                   :conclusion:
 CLOSED: [2022-06-07 Tue 21:51]
 GTS, for example, could use some additional verifications.
 
-** TODO CI/CD                                                      :disc:fut:
+** DONE CI/CD                                                      :disc:fut:
+CLOSED: [2022-06-08 Wed 20:46]
 Additionally, with HIL (korken89 RF; =embedded-ci=). See also the HIL applied to =cortex-m=.
 
 ** DONE What is generic and what is not                          :conclusion:
@@ -23,3 +27,5 @@ CLOSED: [2022-06-07 Tue 22:18]
 Show how ~=opt-level = 3~ and ~opt-level = 's'~ differ, as well.
 
 ** TODO test interrupt chaining                                     :results:
+Just add a note that it works, referring to the feature in the ARMv7-M
+reference document.
