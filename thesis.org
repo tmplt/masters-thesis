@@ -1998,7 +1998,7 @@ Note
 As mentioned in [[cref:impl:cargo-rtic-scope:read-manifest]] trace and MCU metadata must be provided in the crate's =Cargo.toml=.
 This provided metadata can be seen in [[cref:lst:app-atsame-example-manifest]].
 
-To apply RTIC Scope to an existing [[gls:RTIC]] application, the following overhead is thus required:
+To apply RTIC Scope to an existing [[gls:RTIC]] application, the following end-user overhead is thus required:
 - configuration of the trace clock which is MCU-specific;
 - configuration of tracing via =cortex_m_rtic_trace::configure= and allocation two [[gls:DWT]] comparators for software task tracing;
 - application of the =cortex_m_rtic_trace::trace= macro on the software tasks of interest;
