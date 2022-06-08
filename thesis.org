@@ -37,6 +37,7 @@
 #+latex_header: \usepackage{csquotes}
 #+latex_header: \usepackage{svg}
 #+latex_header: \usepackage{caption}
+#+latex_header: \usepackage{placeins}
 #+LATEX_HEADER: \makeglossaries
 
 # NOTE auto linebreaks / : - and _ inside \textttBreak. Adapted from <https://tex.stackexchange.com/a/219497>.
@@ -1925,9 +1926,69 @@ This thesis has yielded a collection of five crates: four of which constitute th
 This section covers the application of RTIC Scope to a trivial [[gls:RTIC]] application executing on a Microchip ATSAME51N20A [[gls:MCU]].
 
 We consider the RTIC Scope application example from [[textcite:&rtic-scope:atsame-example]]:
-After configuring the device-specific clocks to source [[gls:ITM]] and [[gls:TPIU]], the application configures [[gls:tracing]] via =cortex_m_rtic_trace::configure= and pends a [[gls:hardware-task]], =app::hardware=.
+After configuring the device-specific clocks to source the [[gls:ITM]] and [[gls:TPIU]] ([[cref:lst:res:clocks]]), the application configures [[gls:tracing]] via =cortex_m_rtic_trace::configure= after configuring the [[gls:SWO]] pin, and pends a [[gls:hardware-task]], =app::hardware= ([[cref:lst:res:conf]]).
+#+CAPTION: Device-specific clock configuration for the [[gls:ITM]] and [[gls:DWT]]. From [[cref:lst:app-atsame-example-src-main]].
+#+NAME: lst:res:clocks
+#+begin_src rust
+  // configure trace clock
+  let mut gcc = clock::GenericClockController::with_internal_32kosc(
+      ctx.device.GCLK,
+      &mut ctx.device.MCLK,
+      &mut ctx.device.OSC32KCTRL,
+      &mut ctx.device.OSCCTRL,
+      &mut ctx.device.NVMCTRL,
+  );
+  let gclk0 = gcc.gclk0();
+  let trace_clk = gcc.cm4_trace(&gclk0).unwrap();
+#+end_src
+#+CAPTION: Device-specific [[gls:SWO]] pin configuration, and generic [[gls:tracing]] configuration. From [[cref:lst:app-atsame-example-src-main]].
+#+NAME: lst:res:conf
+#+begin_src rust
+  // configure SWO pin
+  let pins = hal::gpio::v2::Pins::new(ctx.device.PORT);
+  let _pc27 = pins.pc27.into_mode::<Alternate<M>>();
+
+  cortex_m::asm::bkpt(); // interactive escape from SWO pin transient
+
+  // configure tracing
+  cortex_m_rtic_trace::configure(
+      &mut ctx.core.DCB,
+      &mut ctx.core.TPIU,
+      &mut ctx.core.DWT,
+      &mut ctx.core.ITM,
+      1, // task enter DWT comparator ID
+      2, // task exit DWT comparator ID
+      &TraceConfiguration {
+          delta_timestamps: LocalTimestampOptions::Enabled, // enabled with a bypassed (= 1) prescaler
+          absolute_timestamps: GlobalTimestampOptions::Disabled, // disable absolute timestamps
+          timestamp_clk_src: TimestampClkSrc::AsyncTPIU,
+          tpiu_freq: trace_clk.freq().0, // Hz
+          tpiu_baud: 1_000_000,          // B/s
+          protocol: TraceProtocol::AsyncSWONRZ,
+      },
+  )
+  .unwrap();
+
+  rtic::pend(Interrupt::EIC_EXTINT_0);
+#+end_src
+
 When this task executes it spawns a [[gls:software-task]], =app::software=, with higher priority and is thus preempted.
 =app::software= exits after 100 ms and =app::hardware= resumes execution after which it also exits.
+The source of these tasks can be seen in [[cref:lst:res:tasks]].
+#+CAPTION: Example [[glspl:task]] with ~app::software~ preempting ~app::hardware~. From [[cref:lst:app-atsame-example-src-main]].
+#+NAME: lst:res:tasks
+#+begin_src rust
+  #[task(binds = EIC_EXTINT_0, priority = 1)]
+  fn hardware(_: hardware::Context) {
+      software::spawn().unwrap();
+  }
+
+  #[trace]
+  #[task(priority = 2, local = [delay])]
+  fn software(ctx: software::Context) {
+      ctx.local.delay.delay_ms(100_u8); // fake work
+  }
+#+end_src
 The source of this application can be seen in its entirety in [[cref:lst:app-atsame-example-src-main]] in [[cref:app:application-example]].
 Note
 - the breakpoint at line 49 which is used to escape the transient of the [[gls:SWO]] pin covered in [[cref:disc:swo-transient]];
@@ -1946,6 +2007,8 @@ To apply RTIC Scope to an existing [[gls:RTIC]] application, the following overh
 
 With this overhead performed, we trace [[textcite:&rtic-scope:atsame-example]] via [[cref:lst:app-atsame-example-trace-scope]].
 The recorded traces are then listed via [[cref:lst:app-atsame-example-trace-scope-replay-list]] and replayed via [[cref:lst:app-atsame-example-trace-scope-replay]].
+
+\FloatBarrier
 
 # TODO check if the ATSAME actually spends 100ms in app::software by toggling a pin.
 
