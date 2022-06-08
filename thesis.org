@@ -2501,7 +2501,7 @@ Further, it is worth summarizing the implementation details which are not generi
 - valid values of the [[gls:trace-stream]] ID ([[cref:fut:TraceBusID]]);
 - the character and setup of the [[gls:ITM]] and [[gls:TPIU]] input clocks ([[cref:theory:tpiu]] and [[cref:fut:review-timestamp-relation]]);
 - the configuration of any MCU-specific master switches that enables tracing (on top of the configuration documented in this thesis, which is handled by RTIC Scope); and
-- a procedure to filter out any transient noise seen on the [[gls:SWO]]-pin ([[cref:fut:espace-swo-transient]]).
+- a procedure to filter out any transient noise seen on the [[gls:SWO]] pin ([[cref:fut:espace-swo-transient]]), and its configuration.
 All other details covered in this thesis are generic for all ARMv7-M families.
 
 Lastly, the contributions made to =probe-rs= during the implementation of RTIC Scope ([[cref:contribs]]) warrants being highlighed due to their improvements to the embedded Rust ecosystem, particularly regarding tracing.
