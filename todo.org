@@ -1,4 +1,4 @@
-* Last draft TODO list [6/8]
+* Last draft TODO list [7/8]
 
 ** DONE Fixup results                                               :results:
 CLOSED: [2022-06-08 Wed 20:08]
@@ -23,8 +23,66 @@ CLOSED: [2022-06-07 Tue 22:18]
 ** DONE Highligt =probe-rs= PRs                                  :conclusion:
 CLOSED: [2022-06-07 Tue 22:18]
 
-** TODO Generated ASM for software task traces                         :impl:
+** DONE Generated ASM for software task traces                         :impl:
+CLOSED: [2022-06-09 Thu 13:57]
 Show how ~=opt-level = 3~ and ~opt-level = 's'~ differ, as well.
+
+With s:
+without trace:
+#+begin_src
+  0000152c <rtic_scope_atsame_example::app::software::h596cf69b4c8c911a>:
+    152c:       push    {r7, lr}
+    152e:       mov     r7, sp
+    1530:       nop
+    1532:       pop     {r7, pc}
+#+end_src
+With trace:
+#+begin_src
+  0000152c <rtic_scope_atsame_example::app::software::h596cf69b4c8c911a>:
+    152c:       push    {r7, lr}
+    152e:       mov     r7, sp
+    1530:       movw    r0, #4
+    1534:       movs    r1, #0
+    1536:       movt    r0, #8193
+    153a:       strb    r1, [r0]
+    153c:       movw    r0, #8
+    1540:       movt    r0, #8193
+    1544:       nop
+    1546:       strb    r1, [r0]
+    1548:       pop     {r7, pc}
+#+end_src
+
+With 3:
+Without trace:
+#+begin_src
+  000018c4 <rtic_scope_atsame_example::app::software::h383f399417e86cd2>:
+    18c4:       push    {r7, lr}
+    18c6:       mov     r7, sp
+    18c8:       nop
+    18ca:       pop     {r7, pc}
+#+end_src
+With trace:
+#+begin_src
+  000018c4 <rtic_scope_atsame_example::app::software::h383f399417e86cd2>:
+    18c4:       push    {r7, lr}
+    18c6:       mov     r7, sp
+    18c8:       movw    r0, #0
+    18cc:       movs    r1, #0
+    18ce:       movt    r0, #8193
+    18d2:       strb    r1, [r0, #4]
+    18d4:       nop
+    18d6:       strb    r1, [r0, #8]
+    18d8:       pop     {r7, pc}
+#+end_src
+
+
+#+begin_src
+    1882:       movs    r4, #0
+    18b2:       strb    r4, [r5, #4]
+    18b4:       bl      0x18ca <__bkpt>         @ imm = #18
+    18b8:       strb    r4, [r5, #8]
+#+end_src
+where r5 is an otherwise shared register.
 
 ** TODO test interrupt chaining                                     :results:
 Just add a note that it works, referring to the feature in the ARMv7-M

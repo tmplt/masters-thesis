@@ -1171,6 +1171,71 @@ A traced software task writes a [[gls:UTID]]  to two [[glspl:watch-variable]] th
 The UTIDs of an [[gls:RTIC]] application are calculated when the =trace= macro is expanded by the Rust compiler.
 UTIDs are integers, starts counting from zero, and are incremented by one.
 
+Consider next that =task1= and =task2= in [[cref:impl:rtic-trace:trace-macro]] are modified to perform a single no-operation instruction, seen in [[cref:lst:rtic-trace:nop]].
+#+NAME: lst:rtic-trace:nop
+#+CAPTION: Modification of [[cref:lst:rtic-trace:trace]], where both [[glspl:task]] perform a single no-operation instruction.
+#+begin_src rust
+  // ...
+
+  use core::arch::asm;
+
+  #[task]
+  fn task1(_: task1::Context) {
+      unsafe {
+          asm("nop");
+      }
+  }
+
+  #[task]
+  #[trace]
+  fn task2(_: task2::Context) {
+      unsafe {
+          asm("nop");
+      }
+  }
+#+end_src
+When these tasks are compiled, the resultant [[gls:assembly]] for =task1= are listed in [[cref:lst:rtic-trace:asm-notrace]].
+#+NAME: lst:rtic-trace:asm-notrace
+#+CAPTION: Resultant [[gls:assembly]] for ~task1~ from [[cref:lst:rtic-trace:nop]] when compiling with the crate manifest options ~opt-level = 3~ or ~opt-level = 's'~. Symbols and instruction addresses omitted for brevity. Comments added for clarity.
+#+begin_src asm
+          push    {r7, lr}
+          mov     r7, sp
+          nop                     ; result of core::arch::asm("nop")
+          pop     {r7, pc}
+#+end_src
+The resultant assembly for =task2= can for two optimization settings be seen in [[cref:lst:rtic-trace:asm-trace-opt-s]] and [[cref:lst:rtic-trace:asm-trace-opt-3]].
+#+NAME: lst:rtic-trace:asm-trace-opt-s
+#+CAPTION: Resultant [[gls:assembly]] for ~task2~ from [[cref:lst:rtic-trace:nop]] when compiling with the crate manifest option ~opt-level = 's'~. Symbols and instruction addresses omitted for brevity. Comments added for clarity.
+#+begin_src asm
+          push    {r7, lr}
+          mov     r7, sp
+          movw    r0, #4
+          movs    r1, #0
+          movt    r0, #8193       ; location to the watch variable
+          strb    r1, [r0]        ; write to enter watch variable
+          movw    r0, #8
+          movt    r0, #8193       ; location to the watch variable
+          nop                     ; result of core::arch::asm("nop")
+          strb    r1, [r0]        ; write to exit watch variable
+          pop     {r7, pc}
+#+end_src
+
+#+NAME: lst:rtic-trace:asm-trace-opt-3
+#+CAPTION: Resultant [[gls:assembly]] for ~task2~ from [[cref:lst:rtic-trace:nop]] when compiling with the crate manifest option ~opt-level = 3~. Symbols and instruction addresses omitted for brevity. Comments added for clarity.
+#+begin_src asm
+          push    {r7, lr}
+          mov     r7, sp
+          movw    r0, #0
+          movs    r1, #0
+          movt    r0, #8193       ; location to the watch variables
+          strb    r1, [r0, #4]    ; write to enter watch variable
+          nop                     ; result of core::arch::asm("nop")
+          strb    r1, [r0, #8]    ; write to exit watch variable
+          pop     {r7, pc}
+#+end_src
+
+\FloatBarrier
+
 *** Recording a trace
 :PROPERTIES:
 :CUSTOM_ID: impl:cargo-rtic-scope
