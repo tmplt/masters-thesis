@@ -2073,6 +2073,8 @@ To apply RTIC Scope to an existing [[gls:RTIC]] application, the following end-u
 With this overhead performed, we trace [[textcite:&rtic-scope:atsame-example]] via [[cref:lst:app-atsame-example-trace-scope]].
 The recorded traces are then listed via [[cref:lst:app-atsame-example-trace-scope-replay-list]] and replayed via [[cref:lst:app-atsame-example-trace-scope-replay]].
 
+As a last note, RTIC Scope works as expected when [[glspl:exception]] are tail-chained, as defined in [[textcite:&arm-rm Section B1.3.2]].
+
 \FloatBarrier
 
 # TODO check if the ATSAME actually spends 100ms in app::software by toggling a pin.

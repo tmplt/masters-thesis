@@ -1,4 +1,4 @@
-* Last draft TODO list [7/8]
+* Last draft TODO list [8/8]
 
 ** DONE Fixup results                                               :results:
 CLOSED: [2022-06-08 Wed 20:08]
@@ -84,6 +84,9 @@ With trace:
 #+end_src
 where r5 is an otherwise shared register.
 
-** TODO test interrupt chaining                                     :results:
+** DONE test interrupt chaining                                     :results:
+CLOSED: [2022-06-09 Thu 14:15]
 Just add a note that it works, referring to the feature in the ARMv7-M
 reference document.
+
+*Interrupt chaining works*
