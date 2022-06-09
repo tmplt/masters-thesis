@@ -240,7 +240,7 @@ Often the goal is to track a reference signal; such a control system is known as
 For example, one may wish to keep a rocket on a set path to reach orbit, or control the internals of a nuclear power plant to maximize electrical power output while keeping the plant within safe operation boundaries.
 
 # On the real-time restrictions of control systems; exponential complexity phenomena.
-A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or inconsistent, the controlled system will end up unstable [[parencite:&franklin]]:
+A key design parameter of digital controllers is the [[gls:sample-rate][sample rate]]: if too low or inconsistent, the controlled system may end up unstable [[parencite:&franklin]]:
 The rocket may thus fly off course, or the nuclear reactor reach a meltdown.
 This puts a [[gls:real-time]] constraint on the digital controller which greatly limits how it can be implemented [[parencite:&burns Chapter 1.3]].
 Further, a digital controller under implementation must be debugged so that the engineers can verify its correct operation and timing behavior.
