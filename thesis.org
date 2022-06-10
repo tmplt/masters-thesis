@@ -1350,35 +1350,13 @@ cref:lst:cargo-rtic-scope:manifest-metadata-example contains an example.
   expect_malformed = false
 #+end_src
 
-Of the fields in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]] the below are utilized in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]],
-#+begin_export latex
-\begin{multicols}{2}
-#+end_export
-- =pac_name=
-- =pac_features=
-- =pac_version=
-- =interrupt_path=
-- =dwt_enter_id=
-- =dwt_exit_id=
-#+begin_export latex
-\end{multicols}
-\noindent
-#+end_export
-and the below in [[cref:impl:cargo-rtic-scope:reading-the-trace-stream]] and [[cref:impl:itm]].
-#+begin_export latex
-\begin{multicols}{3}
-#+end_export
-- =tpiu_freq=
-- =tpiu_baud=
-- =lts_prescaler=
-#+begin_export latex
-\end{multicols}
-\noindent
-#+end_export
+Of the fields in [[cref:lst:cargo-rtic-scope:manifest-metadata-example]], six are utilized in [[cref:impl:cargo-rtic-scope:generating-metadata-maps]], and three in  [[cref:impl:cargo-rtic-scope:reading-the-trace-stream]] and [[cref:impl:itm]].
 The last flag, =expect_malformed=, is a debug option utilized in [[cref:impl:cargo-rtic-scope:trace-target]].
 Refer to the respective sections for a description of each field.
 
 Manifest metadata is read via =cargo_metadata= [[parencite:&cargo-metadata]] and =serde_json= [[parencite:&serde-json]].
+
+\FloatBarrier
 
 **** Creating a trace file
 :PROPERTIES:
