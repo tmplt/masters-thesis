@@ -2541,6 +2541,32 @@ However, such an approach can be further improved by utilizing the [[glspl:trace
 when the target modifies these buffers, RTIC Scope could react to the resultant packet by reading the written payload from the target for recording.
 For more information, refer to [[textcite:&rfc:rtic-rs:memory-lanes]].
 
+**** Supporting multiple exit points in traced [[glspl:software-task]]
+Due to the current expansion behavior of =cortex_m_rtic_trace= ([[cref:lst:rtic-trace:trace-expanded]]) the end-user is required to write their [[gls:task]] such that it only returns after the =__write_exit_id= statement.
+That is: no explicit =return= statements are allowed, lest the exit [[gls:watch-variable]] is never written.
+The =trace= macro should be refactored so that explicit =return= statements still result in an exit write.
+This can be realized by wrapping the task statements in a closure, as seen in [[cref:lst:fut:trace-expanded-fix]].
+#+NAME: lst:fut:trace-expanded-fix
+#+CAPTION: Modification of [[cref:lst:rtic-trace:trace-expanded]], yielding a macro expansion of the ~trace~ macro that allows explicit ~return~ statements by the end-user.
+#+begin_src rust
+  // ...
+
+  #[allow(non_snake_case)]
+  fn task2(_: task2::Context) {
+      ::cortex_m_rtic_trace::__write_enter_id(0);
+      {
+          use rtic::Mutex as _;
+          use rtic::mutex_prelude::*;
+
+          // end-user code here, along with potential explicit return
+          // statements.
+      }
+      ::cortex_m_rtic_trace::__write_exit_id(0);
+  }
+
+  // ...
+#+end_src
+
 ** Conclusion
 :PROPERTIES:
 :CUSTOM_ID: conclusion
