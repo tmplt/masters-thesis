@@ -1161,10 +1161,14 @@ Consider now [[cref:lst:rtic-trace:trace-expanded]], which is the result of expa
   }
   #[allow(non_snake_case)]
   fn task2(_: task2::Context) {
+      let mut closure = || {
+          use rtic::Mutex as _;
+          use rtic::mutex_prelude::*;
+      };
       ::cortex_m_rtic_trace::__write_enter_id(0);
-      use rtic::Mutex as _;
-      use rtic::mutex_prelude::*;
+      let retval = closure();
       ::cortex_m_rtic_trace::__write_exit_id(0);
+      retval
   }
   // ...
 #+end_src
