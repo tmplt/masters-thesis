@@ -2,3 +2,6 @@ This repository constitutes my full thesis project, /RTIC Scope:
 Real-Time Tracing Support for the RTIC RTOS Framework/, done at Luleå
 Technical University, Sweden (course number: X7009E) during 2021-2022
 in cooperation with [[https://grepit.se][Grepit AB]].
+
+The thesis is written in [[https://orgmode.org/][Org-mode]] with [[https://github.com/jkitchin/org-ref][org-ref]], and fixed-up with tons
+of elisp and LaTeX magic.
